@@ -37,7 +37,7 @@ readonly class UserProxy
     {
         $response = $this->httpClient->request('GET', "https://bro-world.org/api/v1/user", [
             'headers' => [
-                'Authorization' => 'ApiKey Jc6KZeBtYSb3qZqEJgCcZMBdwAWrVAPzrmbXN3FX',
+                'Authorization' => 'ApiKey 8UQWCJHMihfYhUM1VSZRVo9MpVByEBeufi8uTqbu',
             ],
         ]);
 
