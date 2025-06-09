@@ -73,6 +73,7 @@ readonly class PostService
      * @param Post       $post
      * @param array|null $mediaIds
      *
+     * @throws InvalidArgumentException
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -83,7 +84,7 @@ readonly class PostService
         }
 
         $this->postRepository->save($post);
-        $this->cache->delete('post_public_1_5');
+        $this->cache->delete('post_public');
     }
 
     /**
