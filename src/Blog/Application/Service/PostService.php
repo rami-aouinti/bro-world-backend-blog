@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Service;
 
+use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Tag;
@@ -22,6 +23,11 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
 /**
@@ -38,6 +44,7 @@ readonly class PostService
         private EntityManagerInterface $entityManager,
         private TagRepositoryInterface $tagRepository,
         private PostRepositoryInterface $postRepository,
+        private UserProxy $userProxy,
         private CacheInterface $cache,
         private MessageBusInterface $bus
     ) {}
@@ -63,9 +70,13 @@ readonly class PostService
         $this->bus->dispatch(
             new CreatePostMessenger($post, $medias)
         );
+
         return array_merge(
             $post->toArray(),
-            ['medias' => $medias, 'user' => $user]
+            [
+                'medias' => $this->getMedia($medias),
+                'user' => $user
+            ]
         );
     }
 
@@ -85,6 +96,25 @@ readonly class PostService
 
         $this->postRepository->save($post);
         $this->cache->delete('post_public');
+    }
+
+    /**
+     * @param array|null $mediaIds
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
+     */
+    private function getMedia(?array $mediaIds): array
+    {
+        $medias  = [];
+        foreach ($mediaIds as $id) {
+            $medias[] = $this->userProxy->getMedia($id);
+        }
+        return $medias;
     }
 
     /**

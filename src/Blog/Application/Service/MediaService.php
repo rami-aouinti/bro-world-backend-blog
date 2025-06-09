@@ -51,22 +51,4 @@ readonly class MediaService
 
         return $mediasArray;
     }
-
-    /**
-     * @param         $medias
-     *
-     * @throws JsonException
-     * @return array
-     */
-    public function getMediaIds($medias): array
-    {
-        $mediaIds = [];
-
-        if($medias) {
-            foreach ($medias as $key => $media) {
-                $mediaIds[$key] = json_decode($media, true);
-            }
-        }
-        return $mediaIds;
-    }
 }

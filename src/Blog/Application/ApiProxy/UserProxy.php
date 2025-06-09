@@ -46,7 +46,6 @@ readonly class UserProxy
 
     /**
      * @param $mediaId
-     * @param $token
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
