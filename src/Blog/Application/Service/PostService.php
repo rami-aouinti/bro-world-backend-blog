@@ -70,9 +70,11 @@ readonly class PostService
     }
 
     /**
-     * @throws OptimisticLockException
+     * @param Post       $post
+     * @param array|null $mediaIds
+     *
      * @throws ORMException
-     * @throws InvalidArgumentException
+     * @throws OptimisticLockException
      */
     public function savePost(Post $post, ?array $mediaIds): void
     {
@@ -81,7 +83,6 @@ readonly class PostService
         }
 
         $this->postRepository->save($post);
-        $this->cache->delete('post_public_1_5');
     }
 
     /**

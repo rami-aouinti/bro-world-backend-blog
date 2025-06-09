@@ -53,7 +53,7 @@ readonly class MediaService
     }
 
     /**
-     * @param $medias
+     * @param         $medias
      *
      * @throws JsonException
      * @return array
