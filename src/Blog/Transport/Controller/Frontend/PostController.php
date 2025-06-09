@@ -56,7 +56,7 @@ readonly class PostController
     #[Route(path: '/public/post/{slug}', name: 'public_post_slug', methods: [Request::METHOD_GET])]
     public function __invoke(string $slug): JsonResponse
     {
-        $cacheKey = 'public_post_slug_' . $slug;
+        $cacheKey = 'public_post_slug';
         $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
         $output = JSON::decode(
             $this->serializer->serialize(

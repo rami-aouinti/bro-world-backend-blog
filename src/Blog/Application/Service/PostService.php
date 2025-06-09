@@ -65,7 +65,7 @@ readonly class PostService
         );
         return array_merge(
             $post->toArray(),
-            ['medias' => $medias, 'user' => $user]
+            compact('medias', 'user')
         );
     }
 
