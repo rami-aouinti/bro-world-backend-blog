@@ -59,7 +59,7 @@ readonly class UserProxy
     {
         $response = $this->httpClient->request(
             'GET',
-            "https://media.bro-world.org/public/media/" . $mediaId
+            "https://media.bro-world.org/v1/platform/media/" . $mediaId
         );
 
         return $response->toArray();
