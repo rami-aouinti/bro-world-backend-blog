@@ -65,7 +65,7 @@ readonly class PostService
         );
         return array_merge(
             $post->toArray(),
-            compact('medias', 'user')
+            ['medias' => $medias, 'user' => $user]
         );
     }
 
@@ -83,6 +83,7 @@ readonly class PostService
         }
 
         $this->postRepository->save($post);
+        $this->cache->delete('post_public_1_5');
     }
 
     /**
