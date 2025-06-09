@@ -43,4 +43,25 @@ readonly class UserProxy
 
         return $response->toArray();
     }
+
+    /**
+     * @param $mediaId
+     * @param $token
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
+     */
+    public function getMedia($mediaId): array
+    {
+        $response = $this->httpClient->request(
+            'GET',
+            "https://media.bro-world.org/public/media/" . $mediaId
+        );
+
+        return $response->toArray();
+    }
 }

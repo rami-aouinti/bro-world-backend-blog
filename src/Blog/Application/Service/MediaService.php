@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Application\Service;
 
 use App\General\Infrastructure\Service\ApiProxyService;
+use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
@@ -54,6 +55,7 @@ readonly class MediaService
     /**
      * @param $medias
      *
+     * @throws JsonException
      * @return array
      */
     public function getMediaIds($medias): array
@@ -62,7 +64,7 @@ readonly class MediaService
 
         if($medias) {
             foreach ($medias as $key => $media) {
-                $mediaIds[$key] = json_decode($media, true);
+                $mediaIds[$key] = json_decode($media, true, 512, JSON_THROW_ON_ERROR);
             }
         }
         return $mediaIds;

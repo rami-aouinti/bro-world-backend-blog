@@ -57,7 +57,6 @@ readonly class PostsController
     #[Cache(smaxage: 10)]
     public function __invoke(Request $request): JsonResponse
     {
-
         $page = max(1, (int)$request->query->get('page', 1));
         $limit = (int)$request->query->get('limit', 5);
         $offset = ($page - 1) * $limit;
@@ -127,7 +126,7 @@ readonly class PostsController
                 'content' => $post->getContent(),
                 'slug' => $post->getSlug(),
                 'tags' => $post->getTags(),
-                'medias' => $post->getMedias(),
+                'medias' =>  $this->getMedia($post->getMedias()),
                 'likes' => $post->getLikes(),
                 'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                 'blog' => [
@@ -153,6 +152,25 @@ readonly class PostsController
         }
 
         return $output;
+    }
+
+    /**
+     * @param array|null $mediaIds
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
+     */
+    private function getMedia(?array $mediaIds): array
+    {
+        $medias  = [];
+        foreach ($mediaIds as $id) {
+            $medias[] = $this->userProxy->getMedia($id);
+        }
+        return $medias;
     }
 
 

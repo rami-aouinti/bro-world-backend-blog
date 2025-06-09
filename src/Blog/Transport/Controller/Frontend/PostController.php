@@ -117,7 +117,7 @@ readonly class PostController
                 'content' => $post->getContent(),
                 'slug' => $post->getSlug(),
                 'tags' => $post->getTags(),
-                'medias' => $post->getMedias(),
+                'medias' =>  $this->getMedia($post->getMedias()),
                 'likes' => $post->getLikes(),
                 'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                 'blog' => [
@@ -142,6 +142,24 @@ readonly class PostController
         return $postData;
     }
 
+    /**
+     * @param array|null $mediaIds
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
+     */
+    private function getMedia(?array $mediaIds): array
+    {
+        $medias  = [];
+        foreach ($mediaIds as $id) {
+            $medias[] = $this->userProxy->getMedia($id);
+        }
+        return $medias;
+    }
 
     /**
      * @param $slug

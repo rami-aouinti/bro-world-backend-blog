@@ -66,7 +66,7 @@ readonly class PostService
         );
         return array_merge(
             $post->toArray(),
-            ['medias' => $medias, 'author' => $user]
+            ['medias' => $medias, 'user' => $user]
         );
     }
 
@@ -98,8 +98,8 @@ readonly class PostService
             ->setTitle($data['title'])
             ->setSlug($data['title']);
 
-        $post->setContent($data['content'] ?? null);
-        $post->setSummary($data['summary'] ?? null);
+        $post->setContent($data['content'] ?? $data['title']);
+        $post->setSummary($data['summary'] ?? $data['title']);
 
         foreach ($data['tags'] ?? [] as $tagName) {
             $tag = $this->tagRepository->findOneBy(['name' => $tagName]) ?? new Tag($tagName);
