@@ -61,7 +61,7 @@ readonly class PostService
         );
 
         $this->bus->dispatch(
-            new CreatePostMessenger($post, $this->mediaService->getMediaIds($medias ?? []))
+            new CreatePostMessenger($post, $medias)
         );
         return array_merge(
             $post->toArray(),
