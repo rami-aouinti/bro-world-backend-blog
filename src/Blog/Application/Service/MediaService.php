@@ -64,7 +64,7 @@ readonly class MediaService
 
         if($medias) {
             foreach ($medias as $key => $media) {
-                $mediaIds[$key] = json_decode($media, true, 512, JSON_THROW_ON_ERROR);
+                $mediaIds[$key] = json_decode($media, true);
             }
         }
         return $mediaIds;

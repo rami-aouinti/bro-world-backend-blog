@@ -99,8 +99,8 @@ readonly class PostService
             ->setTitle($data['title'])
             ->setSlug($data['title']);
 
-        $post->setContent($data['content'] ?? $data['title']);
-        $post->setSummary($data['summary'] ?? $data['title']);
+        $post->setContent($data['content'] ?? '');
+        $post->setSummary($data['summary'] ?? '');
 
         foreach ($data['tags'] ?? [] as $tagName) {
             $tag = $this->tagRepository->findOneBy(['name' => $tagName]) ?? new Tag($tagName);
