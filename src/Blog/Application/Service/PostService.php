@@ -38,7 +38,6 @@ readonly class PostService
         private EntityManagerInterface $entityManager,
         private TagRepositoryInterface $tagRepository,
         private PostRepositoryInterface $postRepository,
-        private BlogRepositoryInterface $blogRepository,
         private CacheInterface $cache,
         private MessageBusInterface $bus
     ) {}
