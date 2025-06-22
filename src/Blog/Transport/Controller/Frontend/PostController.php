@@ -153,6 +153,7 @@ readonly class PostController
         $formatted = [
             'id' => $comment->getId(),
             'content' => $comment->getContent(),
+            'likes' => $comment->getLikes(),
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
             'user' => $usersById[$authorId] ?? null,
             'children' => [],
