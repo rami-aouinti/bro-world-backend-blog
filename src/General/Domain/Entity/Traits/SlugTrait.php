@@ -22,22 +22,21 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 trait SlugTrait
 {
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Assert\NotBlank]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([
         'Post',
         'Post_Show',
         self::SET_BLOG_INDEX,
     ])]
-    private string $slug;
+    private ?string $slug = null;
 
-    public function getSlug(): string
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
 
     public function setSlug(
-        string $slug
+        ?string $slug
     ): self {
         $this->slug = (string)$slug;
 

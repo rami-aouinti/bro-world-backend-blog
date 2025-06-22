@@ -126,9 +126,10 @@ readonly class PostService
 
         $post = (new Post())
             ->setAuthor(Uuid::fromString($user->getUserIdentifier()))
-            ->setTitle($data['title'])
-            ->setSlug($data['title']);
+            ->setTitle($data['title'] ?? '')
+            ->setSlug($data['title'] ?? '');
 
+        $post->setUrl($data['url'] ?? '');
         $post->setContent($data['content'] ?? '');
         $post->setSummary($data['summary'] ?? '');
 
