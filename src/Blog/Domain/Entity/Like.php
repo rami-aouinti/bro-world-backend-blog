@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Blog\Domain\Entity;
 
+use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
+use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Throwable;
 
@@ -19,7 +21,7 @@ use Throwable;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'blog_likes')]
-class Like
+class Like implements EntityInterface, Stringable
 {
     use Timestampable;
     use Uuid;
