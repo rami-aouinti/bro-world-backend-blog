@@ -137,15 +137,13 @@ readonly class PostsController
                 'comments' => [],
             ];
 
-            foreach ($post->getComments() as $comment) {
-                $commentAuthorId = $comment->getAuthor()->toString();
+            $rootComments = array_filter(
+                $post->getComments()->toArray(),
+                static fn($comment) => $comment->getParent() === null
+            );
 
-                $postData['comments'][] = [
-                    'id' => $comment->getId(),
-                    'content' => $comment->getContent(),
-                    'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
-                    'user' => $usersById[$commentAuthorId] ?? null,
-                ];
+            foreach ($rootComments as $comment) {
+                $postData['comments'][] = $this->formatCommentRecursively($comment, $usersById);
             }
 
             $output[] = $postData;
@@ -153,6 +151,32 @@ readonly class PostsController
 
         return $output;
     }
+
+    /**
+     * @param       $comment
+     * @param array $usersById
+     *
+     * @return array
+     */
+    private function formatCommentRecursively($comment, array $usersById): array
+    {
+        $authorId = $comment->getAuthor()->toString();
+
+        $formatted = [
+            'id' => $comment->getId(),
+            'content' => $comment->getContent(),
+            'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
+            'user' => $usersById[$authorId] ?? null,
+            'children' => [],
+        ];
+
+        foreach ($comment->getChildren() as $child) {
+            $formatted['children'][] = $this->formatCommentRecursively($child, $usersById);
+        }
+
+        return $formatted;
+    }
+
 
     /**
      * @param array|null $mediaIds
