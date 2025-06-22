@@ -79,12 +79,6 @@ class Comment implements EntityInterface
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups([
-        'Comment',
-        'Comment.content',
-        'Post',
-        Post::SET_BLOG_INDEX,
-    ])]
     private ?Comment $parent = null;
 
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
