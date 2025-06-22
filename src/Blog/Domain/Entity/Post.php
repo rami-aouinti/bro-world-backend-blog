@@ -56,13 +56,21 @@ class Post implements EntityInterface, Stringable
 
     final public const string SET_BLOG_INDEX = 'set.BlogIndex';
 
-    #[ORM\Column(name: 'title', type: 'string', length: 250, nullable: false)]
+    #[ORM\Column(name: 'title', type: 'string', length: 250, nullable: true)]
     #[Groups([
         'Post',
         'Post_Show',
         self::SET_BLOG_INDEX,
     ])]
-    protected string $title;
+    protected ?string $title = null;
+
+    #[ORM\Column(name: 'title', type: 'string', length: 250, nullable: true)]
+    #[Groups([
+        'Post',
+        'Post_Show',
+        self::SET_BLOG_INDEX,
+    ])]
+    protected ?string $url = null;
 
     #[ORM\Column(type: 'uuid')]
     #[Groups([
@@ -168,14 +176,26 @@ class Post implements EntityInterface, Stringable
         return $this->id->toString();
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
 
         return $this;
     }
