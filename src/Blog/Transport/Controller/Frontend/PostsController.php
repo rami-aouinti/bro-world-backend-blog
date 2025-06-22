@@ -127,7 +127,7 @@ readonly class PostsController
                 'slug' => $post->getSlug(),
                 'tags' => $post->getTags(),
                 'medias' =>  $this->getMedia($post->getMedias()),
-                'likes' => $post->getLikes(),
+                'likes' => [],
                 'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                 'blog' => [
                     'title' => $post->getBlog()?->getTitle(),
@@ -136,6 +136,11 @@ readonly class PostsController
                 'user' => $usersById[$authorId] ?? null,
                 'comments' => [],
             ];
+
+            foreach ($post->getLikes() as $key => $like) {
+                $postData['likes'][$key]['id'] = $like;
+                $postData['likes'][$key]['user']  = $usersById[$like->getUser()] ?? null;
+            }
 
             $rootComments = array_filter(
                 $post->getComments()->toArray(),
