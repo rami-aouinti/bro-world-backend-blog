@@ -130,7 +130,7 @@ readonly class PostController
 
             foreach ($post->getLikes() as $key => $like) {
                 $postData['likes'][$key]['id'] = $like;
-                $postData['likes'][$key]['user']  = $usersById[$like->getUser()] ?? null;
+                $postData['likes'][$key]['user']  = $usersById[$like->getUser()->toString()] ?? null;
             }
 
             $rootComments = array_filter(
