@@ -56,9 +56,12 @@ readonly class TooglePostController
 
         $this->likeRepository->save($like);
 
+        $result = [];
+        $result['id'] = $like->getId();
+        $result['user'] = $symfonyUser;
         $output = JSON::decode(
             $this->serializer->serialize(
-                $like,
+                $result,
                 'json',
                 [
                     'groups' => 'Like',

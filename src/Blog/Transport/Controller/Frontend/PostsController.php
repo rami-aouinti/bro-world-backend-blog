@@ -138,7 +138,7 @@ readonly class PostsController
             ];
 
             foreach ($post->getLikes() as $key => $like) {
-                $postData['likes'][$key]['id'] = $like;
+                $postData['likes'][$key]['id'] = $like->getId();
                 $postData['likes'][$key]['user']  = $usersById[$like->getUser()->toString()] ?? null;
             }
 
