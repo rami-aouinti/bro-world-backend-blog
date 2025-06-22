@@ -64,7 +64,7 @@ class Post implements EntityInterface, Stringable
     ])]
     protected ?string $title = null;
 
-    #[ORM\Column(name: 'title', type: 'string', length: 250, nullable: true)]
+    #[ORM\Column(name: 'url', type: 'string', length: 250, nullable: true)]
     #[Groups([
         'Post',
         'Post_Show',
