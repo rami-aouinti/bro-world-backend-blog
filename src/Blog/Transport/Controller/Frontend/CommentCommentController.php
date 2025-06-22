@@ -53,9 +53,10 @@ readonly class CommentCommentController
     #[Route(path: '/v1/platform/comment/{comment}/comment', name: 'comment_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
+        $data = $request->request->all();
         $newComment = new Comment();
         $newComment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $newComment->setContent($request->request->get('content'));
+        $newComment->setContent($data['content']);
         $newComment->setParent($comment);
 
         $this->commentRepository->save($newComment);
