@@ -48,7 +48,7 @@ readonly class CommentsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route(path: '/platform/post/{post}/comments', name: 'platform_post_comments', methods: [Request::METHOD_GET])]
+    #[Route(path: '/v1/platform/post/{post}/comments', name: 'platform_post_comments', methods: [Request::METHOD_GET])]
     public function __invoke(Post $post): JsonResponse
     {
         $users = $this->userProxy->getUsers();
