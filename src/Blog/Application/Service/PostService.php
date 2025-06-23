@@ -20,6 +20,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use Random\RandomException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -29,6 +30,8 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
+
+use function strlen;
 
 /**
  * Class PostService
@@ -127,7 +130,7 @@ readonly class PostService
         $post = (new Post())
             ->setAuthor(Uuid::fromString($user->getUserIdentifier()))
             ->setTitle($data['title'] ?? '')
-            ->setSlug($data['title'] ?? '');
+            ->setSlug($data['title'] ?? $this->generateRandomString(20));
 
         $post->setUrl($data['url'] ?? '');
         $post->setContent($data['content'] ?? '');
@@ -142,5 +145,20 @@ readonly class PostService
         }
 
         return $post;
+    }
+
+    /**
+     * @throws RandomException
+     */
+    private function generateRandomString(int $length): string {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 }
