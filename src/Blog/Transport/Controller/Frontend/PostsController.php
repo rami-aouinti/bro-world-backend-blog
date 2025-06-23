@@ -122,6 +122,7 @@ readonly class PostsController
             $postData = [
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
+                'url' => $post->getUrl(),
                 'summary' => $post->getSummary(),
                 'content' => $post->getContent(),
                 'slug' => $post->getSlug(),
