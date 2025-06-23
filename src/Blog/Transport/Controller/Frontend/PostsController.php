@@ -170,12 +170,15 @@ readonly class PostsController
         $formatted = [
             'id' => $comment->getId(),
             'content' => $comment->getContent(),
-            'likes' => $comment->getLikes(),
+            'likes' => [],
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
             'user' => $usersById[$authorId] ?? null,
             'children' => [],
         ];
-
+        foreach ($comment->getLikes() as $key => $like) {
+            $formatted['likes'][$key]['id'] = $like->getId();
+            $formatted['likes'][$key]['user']  = $usersById[$like->getUser()->toString()] ?? null;
+        }
         foreach ($comment->getChildren() as $child) {
             $formatted['children'][] = $this->formatCommentRecursively($child, $usersById);
         }
