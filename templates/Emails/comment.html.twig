@@ -52,6 +52,7 @@
     <h1>Hi, {{ user }}!</h1>
     <p>
         {{ commentAuthor }} has commented your post:
-        <a :href="`https://bro-world-space.com/post/${slug}`">View Post</a>
+
+        <a href="`https://bro-world-space.com/post/`{{ slug }}">View Post</a>
     </p>
 </div>
