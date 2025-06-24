@@ -12,6 +12,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -41,10 +42,11 @@ readonly class EditCommentController
      * @param Request     $request
      * @param Comment     $comment
      *
+     * @throws ExceptionInterface
+     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws JsonException
-     * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}', name: 'edit_comment', methods: [Request::METHOD_PUT])]

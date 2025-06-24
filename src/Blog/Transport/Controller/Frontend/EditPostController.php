@@ -54,8 +54,8 @@ readonly class EditPostController
     {
         $this->cache->delete('post_public');
         $data = $request->request->all();
-        if($request->request->get('title')) {
-            $post->setTitle($request->request->get('title'));
+        if(isset($data['title'])) {
+            $post->setTitle($data['title']);
         }
         if(isset($data['content'])) {
             $post->setContent($data['content']);
