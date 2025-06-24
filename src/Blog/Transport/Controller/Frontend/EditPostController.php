@@ -56,6 +56,7 @@ readonly class EditPostController
         $data = $request->request->all();
         if(isset($data['title'])) {
             $post->setTitle($data['title']);
+            $post->setSlug($data['title']);
         }
         if(isset($data['content'])) {
             $post->setContent($data['content']);
