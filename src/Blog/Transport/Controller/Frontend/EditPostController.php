@@ -49,7 +49,7 @@ readonly class EditPostController
      * @throws InvalidArgumentException
      * @return JsonResponse
      */
-    #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PUT])]
+    #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PATCH])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
         $this->cache->delete('post_public');
