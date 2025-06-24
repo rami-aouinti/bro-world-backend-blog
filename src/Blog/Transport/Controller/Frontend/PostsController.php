@@ -51,6 +51,7 @@ readonly class PostsController
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
      * @throws JsonException
+     * @throws NotSupported
      * @return JsonResponse
      */
     #[Route(path: '/public/post', name: 'public_post_index', methods: [Request::METHOD_GET])]
@@ -62,10 +63,10 @@ readonly class PostsController
         $offset = ($page - 1) * $limit;
         $cacheKey = 'post_public';
 
-        $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($limit, $offset)($item));
+        $posts = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($limit, $offset)($item));
         $output = JSON::decode(
             $this->serializer->serialize(
-                $blogs,
+                $posts,
                 'json',
                 [
                     'groups' => 'Post',
@@ -73,7 +74,13 @@ readonly class PostsController
             ),
             true,
         );
-        return new JsonResponse($output);
+        $results = [
+            'data' => $output,
+            'page' => $page,
+            'limit' => $limit,
+            'count' => count($this->postRepository->findAll()),
+        ];
+        return new JsonResponse($results);
     }
 
     /**
@@ -154,7 +161,6 @@ readonly class PostsController
 
             $output[] = $postData;
         }
-
         return $output;
     }
 
