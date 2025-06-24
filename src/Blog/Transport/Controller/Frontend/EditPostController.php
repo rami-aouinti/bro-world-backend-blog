@@ -13,6 +13,7 @@ use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
+use Random\RandomException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -20,6 +21,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+
+use function strlen;
 
 /**
  * @package App\Blog
@@ -43,10 +46,11 @@ readonly class EditPostController
      * @param Post        $post
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws InvalidArgumentException
+     * @throws RandomException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PUT])]
@@ -56,7 +60,7 @@ readonly class EditPostController
         $data = $request->request->all();
         if(isset($data['title'])) {
             $post->setTitle($data['title']);
-            $post->setSlug($data['title']);
+            $post->setSlug($data['title'] ?? $this->generateRandomString(20));
         }
         if(isset($data['content'])) {
             $post->setContent($data['content']);
@@ -77,5 +81,20 @@ readonly class EditPostController
             true,
         );
         return new JsonResponse($output);
+    }
+
+    /**
+     * @throws RandomException
+     */
+    private function generateRandomString(int $length): string {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 }
