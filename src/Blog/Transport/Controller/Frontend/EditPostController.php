@@ -70,7 +70,7 @@ readonly class EditPostController
                 $post,
                 'json',
                 [
-                    'groups' => 'Comment',
+                    'groups' => 'Post',
                 ]
             ),
             true,
