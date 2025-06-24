@@ -32,7 +32,6 @@ use function strlen;
 readonly class EditPostController
 {
     public function __construct(
-        private SerializerInterface $serializer,
         private PostRepositoryInterface $postRepository,
         private CacheInterface $cache
     ) {
@@ -45,15 +44,13 @@ readonly class EditPostController
      * @param Request     $request
      * @param Post        $post
      *
-     * @throws ExceptionInterface
      * @throws InvalidArgumentException
-     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws RandomException
      * @return JsonResponse
      */
-    #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PUT])]
+    #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
         $this->cache->delete('post_public');
