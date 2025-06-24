@@ -110,7 +110,7 @@ readonly class PostService
      * @throws TransportExceptionInterface
      * @return array
      */
-    private function getMedia(?array $mediaIds): array
+    public function getMedia(?array $mediaIds): array
     {
         $medias  = [];
         foreach ($mediaIds as $id) {

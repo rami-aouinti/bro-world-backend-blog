@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Application\Service\MediaService;
+use App\Blog\Application\Service\PostService;
 use App\Blog\Domain\Entity\Post;
-use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Domain\Utils\JSON;
+use App\Blog\Domain\Message\CreatePostMessenger;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
@@ -17,10 +16,17 @@ use Random\RandomException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
+use Throwable;
 
 use function strlen;
 
@@ -32,8 +38,10 @@ use function strlen;
 readonly class EditPostController
 {
     public function __construct(
-        private PostRepositoryInterface $postRepository,
-        private CacheInterface $cache
+        private PostService $postService,
+        private MediaService $mediaService,
+        private CacheInterface $cache,
+        private MessageBusInterface $bus
     ) {
     }
 
@@ -45,9 +53,14 @@ readonly class EditPostController
      * @param Post        $post
      *
      * @throws InvalidArgumentException
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @throws RandomException
+     * @throws ExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws Throwable
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_POST])]
@@ -55,6 +68,7 @@ readonly class EditPostController
     {
         $this->cache->delete('post_public');
         $data = $request->request->all();
+        $medias = $request->files->all() ? $this->mediaService->createMedia($request, 'media') : [];
         if(isset($data['title'])) {
             $post->setTitle($data['title']);
             $post->setSlug($data['title'] ?? $this->generateRandomString(20));
@@ -66,9 +80,19 @@ readonly class EditPostController
             $post->setUrl($data['url']);
         }
 
-        $this->postRepository->save($post);
+        $this->bus->dispatch(
+            new CreatePostMessenger($post, $medias)
+        );
 
-        return new JsonResponse($post->toArray());
+        $newPost = array_merge(
+            $post->toArray(),
+            [
+                'medias' => $this->postService->getMedia($medias),
+                'user' => $symfonyUser
+            ]
+        );
+
+        return new JsonResponse($newPost);
     }
 
     /**
