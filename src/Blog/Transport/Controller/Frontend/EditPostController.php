@@ -49,13 +49,13 @@ readonly class EditPostController
      * @throws InvalidArgumentException
      * @return JsonResponse
      */
-    #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PATCH])]
+    #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PUT])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
         $this->cache->delete('post_public');
         $data = $request->request->all();
-        if(isset($data['title'])) {
-            $post->setTitle($data['title']);
+        if($request->request->get('title')) {
+            $post->setTitle($request->request->get('title'));
         }
         if(isset($data['content'])) {
             $post->setContent($data['content']);
