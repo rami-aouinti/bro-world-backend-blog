@@ -14,6 +14,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package App\Blog
@@ -32,7 +34,8 @@ readonly class CreateCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private CommentRepositoryInterface $commentRepository,
-        private CommentNotificationMailerInterface $commentNotificationMailer
+        private CommentNotificationMailerInterface $commentNotificationMailer,
+        private CacheInterface $cache
     ) {
     }
 
@@ -43,15 +46,17 @@ readonly class CreateCommentController
      * @param Request     $request
      * @param Post        $post
      *
+     * @throws ExceptionInterface
+     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws JsonException
-     * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/comment', name: 'comment_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
+        $this->cache->delete('post_public');
         $data = $request->request->all();
         $comment = new Comment();
         $comment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));

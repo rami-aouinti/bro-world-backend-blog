@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Throwable;
 
 /**
@@ -31,7 +32,8 @@ readonly class CommentCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private CommentRepositoryInterface $commentRepository
+        private CommentRepositoryInterface $commentRepository,
+        private CacheInterface $cache
     ) {
     }
 
@@ -53,6 +55,7 @@ readonly class CommentCommentController
     #[Route(path: '/v1/platform/comment/{comment}/comment', name: 'comment_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
+        $this->cache->delete('post_public');
         $data = $request->request->all();
         $newComment = new Comment();
         $newComment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));

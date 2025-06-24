@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package App\Blog
@@ -30,7 +31,8 @@ readonly class TooglePostController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private LikeRepositoryInterface $likeRepository
+        private LikeRepositoryInterface $likeRepository,
+        private CacheInterface $cache
     ) {
     }
 
@@ -50,6 +52,7 @@ readonly class TooglePostController
     #[Route(path: '/v1/platform/post/{post}/like', name: 'like_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
+        $this->cache->delete('post_public');
         $like = new Like();
         $like->setPost($post);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));

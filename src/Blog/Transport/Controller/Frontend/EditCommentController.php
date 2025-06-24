@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package App\Blog
@@ -28,7 +29,8 @@ readonly class EditCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private CommentRepository $commentRepository
+        private CommentRepository $commentRepository,
+        private CacheInterface $cache
     ) {
     }
 
@@ -48,7 +50,7 @@ readonly class EditCommentController
     #[Route(path: '/v1/platform/comment/{comment}', name: 'edit_comment', methods: [Request::METHOD_PUT])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-
+        $this->cache->delete('post_public');
         $data = $request->request->all();
         $comment->setContent($data['content']);
 

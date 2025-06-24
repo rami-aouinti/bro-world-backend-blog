@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package App\Blog
@@ -28,7 +29,8 @@ readonly class DislikeCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private LikeRepositoryInterface $likeRepository
+        private LikeRepositoryInterface $likeRepository,
+        private CacheInterface $cache
     ) {
     }
 
@@ -48,6 +50,7 @@ readonly class DislikeCommentController
     #[Route(path: '/v1/platform/comment/{like}/dislike', name: 'dislike_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Like $like): JsonResponse
     {
+        $this->cache->delete('post_public');
         $this->likeRepository->remove($like);
 
         $output = JSON::decode(

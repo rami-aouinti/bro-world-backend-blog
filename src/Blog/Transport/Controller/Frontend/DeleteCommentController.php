@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package App\Blog
@@ -28,7 +29,8 @@ readonly class DeleteCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private CommentRepository $commentRepository
+        private CommentRepository $commentRepository,
+        private CacheInterface $cache
     ) {
     }
 
@@ -48,6 +50,7 @@ readonly class DeleteCommentController
     #[Route(path: '/v1/platform/comment/{comment}', name: 'delete_comment', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
+        $this->cache->delete('post_public');
         $this->commentRepository->remove($comment);
         $output = JSON::decode(
             $this->serializer->serialize(

@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package App\Blog
@@ -28,7 +29,8 @@ readonly class EditPostController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private PostRepositoryInterface $postRepository
+        private PostRepositoryInterface $postRepository,
+        private CacheInterface $cache
     ) {
     }
 
@@ -48,6 +50,7 @@ readonly class EditPostController
     #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PUT])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
+        $this->cache->delete('post_public');
         $data = $request->request->all();
         if($data['title']) {
             $post->setTitle($data['title']);
