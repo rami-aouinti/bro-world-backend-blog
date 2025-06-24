@@ -62,7 +62,7 @@ readonly class CreateCommentController
 
         $this->commentNotificationMailer->sendCommentNotificationEmail(
             $post->getAuthor()->toString(),
-            $symfonyUser->getFullName(),
+            $symfonyUser->getUserIdentifier(),
             $post->getSlug()
         );
 

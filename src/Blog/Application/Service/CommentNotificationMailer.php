@@ -40,19 +40,20 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
 
     /**
      * @param string $userId
-     * @param string $commentAuthor
+     * @param string $commentAuthorId
+     * @param string $slug
      *
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
-     * @throws TransportExceptionInterface
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
+     * @throws LoaderError
      * @throws RedirectionExceptionInterface
+     * @throws RuntimeError
      * @throws ServerExceptionInterface
+     * @throws SyntaxError
+     * @throws TransportExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function sendCommentNotificationEmail(string $userId, string $commentAuthor, string $slug): void
+    public function sendCommentNotificationEmail(string $userId, string $commentAuthorId, string $slug): void
     {
         $users = $this->userProxy->getUsers();
         $usersById = [];
@@ -61,6 +62,7 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
             $usersById[$user['id']] = $user;
         }
         $user = $usersById[$userId];
+        $commentAuthor = $usersById[$commentAuthorId];
 
 
         $email = (new Email())
