@@ -70,17 +70,8 @@ readonly class EditPostController
         }
 
         $this->postRepository->save($post);
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $post,
-                'json',
-                [
-                    'groups' => 'Post',
-                ]
-            ),
-            true,
-        );
-        return new JsonResponse($output);
+
+        return new JsonResponse($post);
     }
 
     /**

@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -40,6 +41,7 @@ readonly class BlogController
      *
      * @throws InvalidArgumentException
      * @throws JsonException
+     * @throws ExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/public/blog', name: 'public_blog_index', methods: [Request::METHOD_GET])]
