@@ -71,7 +71,7 @@ readonly class EditPostController
 
         $this->postRepository->save($post);
 
-        return new JsonResponse($post);
+        return new JsonResponse($post->toArray());
     }
 
     /**
