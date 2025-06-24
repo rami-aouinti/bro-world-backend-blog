@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
-use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
+use JsonException;
 use OpenApi\Attributes as OA;
-use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Throwable;
 
 /**
  * @package App\Blog
@@ -32,7 +31,8 @@ readonly class CreateCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private CommentRepositoryInterface $commentRepository
+        private CommentRepositoryInterface $commentRepository,
+        private CommentNotificationMailerInterface $commentNotificationMailer
     ) {
     }
 
@@ -43,12 +43,10 @@ readonly class CreateCommentController
      * @param Request     $request
      * @param Post        $post
      *
-     * @throws Throwable
-     * @throws NotSupported
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws TransactionRequiredException
-     * @throws InvalidArgumentException
+     * @throws JsonException
+     * @throws ExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/comment', name: 'comment_create', methods: [Request::METHOD_POST])]
@@ -61,6 +59,12 @@ readonly class CreateCommentController
         $comment->setPost($post);
 
         $this->commentRepository->save($comment);
+
+        $this->commentNotificationMailer->sendCommentNotificationEmail(
+            $post->getAuthor()->toString(),
+            $symfonyUser->getFullName(),
+            $post->getSlug()
+        );
 
         $output = JSON::decode(
             $this->serializer->serialize(

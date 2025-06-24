@@ -58,9 +58,9 @@ readonly class PostsController
     public function __invoke(Request $request): JsonResponse
     {
         $page = max(1, (int)$request->query->get('page', 1));
-        $limit = (int)$request->query->get('limit', 20);
+        $limit = (int)$request->query->get('limit', 50);
         $offset = ($page - 1) * $limit;
-        $cacheKey = 'post_public_' . $page . '_' . $limit;
+        $cacheKey = 'post_public';
 
         $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($limit, $offset)($item));
         $output = JSON::decode(
