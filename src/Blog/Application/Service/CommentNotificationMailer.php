@@ -72,7 +72,7 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
             ->html(
                 $this->twig->render('Emails/comment.html.twig', [
                     'user' => $user['firstName'],
-                    'commentAuthor' => $commentAuthor,
+                    'commentAuthor' => $commentAuthor['firstName'],
                     'slug' => $slug
                 ])
             );
