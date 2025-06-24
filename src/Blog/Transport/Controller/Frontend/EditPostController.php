@@ -12,6 +12,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -45,6 +46,7 @@ readonly class EditPostController
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_PUT])]
@@ -52,13 +54,13 @@ readonly class EditPostController
     {
         $this->cache->delete('post_public');
         $data = $request->request->all();
-        if($data['title']) {
+        if(isset($data['title'])) {
             $post->setTitle($data['title']);
         }
-        if($data['content']) {
+        if(isset($data['content'])) {
             $post->setContent($data['content']);
         }
-        if($data['url']) {
+        if(isset($data['url'])) {
             $post->setUrl($data['url']);
         }
 
