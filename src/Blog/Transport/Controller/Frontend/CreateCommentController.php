@@ -57,14 +57,12 @@ readonly class CreateCommentController
         $comment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
         $comment->setContent($data['content']);
         $comment->setPost($post);
-
-        $this->commentRepository->save($comment);
-
         $this->commentNotificationMailer->sendCommentNotificationEmail(
             $post->getAuthor()->toString(),
             $symfonyUser->getUserIdentifier(),
             $post->getSlug()
         );
+        $this->commentRepository->save($comment);
 
         $output = JSON::decode(
             $this->serializer->serialize(
