@@ -56,7 +56,7 @@ readonly class CreateCommentController
     #[Route(path: '/v1/platform/post/{post}/comment', name: 'comment_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
-        for($i = 0; $i < 10; $i++) {
+        for($i = 1; $i < 3; $i++) {
             $cacheKey = 'post_public_' . $i . '_' . 10;
             $this->cache->delete($cacheKey);
         }

@@ -93,7 +93,7 @@ readonly class PostService
      */
     public function savePost(Post $post, ?array $mediaIds): void
     {
-        for($i = 0; $i < 10; $i++) {
+        for($i = 1; $i < 3; $i++) {
             $cacheKey = 'post_public_' . $i . '_' . 10;
             $this->cache->delete($cacheKey);
         }

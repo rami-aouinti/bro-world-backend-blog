@@ -55,7 +55,7 @@ readonly class ToogleCommentController
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-        for($i = 0; $i < 10; $i++) {
+        for($i = 1; $i < 3; $i++) {
             $cacheKey = 'post_public_' . $i . '_' . 10;
             $this->cache->delete($cacheKey);
         }
