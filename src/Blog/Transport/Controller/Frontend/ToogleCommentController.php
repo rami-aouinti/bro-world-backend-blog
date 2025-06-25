@@ -13,6 +13,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,16 +45,20 @@ readonly class ToogleCommentController
      * @param Request     $request
      * @param Comment     $comment
      *
+     * @throws ExceptionInterface
+     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws JsonException
-     * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-        $this->cache->delete('post_public');
+        for($i = 0; $i < 10; $i++) {
+            $cacheKey = 'post_public_' . $i . '_' . 10;
+            $this->cache->delete($cacheKey);
+        }
         $like = new Like();
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));

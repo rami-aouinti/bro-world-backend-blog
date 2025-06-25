@@ -56,7 +56,10 @@ readonly class CreateCommentController
     #[Route(path: '/v1/platform/post/{post}/comment', name: 'comment_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
-        $this->cache->delete('post_public');
+        for($i = 0; $i < 10; $i++) {
+            $cacheKey = 'post_public_' . $i . '_' . 10;
+            $this->cache->delete($cacheKey);
+        }
         $data = $request->request->all();
         $comment = new Comment();
         $comment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));

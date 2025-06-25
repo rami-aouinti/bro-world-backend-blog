@@ -61,7 +61,7 @@ readonly class PostsController
         $page = max(1, (int)$request->query->get('page', 1));
         $limit = (int)$request->query->get('limit', 50);
         $offset = ($page - 1) * $limit;
-        $cacheKey = 'post_public';
+        $cacheKey = 'post_public_' . $page . '_' . $limit;
 
         $posts = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($limit, $offset)($item));
         $output = JSON::decode(

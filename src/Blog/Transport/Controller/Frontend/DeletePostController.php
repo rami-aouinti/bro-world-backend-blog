@@ -52,7 +52,10 @@ readonly class DeletePostController
     #[Route(path: '/v1/platform/post/{post}', name: 'delete_post', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
-        $this->cache->delete('post_public');
+        for($i = 0; $i < 10; $i++) {
+            $cacheKey = 'post_public_' . $i . '_' . 10;
+            $this->cache->delete($cacheKey);
+        }
         $this->postRepository->remove($post);
         $output = JSON::decode(
             $this->serializer->serialize(
