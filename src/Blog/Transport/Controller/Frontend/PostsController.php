@@ -59,7 +59,7 @@ readonly class PostsController
     public function __invoke(Request $request): JsonResponse
     {
         $page = max(1, (int)$request->query->get('page', 1));
-        $limit = (int)$request->query->get('limit', 50);
+        $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
         $cacheKey = 'post_public_' . $page . '_' . $limit;
 
