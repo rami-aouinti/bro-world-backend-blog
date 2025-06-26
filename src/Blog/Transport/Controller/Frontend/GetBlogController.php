@@ -41,27 +41,15 @@ readonly class GetBlogController
      *
      * @param string $slug
      *
-     * @throws ExceptionInterface
      * @throws InvalidArgumentException
-     * @throws JsonException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/blog/{slug}', name: 'public_blog_slug', methods: [Request::METHOD_GET])]
     public function __invoke(string $slug): JsonResponse
     {
         $cacheKey = 'public_blog_' . $slug;
-        $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $blogs,
-                'json',
-                [
-                    'groups' => 'Blog',
-                ]
-            ),
-            true,
-        );
-        return new JsonResponse($output);
+        $blog = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
+        return new JsonResponse($blog);
     }
 
     /**
@@ -72,7 +60,7 @@ readonly class GetBlogController
      */
     private function getClosure(string $slug): Closure
     {
-        return function (ItemInterface $item) use ($slug): Blog {
+        return function (ItemInterface $item) use ($slug): array {
             $item->expiresAfter(3600);
 
             return $this->getFormattedPosts($slug);
@@ -82,9 +70,15 @@ readonly class GetBlogController
     /**
      * @throws Exception
      */
-    private function getFormattedPosts(string $slug): Blog
+    private function getFormattedPosts(string $slug): array
     {
-        return $this->getBlog($slug);
+        $blogClass = $this->getBlog($slug);
+        $blog['title'] = $blogClass->getTitle();
+        $blog['slug'] = $blogClass->getSlug();
+        $blog['blogSubTitle'] = $blogClass->getBlogSubtitle();
+        $blog['logo'] = $blogClass->getLogo();
+
+        return $blog;
     }
 
     /**
