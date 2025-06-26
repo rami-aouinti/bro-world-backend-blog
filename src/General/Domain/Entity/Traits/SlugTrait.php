@@ -14,8 +14,6 @@ namespace App\General\Domain\Entity\Traits;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\String\AbstractString;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @package App\General
@@ -23,12 +21,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait SlugTrait
 {
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups([
+    #[Groups(
         'Post',
         'Blog',
         'Post_Show',
         self::SET_BLOG_INDEX,
-    ])]
+    )]
     private ?string $slug = null;
 
     public function getSlug(): ?string
