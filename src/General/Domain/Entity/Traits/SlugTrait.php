@@ -25,6 +25,7 @@ trait SlugTrait
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([
         'Post',
+        'Blog',
         'Post_Show',
         self::SET_BLOG_INDEX,
     ])]
