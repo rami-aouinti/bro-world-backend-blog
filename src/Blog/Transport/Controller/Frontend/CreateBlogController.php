@@ -57,16 +57,10 @@ readonly class CreateBlogController
         if (!empty($medias)) {
             $blog->setLogo($medias[0]);
         }
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $blog,
-                'json',
-                [
-                    'groups' => 'Blog',
-                ]
-            ),
-            true,
-        );
+
+        $output['title'] = $blog->getTitle();
+        $output['description'] = $blog->getBlogSubtitle();
+        $output['slug'] = $blog->getSlug();
         $output['logo'] = $this->userProxy->getMedia($blog->getLogo());
         return new JsonResponse(
             $output
