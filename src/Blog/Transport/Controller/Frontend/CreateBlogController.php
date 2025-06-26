@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\MediaService;
 use App\Blog\Domain\Entity\Blog;
 use App\General\Domain\Utils\JSON;
@@ -28,6 +29,7 @@ readonly class CreateBlogController
     public function __construct(
         private MediaService $mediaService,
         private SerializerInterface $serializer,
+        private UserProxy $userProxy
     ) {
     }
 
@@ -65,6 +67,7 @@ readonly class CreateBlogController
             ),
             true,
         );
+        $output['logo'] = $this->userProxy->getMedia($blog->getLogo());
         return new JsonResponse(
             $output
         );
