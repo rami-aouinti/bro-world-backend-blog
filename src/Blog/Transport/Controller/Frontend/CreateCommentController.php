@@ -29,7 +29,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class CreateCommentController
+class CreateCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,

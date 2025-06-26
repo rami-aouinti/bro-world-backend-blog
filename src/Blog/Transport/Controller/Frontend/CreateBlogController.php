@@ -6,6 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\Service\MediaService;
 use App\Blog\Domain\Entity\Blog;
+use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Throwable;
 
 /**
@@ -24,7 +26,8 @@ use Throwable;
 readonly class CreateBlogController
 {
     public function __construct(
-        private MediaService $mediaService
+        private MediaService $mediaService,
+        private SerializerInterface $serializer,
     ) {
     }
 
@@ -52,9 +55,18 @@ readonly class CreateBlogController
         if (!empty($medias)) {
             $blog->setLogo($medias[0]);
         }
-
+        $output = JSON::decode(
+            $this->serializer->serialize(
+                $blog,
+                'json',
+                [
+                    'groups' => 'Blog',
+                ]
+            ),
+            true,
+        );
         return new JsonResponse(
-            $blog
+            $output
         );
     }
 }
