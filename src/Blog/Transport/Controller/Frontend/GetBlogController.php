@@ -47,7 +47,7 @@ readonly class GetBlogController
     #[Route(path: '/v1/platform/blog/{slug}', name: 'public_blog_slug', methods: [Request::METHOD_GET])]
     public function __invoke(string $slug): JsonResponse
     {
-        $cacheKey = 'public_blog_' . $slug;
+        $cacheKey = 'private_blog_' . $slug;
         $blog = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
         return new JsonResponse($blog);
     }
