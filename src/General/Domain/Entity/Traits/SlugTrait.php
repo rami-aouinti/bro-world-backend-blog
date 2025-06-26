@@ -21,14 +21,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 trait SlugTrait
 {
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups(
+    #[Groups([
         'Post',
         'Post.slug',
         'Blog',
         'Blog.slug',
         'Post_Show',
         self::SET_BLOG_INDEX,
-    )]
+    ])]
     private ?string $slug = null;
 
     public function getSlug(): ?string
