@@ -13,7 +13,11 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
 /**
  * Class PostService
  *
@@ -24,7 +28,9 @@ readonly class BlogService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private BlogRepositoryInterface $blogRepository
+        private BlogRepositoryInterface $blogRepository,
+        private SluggerInterface $slugger,
+        private string $logoDirectory
     ) {}
 
     /**
@@ -57,5 +63,36 @@ readonly class BlogService
         }
 
         return $blogObject;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return string|JsonResponse
+     */
+    public function uploadLogo(Request $request): string|JsonResponse
+    {
+        $files = $request->files->get('files');
+        $file = $files[0];
+        if (!$file) {
+            return new JsonResponse(['error' => 'No file uploaded.'], 400);
+        }
+
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $this->slugger->slug($originalFilename);
+        $newFilename = $safeFilename.'-'.uniqid('', true).'.'.$file->guessExtension();
+
+        try {
+            $file->move(
+                $this->logoDirectory,
+                $newFilename
+            );
+        } catch (FileException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+        $baseUrl = $request->getSchemeAndHttpHost();
+        $relativePath = '/uploads/logo/' . $newFilename;
+
+        return $baseUrl . $relativePath;
     }
 }

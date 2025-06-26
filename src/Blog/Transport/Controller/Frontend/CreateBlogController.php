@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
-use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Application\Service\MediaService;
+use App\Blog\Application\Service\BlogService;
 use App\Blog\Domain\Entity\Blog;
-use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -16,7 +14,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Throwable;
 
 /**
@@ -27,9 +24,7 @@ use Throwable;
 readonly class CreateBlogController
 {
     public function __construct(
-        private MediaService $mediaService,
-        private SerializerInterface $serializer,
-        private UserProxy $userProxy
+        private BlogService $blogService
     ) {
     }
 
@@ -46,22 +41,22 @@ readonly class CreateBlogController
     #[Route(path: '/v1/platform/blog', name: 'blog_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
-        $medias = $request->files->all() ? $this->mediaService->createMedia($request, 'media') : [];
-
-        $data = $request->request->all();
         $blog = new Blog();
+        if($request->files->get('files')) {
+            $logo = $this->blogService->uploadLogo($request);
+            $blog->setLogo($logo);
+        }
+        $data = $request->request->all();
+
         $blog->setTitle($data['title']);
         $blog->setBlogSubtitle($data['description'] ?? '');
         $blog->setSlug($data['title']);
         $blog->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        if (!empty($medias)) {
-            $blog->setLogo($medias[0]);
-        }
 
         $output['title'] = $blog->getTitle();
         $output['description'] = $blog->getBlogSubtitle();
         $output['slug'] = $blog->getSlug();
-        $output['logo'] = $this->userProxy->getMedia($blog->getLogo());
+        $output['logo'] = $blog->getLogo();
         return new JsonResponse(
             $output
         );

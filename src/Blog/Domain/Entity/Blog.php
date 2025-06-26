@@ -67,11 +67,11 @@ class Blog implements EntityInterface, Stringable
     protected UuidInterface $author;
 
 
-    #[ORM\Column(type: 'uuid', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true)]
     #[Groups([
         'Blog'
     ])]
-    private ?UuidInterface $logo = null;
+    private ?string $logo = null;
 
     #[ORM\OneToMany(mappedBy: 'blog', targetEntity: Post::class)]
     private Collection $posts;
@@ -130,12 +130,12 @@ class Blog implements EntityInterface, Stringable
         return $this;
     }
 
-    public function getLogo(): ?UuidInterface
+    public function getLogo(): ?string
     {
         return $this->logo;
     }
 
-    public function setLogo(?UuidInterface $logo): void
+    public function setLogo(?string $logo): void
     {
         $this->logo = $logo;
     }
