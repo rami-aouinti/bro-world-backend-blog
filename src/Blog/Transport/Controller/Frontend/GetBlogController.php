@@ -45,7 +45,7 @@ readonly class GetBlogController
      * @throws JsonException
      * @return JsonResponse
      */
-    #[Route(path: '/platform/blog/{slug}', name: 'public_blog_slug', methods: [Request::METHOD_GET])]
+    #[Route(path: '/v1/platform/blog/{slug}', name: 'public_blog_slug', methods: [Request::METHOD_GET])]
     public function __invoke(string $slug): JsonResponse
     {
         $cacheKey = 'public_blog_' . $slug;
