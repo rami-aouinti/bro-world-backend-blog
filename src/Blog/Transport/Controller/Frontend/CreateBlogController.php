@@ -6,6 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\Service\BlogService;
 use App\Blog\Domain\Entity\Blog;
+use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -24,7 +25,8 @@ use Throwable;
 readonly class CreateBlogController
 {
     public function __construct(
-        private BlogService $blogService
+        private BlogService $blogService,
+        private BlogRepositoryInterface $blogRepository
     ) {
     }
 
@@ -52,6 +54,8 @@ readonly class CreateBlogController
         $blog->setBlogSubtitle($data['description'] ?? '');
         $blog->setSlug($data['title']);
         $blog->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
+
+        $this->blogRepository->save($blog);
 
         $output['title'] = $blog->getTitle();
         $output['description'] = $blog->getBlogSubtitle();
