@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use Closure;
@@ -71,7 +72,7 @@ readonly class GetBlogController
      */
     private function getClosure(string $slug): Closure
     {
-        return function (ItemInterface $item) use ($slug): array {
+        return function (ItemInterface $item) use ($slug): Blog {
             $item->expiresAfter(3600);
 
             return $this->getFormattedPosts($slug);
@@ -81,7 +82,7 @@ readonly class GetBlogController
     /**
      * @throws Exception
      */
-    private function getFormattedPosts(string $slug): array
+    private function getFormattedPosts(string $slug): Blog
     {
         return $this->getBlog($slug);
     }
@@ -90,9 +91,9 @@ readonly class GetBlogController
      * @param $slug
      *
      * @throws NotSupported
-     * @return array
+     * @return Blog
      */
-    private function getBlog($slug): array
+    private function getBlog($slug): Blog
     {
         return $this->blogRepository->findOneBy([
             'slug' => $slug
