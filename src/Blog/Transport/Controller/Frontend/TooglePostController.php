@@ -73,14 +73,15 @@ readonly class TooglePostController
         $like = new Like();
         $like->setPost($post);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $authorId = $post->getAuthor()->toString();
         $data = [
             'channel' => 'PUSH',
             'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $post->getAuthor()->toString(),
+            'topic' => '/notifications/' . $authorId,
             'pushTitle' => $symfonyUser->getFullName() . ' liked your post.',
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $post->getSlug(),
-            'scopeTarget' => [$post->getAuthor()->toString()]
+            'scopeTarget' => [$authorId]
         ];
 
         $this->notificationService->createPush($request, $data);

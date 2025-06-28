@@ -83,14 +83,15 @@ readonly class CreateCommentController
             $symfonyUser->getUserIdentifier(),
             $post->getSlug()
         );
+        $authorId = $post->getAuthor()->toString();
         $data = [
             'channel' => 'PUSH',
             'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $post->getAuthor()->toString(),
+            'topic' => '/notifications/' . $authorId,
             'pushTitle' => $symfonyUser->getFullName() . ' commented on your post.',
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $post->getSlug(),
-            'scopeTarget' => [$post->getAuthor()->toString()]
+            'scopeTarget' => [$authorId]
         ];
 
         $this->notificationService->createPush($request, $data);
