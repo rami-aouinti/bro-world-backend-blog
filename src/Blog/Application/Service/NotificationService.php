@@ -23,7 +23,7 @@ use Throwable;
 readonly class NotificationService
 {
     private const string PATH = 'notification';
-    private const string CREATE_NOTIFICATION_PATH = 'v1/platform/notifications';
+    private const string CREATE_NOTIFICATION_PATH = 'api/v1/platform/notifications';
 
     public function __construct(
         private ApiProxyService $proxyService
