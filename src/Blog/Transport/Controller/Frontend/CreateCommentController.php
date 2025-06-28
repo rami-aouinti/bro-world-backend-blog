@@ -91,7 +91,7 @@ readonly class CreateCommentController
             'pushTitle' => $symfonyUser->getFullName() . ' commented on your post.',
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $post->getSlug(),
-            'scopeTarget' => [$authorId]
+            'scopeTarget' => ["20000000-0000-1000-8000-000000000005"]
         ];
 
         $this->notificationService->createPush($request, $data);
