@@ -82,7 +82,7 @@ readonly class ToggleCommentController
             'scopeTarget' => [$comment->getAuthor()->toString()]
         ];
 
-        $this->notificationService->createPush($request, $data, $symfonyUser);
+        $this->notificationService->createPush($request, $data);
         $this->likeRepository->save($like);
         $result = [];
         $result['id'] = $like->getId();

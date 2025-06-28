@@ -43,26 +43,20 @@ readonly class NotificationService
      */
     public function createPush(
         Request $request,
-        array $data,
-        SymfonyUser $user
+        array $data
     ): array
     {
-        return $this->proxyService->request(
-            Request::METHOD_POST,
-            self::PATH,
-            $request,
-            [
-                'channel' => 'PUSH',
-                'topic' => $data['topic'],
-                'pushTitle' => $data['pushTitle'],
-                'pushContent' => $data['pushContent'] ?? '',
-                'pushSubtitle' => $data['pushSubtitle'] ?? '',
-                'scope' => 'INDIVIDUAL',
-                'scopeTarget' => $data['scopeTarget'],
-                'sendAfter' => '2024-06-01T10:00:00',
-            ],
-            self::CREATE_NOTIFICATION_PATH
-        );
+        try {
+            return $this->proxyService->request(
+                Request::METHOD_POST,
+                self::PATH,
+                $request,
+                $data,
+                self::CREATE_NOTIFICATION_PATH
+            );
+        } catch (ClientExceptionInterface $e) {
+            dd($e->getMessage());
+        }
     }
 
     /**

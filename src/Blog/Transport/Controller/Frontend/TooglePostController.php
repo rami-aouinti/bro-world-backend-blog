@@ -81,7 +81,7 @@ readonly class TooglePostController
             'scopeTarget' => [$post->getAuthor()->toString()]
         ];
 
-        $this->notificationService->createPush($request, $data, $symfonyUser);
+        $this->notificationService->createPush($request, $data);
         $this->likeRepository->save($like);
 
         $result = [];

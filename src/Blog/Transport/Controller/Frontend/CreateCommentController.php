@@ -91,7 +91,7 @@ readonly class CreateCommentController
             'scopeTarget' => [$post->getAuthor()->toString()]
         ];
 
-        $this->notificationService->createPush($request, $data, $symfonyUser);
+        $this->notificationService->createPush($request, $data);
         $this->commentRepository->save($comment);
 
         $output = JSON::decode(
