@@ -75,6 +75,8 @@ readonly class ToggleCommentController
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
         $data = [
+            'channel' => 'PUSH',
+            'scope' => 'INDIVIDUAL',
             'topic' => '/notifications/' . $comment->getAuthor()->toString(),
             'pushTitle' => $symfonyUser->getFullName() . ' liked your comment.',
             'pushSubtitle' => 'Someone commented on your post.',

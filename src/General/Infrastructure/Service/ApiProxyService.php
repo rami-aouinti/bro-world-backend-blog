@@ -63,11 +63,10 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
             ]),
             'json' => !empty($body) ? $body : null,
         ];
-        dd($options);
+
         $response = $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
 
-
-        return $response;
+        return $response->toArray();
     }
 
     public function requestFile(string $method, string $type, Request $request, array $body = [], string $path = ''): array

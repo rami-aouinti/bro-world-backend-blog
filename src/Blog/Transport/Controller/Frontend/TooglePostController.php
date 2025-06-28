@@ -74,6 +74,8 @@ readonly class TooglePostController
         $like->setPost($post);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
         $data = [
+            'channel' => 'PUSH',
+            'scope' => 'INDIVIDUAL',
             'topic' => '/notifications/' . $post->getAuthor()->toString(),
             'pushTitle' => $symfonyUser->getFullName() . ' liked your post.',
             'pushSubtitle' => 'Someone commented on your post.',

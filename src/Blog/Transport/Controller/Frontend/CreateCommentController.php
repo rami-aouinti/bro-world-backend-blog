@@ -84,6 +84,8 @@ readonly class CreateCommentController
             $post->getSlug()
         );
         $data = [
+            'channel' => 'PUSH',
+            'scope' => 'INDIVIDUAL',
             'topic' => '/notifications/' . $post->getAuthor()->toString(),
             'pushTitle' => $symfonyUser->getFullName() . ' commented on your post.',
             'pushSubtitle' => 'Someone commented on your post.',
