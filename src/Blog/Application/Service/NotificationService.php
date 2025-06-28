@@ -30,22 +30,17 @@ readonly class NotificationService
     ) {}
 
     /**
-     * @param Request     $request
-     * @param array      $data
+     * @param Request $request
+     * @param array   $data
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
      */
     public function createPush(
         Request $request,
         array $data
-    ): array
+    ): void
     {
-        return $this->proxyService->request(
+        $this->proxyService->request(
             Request::METHOD_POST,
             self::PATH,
             $request,
@@ -59,19 +54,15 @@ readonly class NotificationService
      * @param array       $data
      * @param SymfonyUser $user
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
+     * @return void
      */
     public function createEmail(
         Request $request,
         array $data,
-        SymfonyUser $user): array
+        SymfonyUser $user): void
     {
-        return $this->proxyService->request(
+       $this->proxyService->request(
             Request::METHOD_POST,
             self::PATH,
             $request,
