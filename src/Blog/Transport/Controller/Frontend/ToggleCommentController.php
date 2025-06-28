@@ -74,6 +74,7 @@ readonly class ToggleCommentController
         $like = new Like();
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $scopeTarget = $comment->getAuthor()->toString();
         $data = [
             'channel' => 'PUSH',
             'scope' => 'INDIVIDUAL',
@@ -81,7 +82,7 @@ readonly class ToggleCommentController
             'pushTitle' => $symfonyUser->getFullName() . ' liked your comment.',
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $comment->getPost()?->getSlug(),
-            'scopeTarget' => [$comment->getAuthor()->toString()]
+            'scopeTarget' => $scopeTarget
         ];
 
         $this->notificationService->createPush($request, $data);
