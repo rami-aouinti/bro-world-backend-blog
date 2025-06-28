@@ -81,7 +81,7 @@ readonly class TooglePostController
             'pushTitle' => $symfonyUser->getFullName() . ' liked your post.',
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $post->getSlug(),
-            'scopeTarget' => $scopeTarget
+            'scopeTarget' => [$scopeTarget]
         ];
 
         $this->notificationService->createPush($request, $data);
