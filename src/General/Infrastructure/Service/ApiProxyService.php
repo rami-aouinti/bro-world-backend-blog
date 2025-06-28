@@ -61,7 +61,7 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
             'headers' => array_filter([
                 'Authorization' => $request->headers->get('Authorization'),
             ]),
-            'body' => !empty($body) ? $body : null,
+            'body' => !empty($body) ? json_encode($body) : null,
         ];
 
         $response = $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
