@@ -58,7 +58,8 @@ readonly class NotificationService
                 'pushContent' => $data['pushContent'] ?? '',
                 'pushSubtitle' => $data['pushSubtitle'] ?? '',
                 'scope' => 'INDIVIDUAL',
-                'scopeTarget' => $data['scopeTarget']
+                'scopeTarget' => $data['scopeTarget'],
+                'sendAfter' => '2024-06-01T10:00:00',
             ],
             self::CREATE_NOTIFICATION_PATH
         );
