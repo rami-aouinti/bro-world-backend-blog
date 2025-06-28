@@ -7,6 +7,7 @@ parameters:
     locale: 'en'
     app.notifications.email_sender: admin@localhost
     api_media_base_url: '%env(API_MEDIA_BASE_URL)%'
+    api_notification_base_url: '%env(API_NOTIFICATION_BASE_URL)%'
     logo_directory: '%kernel.project_dir%/public/uploads/logo'
 services:
     # default configuration for services in *this* file
@@ -115,6 +116,7 @@ services:
     App\General\Infrastructure\Service\ApiProxyService:
         arguments:
             $apiMediaBaseUrl: '%api_media_base_url%'
+            $apiNotificationBaseUrl: '%api_notification_base_url%'
     App\Blog\Application\Service\BlogService:
         arguments:
             $logoDirectory: '%logo_directory%'

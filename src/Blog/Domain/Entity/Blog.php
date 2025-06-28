@@ -84,14 +84,14 @@ class Blog implements EntityInterface, Stringable
         $this->id = $this->createUuid();
     }
 
-    public function __toString(): string
-    {
-        return $this->getTitle();
-    }
-
     public function getId(): string
     {
         return $this->id->toString();
+    }
+
+    public function __toString(): string
+    {
+        return $this->getTitle();
     }
 
     public function getTitle(): string

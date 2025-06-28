@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
+use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
@@ -23,18 +24,24 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * @package App\Blog
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-class CreateCommentController
+readonly class CreateCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
         private CommentRepositoryInterface $commentRepository,
         private CommentNotificationMailerInterface $commentNotificationMailer,
+        private NotificationService $notificationService,
         private CacheInterface $cache
     ) {
     }
@@ -47,10 +54,15 @@ class CreateCommentController
      * @param Post        $post
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws InvalidArgumentException
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/comment', name: 'comment_create', methods: [Request::METHOD_POST])]
@@ -65,11 +77,21 @@ class CreateCommentController
         $comment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
         $comment->setContent($data['content']);
         $comment->setPost($post);
+
         $this->commentNotificationMailer->sendCommentNotificationEmail(
             $post->getAuthor()->toString(),
             $symfonyUser->getUserIdentifier(),
             $post->getSlug()
         );
+        $data = [
+            'topic' => '/notifications/' . $post->getAuthor()->toString(),
+            'pushTitle' => $symfonyUser->getFullName() . ' commented on your post.',
+            'pushSubtitle' => 'Someone commented on your post.',
+            'pushContent' => 'https://bro-world-space.com/post/' . $post->getSlug(),
+            'scopeTarget' => [$post->getAuthor()->toString()]
+        ];
+
+        $this->notificationService->createPush($request, $data, $symfonyUser);
         $this->commentRepository->save($comment);
 
         $output = JSON::decode(

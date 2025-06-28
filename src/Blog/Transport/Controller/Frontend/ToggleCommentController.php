@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
@@ -22,6 +23,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
 /**
@@ -29,11 +35,12 @@ use Throwable;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class ToogleCommentController
+readonly class ToggleCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
+        private NotificationService $notificationService,
         private CacheInterface $cache
     ) {
     }
@@ -46,10 +53,15 @@ readonly class ToogleCommentController
      * @param Comment     $comment
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws InvalidArgumentException
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
@@ -62,7 +74,15 @@ readonly class ToogleCommentController
         $like = new Like();
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $data = [
+            'topic' => '/notifications/' . $comment->getAuthor()->toString(),
+            'pushTitle' => $symfonyUser->getFullName() . ' liked your comment.',
+            'pushSubtitle' => 'Someone commented on your post.',
+            'pushContent' => 'https://bro-world-space.com/post/' . $comment->getPost()?->getSlug(),
+            'scopeTarget' => [$comment->getAuthor()->toString()]
+        ];
 
+        $this->notificationService->createPush($request, $data, $symfonyUser);
         $this->likeRepository->save($like);
         $result = [];
         $result['id'] = $like->getId();
