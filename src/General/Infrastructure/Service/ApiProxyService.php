@@ -66,17 +66,7 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
         ];
 
         $response = $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
-        $content = $response->getContent(false); // false = ne pas throw l’exception
-        $statusCode = $response->getStatusCode();
-        $headers = $response->getHeaders(false);
 
-// 🧪 Debug complet
-        dd([
-            'status' => $statusCode,
-            'content' => $content,
-            'headers' => $headers,
-            'options_sent' => $options,
-        ]);
         return $response->toArray();
     }
 
