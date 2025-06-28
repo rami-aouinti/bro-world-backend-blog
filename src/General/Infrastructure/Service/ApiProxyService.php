@@ -64,7 +64,7 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
             'json' => !empty($body) ? $body : null,
         ];
 
-        $response = $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
+        $response = $this->httpClient->request($method, 'https://notification.bro-world.org/api/v1/platform/notifications', array_filter($options));
 
         dump([
             'status' => $response->getStatusCode(),
