@@ -32,7 +32,6 @@ readonly class NotificationService
     /**
      * @param Request     $request
      * @param array      $data
-     * @param SymfonyUser $user
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -46,17 +45,13 @@ readonly class NotificationService
         array $data
     ): array
     {
-        try {
-            return $this->proxyService->request(
-                Request::METHOD_POST,
-                self::PATH,
-                $request,
-                $data,
-                self::CREATE_NOTIFICATION_PATH
-            );
-        } catch (ClientExceptionInterface $e) {
-            dd($e->getMessage());
-        }
+        return $this->proxyService->request(
+            Request::METHOD_POST,
+            self::PATH,
+            $request,
+            $data,
+            self::CREATE_NOTIFICATION_PATH
+        );
     }
 
     /**
