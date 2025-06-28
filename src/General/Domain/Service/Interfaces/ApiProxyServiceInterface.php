@@ -15,7 +15,7 @@ interface ApiProxyServiceInterface
     /**
      * @throws Throwable
      */
-    public function request(string $method, string $type, Request $request, array $body = [], string $path = ''): array;
+    public function request(string $method, string $type, Request $request, array $body = [], string $path = ''): void;
 
     /**
      * @throws Throwable

@@ -45,13 +45,8 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
      * @param string  $path
      *
      * @throws TransportExceptionInterface
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @return array
      */
-    public function request(string $method, string $type, Request $request, array $body = [], string $path = ''): array
+    public function request(string $method, string $type, Request $request, array $body = [], string $path = ''): void
     {
         if (!isset($this->baseUrls[$type])) {
             throw new InvalidArgumentException("Failed : {$type}");
@@ -65,9 +60,7 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
             'body' => !empty($body) ? json_encode($body) : null,
         ];
 
-        $response = $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
-
-        return $response->toArray();
+        $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
     }
 
     public function requestFile(string $method, string $type, Request $request, array $body = [], string $path = ''): array
