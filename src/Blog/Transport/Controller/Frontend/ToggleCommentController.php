@@ -75,7 +75,7 @@ readonly class ToggleCommentController
             'PUSH',
             $symfonyUser->getUserIdentifier(),
             $comment->getAuthor()->toString(),
-            $comment->getPost()?->getId(),
+            $comment->getId(),
             'liked on your comment.'
         );
         $this->likeRepository->save($like);

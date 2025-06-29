@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Application\Service;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
@@ -75,7 +76,7 @@ readonly class NotificationService
         $sender['firstName'] = '';
         $sender['lastName'] = '';
         if($postId) {
-            $post = $this->postRepository->find($postId);
+            $this->getPost($postId);
         }
 
         $users = $this->userProxy->getUsers();
@@ -99,6 +100,32 @@ readonly class NotificationService
         $this->createPush($token, $notification);
     }
 
+
+    /**
+     * @param $postId
+     *
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @return Post|void
+     */
+    private function getPost($postId): ?Post
+    {
+        $post = $this->postRepository->find($postId);
+        if ($post) {
+            return $post;
+        }
+
+        $comment = $this->commentRepository->find($postId);
+
+        if($comment) {
+            if($comment->getPost()) {
+                return $comment->getPost();
+            }
+
+            return $this->getPost($comment->getParent()?->getId());
+        }
+    }
 
     /**
      * @param string|null $token
