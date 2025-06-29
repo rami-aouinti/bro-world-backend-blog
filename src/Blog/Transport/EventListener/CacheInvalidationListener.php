@@ -60,13 +60,13 @@ class CacheInvalidationListener
     {
         $post = match (true) {
             $entity instanceof Post => $entity,
-            $entity instanceof Comment => $entity->getPost(),
+            $entity instanceof Comment => $entity->getPost() ?? $entity->getParent()?->getPost(),
             $entity instanceof Like => $entity->getPost() ?? $entity->getComment()?->getPost(),
             default => null,
         };
 
         if ($post instanceof Post) {
-            for ($page = 1; $page <= 3; $page++) {
+            for ($page = 1; $page <= 10; $page++) {
                 $cacheKey = "post_public_{$page}_10";
                 $this->cache->deleteItem($cacheKey);
             }
