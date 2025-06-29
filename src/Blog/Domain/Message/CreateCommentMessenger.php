@@ -19,6 +19,7 @@ readonly class CreateCommentMessenger implements MessageHighInterface
         private ?string $token,
         private ?Comment $comment,
         private ?string $postId,
+        private ?string $senderId,
         private ?string $userId,
         private ?array $data
     )
@@ -38,6 +39,11 @@ readonly class CreateCommentMessenger implements MessageHighInterface
     public function getPostId(): ?string
     {
         return $this->postId;
+    }
+
+    public function getSenderId(): ?string
+    {
+        return $this->senderId;
     }
 
     public function getUserId(): ?string

@@ -73,10 +73,9 @@ readonly class TooglePostController
         $this->notificationService->createNotification(
             $request->headers->get('Authorization'),
             'PUSH',
+            $symfonyUser->getUserIdentifier(),
             $post->getAuthor()->toString(),
             $post->getId(),
-            null,
-            null,
             'liked on your post.'
         );
         $this->likeRepository->save($like);

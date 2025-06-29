@@ -69,10 +69,9 @@ readonly class CreateNotificationHandlerMessage
         $this->notificationService->createNotification(
             $message->getToken(),
             $message->getChannel(),
+            $message->getSenderId(),
             $message->getUserId(),
             $message->getPostId(),
-            null,
-            null,
             'commented on your post.'
         );
     }

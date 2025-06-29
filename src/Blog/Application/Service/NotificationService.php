@@ -44,6 +44,7 @@ readonly class NotificationService
     /**
      * @param string|null $token
      * @param string|null $channel
+     * @param string|null $symfonyUser
      * @param string|null $userId
      * @param string|null $postId
      * @param string|null $commentId
@@ -64,44 +65,35 @@ readonly class NotificationService
     public function createNotification(
         ?string $token,
         ?string $channel,
+        ?string $symfonyUserId,
         ?string $userId,
         ?string $postId,
-        ?string $commentId,
-        ?string $blogId,
         ?string $title
     ): void
     {
         $post = [];
-        $user['firstName'] = '';
-        $user['lastName'] = '';
+        $sender['firstName'] = '';
+        $sender['lastName'] = '';
         if($postId) {
             $post = $this->postRepository->find($postId);
         }
-        if($commentId) {
-            $comment = $this->commentRepository->find($commentId);
-            $post = $comment?->getPost();
+
+        $users = $this->userProxy->getUsers();
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersById[$user['id']] = $user;
         }
-        if($blogId) {
-            $blog = $this->blogRepository->find($blogId);
-        }
-        if($userId) {
-            $users = $this->userProxy->getUsers();
-            $usersById = [];
-            foreach ($users as $user) {
-                $usersById[$user['id']] = $user;
-            }
-            $user = $usersById[$userId];
-        }
+        $sender = $usersById[$symfonyUserId];
 
 
         $notification = [
             'channel' => $channel,
             'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $user['id'],
-            'pushTitle' => $user['firstName'] . ' ' . $user['lastName'] . ' ' .  $title,
+            'topic' => '/notifications/' . $userId,
+            'pushTitle' => $sender['firstName'] . ' ' . $sender['lastName'] . ' ' .  $title,
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
-            'scopeTarget' => '["' . $user['id'] . '"]',
+            'scopeTarget' => '["' . $userId . '"]',
         ];
 
         $this->createPush($token, $notification);

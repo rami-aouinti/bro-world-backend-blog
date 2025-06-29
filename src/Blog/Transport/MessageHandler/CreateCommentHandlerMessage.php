@@ -97,10 +97,9 @@ readonly class CreateCommentHandlerMessage
             new CreateNotificationMessenger(
                 $message->getToken(),
                 'PUSH',
+                $message->getSenderId(),
                 $message->getUserId(),
                 $message->getPostId(),
-                $message->getComment()?->getId(),
-                $post?->getBlog()?->getId()
             )
         );
     }

@@ -58,7 +58,9 @@ readonly class CreateCommentController
         $this->bus->dispatch(
             new CreateCommentMessenger(
                 $request->headers->get('Authorization'),
-                $comment, $post->getId(),
+                $comment,
+                $post->getId(),
+                $symfonyUser->getUserIdentifier(),
                 $post->getAuthor()->toString(),
                 $data
             )

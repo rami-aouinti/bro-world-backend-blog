@@ -17,10 +17,9 @@ readonly class CreateNotificationMessenger implements MessageHighInterface
     public function __construct(
         private ?string $token,
         private ?string $channel,
+        private ?string $senderId,
         private ?string $userId,
-        private ?string $postId,
-        private ?string $commentId,
-        private  ?string $blogId
+        private ?string $postId
     )
     {
     }
@@ -35,6 +34,11 @@ readonly class CreateNotificationMessenger implements MessageHighInterface
         return $this->channel;
     }
 
+    public function getSenderId(): ?string
+    {
+        return $this->senderId;
+    }
+
     public function getUserId(): ?string
     {
         return $this->userId;
@@ -43,15 +47,5 @@ readonly class CreateNotificationMessenger implements MessageHighInterface
     public function getPostId(): ?string
     {
         return $this->postId;
-    }
-
-    public function getCommentId(): ?string
-    {
-        return $this->commentId;
-    }
-
-    public function getBlogId(): ?string
-    {
-        return $this->blogId;
     }
 }
