@@ -6,7 +6,6 @@ namespace App\Blog\Application\Service;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Post;
-use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\Service\ApiProxyService;
@@ -38,18 +37,15 @@ readonly class NotificationService
         private ApiProxyService $proxyService,
         private PostRepositoryInterface $postRepository,
         private CommentRepositoryInterface $commentRepository,
-        private BlogRepositoryInterface $blogRepository,
         private UserProxy $userProxy
     ) {}
 
     /**
      * @param string|null $token
      * @param string|null $channel
-     * @param string|null $symfonyUser
+     * @param string|null $symfonyUserId
      * @param string|null $userId
      * @param string|null $postId
-     * @param string|null $commentId
-     * @param string|null $blogId
      * @param string|null $title
      *
      * @throws ClientExceptionInterface
@@ -76,7 +72,7 @@ readonly class NotificationService
         $sender['firstName'] = '';
         $sender['lastName'] = '';
         if($postId) {
-            $post = $this->getPost($postId);
+            $post = $this->getOriginPost($postId);
         }
 
         $users = $this->userProxy->getUsers();
@@ -107,9 +103,9 @@ readonly class NotificationService
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
-     * @return Post|void
+     * @return Post|void|null
      */
-    private function getPost($postId): ?Post
+    private function getOriginPost($postId)
     {
         $post = $this->postRepository->find($postId);
         if ($post) {
@@ -122,7 +118,7 @@ readonly class NotificationService
             if($comment->getPost()) {
                 return $comment->getPost();
             }
-            return $this->getPost($comment->getParent()?->getId());
+            return $this->getOriginPost($comment->getParent()?->getId());
         }
     }
 
