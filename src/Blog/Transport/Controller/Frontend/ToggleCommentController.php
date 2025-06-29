@@ -12,6 +12,7 @@ use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
@@ -51,11 +52,16 @@ readonly class ToggleCommentController
      * @param Request     $request
      * @param Comment     $comment
      *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     * @throws TransactionRequiredException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
@@ -64,18 +70,14 @@ readonly class ToggleCommentController
         $like = new Like();
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $scopeTarget = $comment->getAuthor()->toString();
-        $data = [
-            'channel' => 'PUSH',
-            'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $comment->getAuthor()->toString(),
-            'pushTitle' => $symfonyUser->getFullName() . ' liked your comment.',
-            'pushSubtitle' => 'Someone commented on your post.',
-            'pushContent' => 'https://bro-world-space.com/post/' . $comment->getPost()?->getSlug(),
-            'scopeTarget' => '["' . $scopeTarget . '"]',
-        ];
-
-        $this->notificationService->createPush($request, $data);
+        $this->notificationService->createNotification(
+            $request->headers->get('Authorization'),
+            'PUSH',
+            $symfonyUser->getUserIdentifier(),
+            $comment->getPost()?->getId(),
+            $comment->getId(),
+            $comment->getPost()?->getBlog()?->getId()
+        );
         $this->likeRepository->save($like);
         $result = [];
         $result['id'] = $like->getId();

@@ -12,6 +12,7 @@ use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
@@ -50,11 +51,16 @@ readonly class TooglePostController
      * @param Request     $request
      * @param Post        $post
      *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     * @throws TransactionRequiredException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/like', name: 'like_post', methods: [Request::METHOD_POST])]
@@ -63,18 +69,15 @@ readonly class TooglePostController
         $like = new Like();
         $like->setPost($post);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $scopeTarget = $post->getAuthor()->toString();
-        $data = [
-            'channel' => 'PUSH',
-            'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $post->getAuthor()->toString(),
-            'pushTitle' => $symfonyUser->getFullName() . ' liked your post.',
-            'pushSubtitle' => 'Someone commented on your post.',
-            'pushContent' => 'https://bro-world-space.com/post/' . $post->getSlug(),
-            'scopeTarget' => '["' . $scopeTarget . '"]',
-        ];
 
-        $this->notificationService->createPush($request, $data);
+        $this->notificationService->createNotification(
+            $request->headers->get('Authorization'),
+            'PUSH',
+            $symfonyUser->getUserIdentifier(),
+            null,
+            $post->getId(),
+            $post->getBlog()?->getId()
+        );
         $this->likeRepository->save($like);
 
         $result = [];

@@ -24,6 +24,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
@@ -52,7 +56,12 @@ readonly class CommentCommentController
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/comment', name: 'comment_comment', methods: [Request::METHOD_POST])]
@@ -64,18 +73,14 @@ readonly class CommentCommentController
         $newComment->setContent($data['content']);
         $newComment->setParent($comment);
 
-        $scopeTarget = $comment->getAuthor()->toString();
-        $data = [
-            'channel' => 'PUSH',
-            'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $comment->getAuthor()->toString(),
-            'pushTitle' => $symfonyUser->getFullName() . ' commented your comment.',
-            'pushSubtitle' => 'Someone commented on your comment.',
-            'pushContent' => 'https://bro-world-space.com/post/' . $comment->getPost()?->getSlug(),
-            'scopeTarget' => '["' . $scopeTarget . '"]',
-        ];
-
-        $this->notificationService->createPush($request, $data);
+        $this->notificationService->createNotification(
+            $request->headers->get('Authorization'),
+            'PUSH',
+            $symfonyUser->getUserIdentifier(),
+            $comment->getPost()?->getId(),
+            $comment->getId(),
+            $comment->getPost()?->getBlog()?->getId()
+        );
 
         $this->commentRepository->save($newComment);
 
