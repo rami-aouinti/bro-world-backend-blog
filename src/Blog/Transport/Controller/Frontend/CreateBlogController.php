@@ -8,8 +8,12 @@ use App\Blog\Application\Service\BlogService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +30,8 @@ readonly class CreateBlogController
 {
     public function __construct(
         private BlogService $blogService,
-        private BlogRepositoryInterface $blogRepository
+        private BlogRepositoryInterface $blogRepository,
+        private CacheItemPoolInterface $cache
     ) {
     }
 
@@ -36,13 +41,15 @@ readonly class CreateBlogController
      * @param SymfonyUser $symfonyUser
      * @param Request     $request
      *
-     * @throws JsonException
-     * @throws Throwable
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/blog', name: 'blog_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
+        $this->cache->deleteItem("profile_blog_{$symfonyUser->getUserIdentifier()}");
         $blog = new Blog();
         if($request->files->get('files')) {
             $logo = $this->blogService->uploadLogo($request);
