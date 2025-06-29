@@ -68,32 +68,34 @@ readonly class NotificationService
         ?string $title
     ): void
     {
-        $post = [];
-        $sender['firstName'] = '';
-        $sender['lastName'] = '';
-        if($postId) {
-            $post = $this->getOriginPost($postId);
+        if($symfonyUserId !== $userId) {
+            $post = [];
+            $sender['firstName'] = '';
+            $sender['lastName'] = '';
+            if($postId) {
+                $post = $this->getOriginPost($postId);
+            }
+
+            $users = $this->userProxy->getUsers();
+            $usersById = [];
+            foreach ($users as $user) {
+                $usersById[$user['id']] = $user;
+            }
+            $sender = $usersById[$symfonyUserId];
+
+
+            $notification = [
+                'channel' => $channel,
+                'scope' => 'INDIVIDUAL',
+                'topic' => '/notifications/' . $userId,
+                'pushTitle' => $sender['firstName'] . ' ' . $sender['lastName'] . ' ' .  $title,
+                'pushSubtitle' => 'Someone commented on your post.',
+                'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
+                'scopeTarget' => '["' . $userId . '"]',
+            ];
+
+            $this->createPush($token, $notification);
         }
-
-        $users = $this->userProxy->getUsers();
-        $usersById = [];
-        foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
-        }
-        $sender = $usersById[$symfonyUserId];
-
-
-        $notification = [
-            'channel' => $channel,
-            'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $userId,
-            'pushTitle' => $sender['firstName'] . ' ' . $sender['lastName'] . ' ' .  $title,
-            'pushSubtitle' => 'Someone commented on your post.',
-            'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
-            'scopeTarget' => '["' . $userId . '"]',
-        ];
-
-        $this->createPush($token, $notification);
     }
 
 
