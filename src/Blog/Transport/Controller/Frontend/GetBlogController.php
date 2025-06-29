@@ -62,20 +62,22 @@ readonly class GetBlogController
         return function (ItemInterface $item) use ($slug): array {
             $item->expiresAfter(3600);
 
-            return $this->getFormattedPosts($slug);
+            return $this->getFormattedBlog($slug);
         };
     }
 
     /**
      * @throws Exception
      */
-    private function getFormattedPosts(string $slug): array
+    private function getFormattedBlog(string $slug): array
     {
         $blogClass = $this->getBlog($slug);
+        $blog['id'] = $blogClass->getId();
         $blog['title'] = $blogClass->getTitle();
         $blog['slug'] = $blogClass->getSlug();
         $blog['blogSubTitle'] = $blogClass->getBlogSubtitle();
         $blog['logo'] = $blogClass->getLogo();
+        $blog['teams'] = $blogClass->getTeams();
 
         return $blog;
     }
