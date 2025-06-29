@@ -58,9 +58,9 @@ readonly class UpdateBlogTeamsController
     public function __invoke(SymfonyUser $symfonyUser, Blog $blog, Request $request): JsonResponse
     {
 
-        $data = $request->request->all();
+        $data = $request->request->all('teams');
 
-        if (!isset($data['teams']) || !is_array($data['teams'])) {
+        if (!isset($data)) {
             return new JsonResponse(['error' => 'Missing or invalid "teams" array'], Response::HTTP_BAD_REQUEST);
         }
 
