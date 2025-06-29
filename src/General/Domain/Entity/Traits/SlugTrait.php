@@ -26,7 +26,8 @@ trait SlugTrait
         'Post.slug',
         'Blog',
         'Blog.slug',
-        'Post_Show'
+        'Post_Show',
+        'BlogProfile'
     ])]
     private ?string $slug = null;
 
