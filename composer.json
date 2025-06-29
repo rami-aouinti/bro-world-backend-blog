@@ -42,6 +42,7 @@
 		"ext-pdo": "*",
 		"ext-pdo_mysql": "*",
 		"beberlei/doctrineextensions": "^1.5",
+		"cocur/slugify": "^4.6",
 		"doctrine/doctrine-bundle": "^2.14.0",
 		"doctrine/doctrine-migrations-bundle": "^3.4.1",
 		"doctrine/orm": "^2.20.3",

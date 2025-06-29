@@ -9,7 +9,6 @@ use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Message\CreatePostMessenger;
-use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\TagRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -23,7 +22,6 @@ use Ramsey\Uuid\Uuid;
 use Random\RandomException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -48,7 +46,6 @@ readonly class PostService
         private TagRepositoryInterface $tagRepository,
         private PostRepositoryInterface $postRepository,
         private UserProxy $userProxy,
-        private CacheInterface $cache,
         private MessageBusInterface $bus
     ) {}
 
@@ -87,16 +84,11 @@ readonly class PostService
      * @param Post       $post
      * @param array|null $mediaIds
      *
-     * @throws InvalidArgumentException
      * @throws ORMException
      * @throws OptimisticLockException
      */
     public function savePost(Post $post, ?array $mediaIds): void
     {
-        for($i = 1; $i < 3; $i++) {
-            $cacheKey = 'post_public_' . $i . '_' . 10;
-            $this->cache->delete($cacheKey);
-        }
         if (!empty($mediaIds)) {
             $post->setMedias($mediaIds);
         }

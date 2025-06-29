@@ -61,10 +61,24 @@ services:
         tags:
             - { name: controller.argument_value_resolver, priority: 150 }
 
+    Cocur\Slugify\SlugifyInterface:
+        alias: Cocur\Slugify\Slugify
+
+    Cocur\Slugify\Slugify: ~
+
     App\Blog\Transport\EventListener\CacheInvalidationListener:
         arguments: [ '@cache.app' ]
         tags:
             - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: doctrine.event_listener, event: postRemove }
+
+    App\Blog\Transport\EventListener\SlugListener:
+        arguments:
+            $slugify: '@Cocur\Slugify\SlugifyInterface'
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }
 
     App\General\Infrastructure\Messenger\Strategy\FailedRetry:
         arguments:

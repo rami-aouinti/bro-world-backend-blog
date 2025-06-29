@@ -439,6 +439,7 @@
       <path value="$PROJECT_DIR$/tools/10_phpcpd/vendor/sebastian/version" />
       <path value="$PROJECT_DIR$/vendor/symfony/mercure" />
       <path value="$PROJECT_DIR$/vendor/symfony/mercure-bundle" />
+      <path value="$PROJECT_DIR$/vendor/cocur/slugify" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

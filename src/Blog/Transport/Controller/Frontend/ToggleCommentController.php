@@ -40,8 +40,7 @@ readonly class ToggleCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
-        private NotificationService $notificationService,
-        private CacheInterface $cache
+        private NotificationService $notificationService
     ) {
     }
 
@@ -53,24 +52,15 @@ readonly class ToggleCommentController
      * @param Comment     $comment
      *
      * @throws ExceptionInterface
-     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-        for($i = 1; $i < 3; $i++) {
-            $cacheKey = 'post_public_' . $i . '_' . 10;
-            $this->cache->delete($cacheKey);
-        }
         $like = new Like();
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));

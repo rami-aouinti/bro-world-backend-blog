@@ -29,8 +29,7 @@ readonly class DeleteCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private CommentRepository $commentRepository,
-        private CacheInterface $cache
+        private CommentRepository $commentRepository
     ) {
     }
 
@@ -50,7 +49,6 @@ readonly class DeleteCommentController
     #[Route(path: '/v1/platform/comment/{comment}', name: 'delete_comment', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-        $this->cache->delete('post_public');
         $this->commentRepository->remove($comment);
         $output = JSON::decode(
             $this->serializer->serialize(

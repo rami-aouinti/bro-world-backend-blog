@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\General\Domain\Utils\JSON;
@@ -12,6 +13,7 @@ use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
+use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
@@ -19,8 +21,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
 /**
@@ -33,7 +37,7 @@ readonly class CommentCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private CommentRepositoryInterface $commentRepository,
-        private CacheInterface $cache
+        private NotificationService $notificationService
     ) {
     }
 
@@ -44,23 +48,34 @@ readonly class CommentCommentController
      * @param Request     $request
      * @param Comment     $comment
      *
-     * @throws Throwable
-     * @throws NotSupported
+     * @throws ExceptionInterface
+     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws TransactionRequiredException
-     * @throws InvalidArgumentException
+     * @throws TransportExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/comment', name: 'comment_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-        $this->cache->delete('post_public');
         $data = $request->request->all();
         $newComment = new Comment();
         $newComment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
         $newComment->setContent($data['content']);
         $newComment->setParent($comment);
+
+        $scopeTarget = $comment->getAuthor()->toString();
+        $data = [
+            'channel' => 'PUSH',
+            'scope' => 'INDIVIDUAL',
+            'topic' => '/notifications/' . $comment->getAuthor()->toString(),
+            'pushTitle' => $symfonyUser->getFullName() . ' commented your comment.',
+            'pushSubtitle' => 'Someone commented on your comment.',
+            'pushContent' => 'https://bro-world-space.com/post/' . $comment->getPost()?->getSlug(),
+            'scopeTarget' => '["' . $scopeTarget . '"]',
+        ];
+
+        $this->notificationService->createPush($request, $data);
 
         $this->commentRepository->save($newComment);
 

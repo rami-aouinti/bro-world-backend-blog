@@ -45,6 +45,7 @@ class Blog implements EntityInterface, Stringable
     #[Groups([
         'Blog',
         'Blog.id',
+        'BlogProfile'
     ])]
     private UuidInterface $id;
 
@@ -53,6 +54,7 @@ class Blog implements EntityInterface, Stringable
     #[Groups([
         'Blog',
         'Post',
+        'BlogProfile'
     ])]
     protected string $title;
 
@@ -60,21 +62,37 @@ class Blog implements EntityInterface, Stringable
     #[Groups([
         'Blog',
         'Post',
+        'BlogProfile'
     ])]
     protected ?string $blogSubtitle = null;
 
     #[ORM\Column(type: 'uuid')]
+    #[Groups([
+        'Blog',
+        'BlogProfile'
+    ])]
     protected UuidInterface $author;
 
 
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups([
-        'Blog'
+        'Blog',
+        'BlogProfile'
     ])]
     private ?string $logo = null;
 
     #[ORM\OneToMany(mappedBy: 'blog', targetEntity: Post::class)]
+    #[Groups([
+        'BlogProfile'
+    ])]
     private Collection $posts;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups([
+        'Blog',
+        'BlogProfile'
+    ])]
+    protected ?array $teams = null;
 
     /**
      * @throws Throwable
@@ -138,5 +156,15 @@ class Blog implements EntityInterface, Stringable
     public function setLogo(?string $logo): void
     {
         $this->logo = $logo;
+    }
+
+    public function getTeams(): ?array
+    {
+        return $this->teams;
+    }
+
+    public function setTeams(?array $teams): void
+    {
+        $this->teams = $teams;
     }
 }

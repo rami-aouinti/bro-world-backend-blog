@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -25,12 +27,12 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
+#[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
 readonly class DislikeCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private LikeRepositoryInterface $likeRepository,
-        private CacheInterface $cache
+        private LikeRepositoryInterface $likeRepository
     ) {
     }
 
@@ -50,7 +52,6 @@ readonly class DislikeCommentController
     #[Route(path: '/v1/platform/comment/{like}/dislike', name: 'dislike_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Like $like): JsonResponse
     {
-        $this->cache->delete('post_public');
         $this->likeRepository->remove($like);
 
         $output = JSON::decode(

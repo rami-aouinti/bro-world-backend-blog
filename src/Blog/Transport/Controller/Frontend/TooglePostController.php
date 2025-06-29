@@ -39,8 +39,7 @@ readonly class TooglePostController
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
-        private NotificationService $notificationService,
-        private CacheInterface $cache
+        private NotificationService $notificationService
     ) {
     }
 
@@ -52,24 +51,15 @@ readonly class TooglePostController
      * @param Post        $post
      *
      * @throws ExceptionInterface
-     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/like', name: 'like_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
-        for($i = 1; $i < 3; $i++) {
-            $cacheKey = 'post_public_' . $i . '_' . 10;
-            $this->cache->delete($cacheKey);
-        }
         $like = new Like();
         $like->setPost($post);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));

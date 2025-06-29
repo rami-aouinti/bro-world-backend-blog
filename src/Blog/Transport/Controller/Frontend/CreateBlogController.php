@@ -52,7 +52,6 @@ readonly class CreateBlogController
 
         $blog->setTitle($data['title']);
         $blog->setBlogSubtitle($data['description'] ?? '');
-        $blog->setSlug($data['title']);
         $blog->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
 
         $this->blogRepository->save($blog);

@@ -30,8 +30,7 @@ readonly class DeletePostController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private PostRepositoryInterface $postRepository,
-        private CacheInterface $cache
+        private PostRepositoryInterface $postRepository
     ) {
     }
 
@@ -46,16 +45,11 @@ readonly class DeletePostController
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'delete_post', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
-        for($i = 1; $i < 3; $i++) {
-            $cacheKey = 'post_public_' . $i . '_' . 10;
-            $this->cache->delete($cacheKey);
-        }
         $this->postRepository->remove($post);
         $output = JSON::decode(
             $this->serializer->serialize(

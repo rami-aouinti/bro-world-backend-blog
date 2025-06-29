@@ -1,0 +1,107 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Blog\Transport\MessageHandler;
+
+use App\Blog\Application\Service\CommentService;
+use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
+use App\Blog\Domain\Message\CreateCommentMessenger;
+use App\Blog\Domain\Message\CreateNotificationMessenger;
+use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
+
+/**
+ * Class CreatePostHandlerMessage
+ *
+ * @package App\Post\Transport\MessageHandler
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
+#[AsMessageHandler]
+readonly class CreateCommentHandlerMessage
+{
+    public function __construct(
+        private PostRepositoryInterface $postRepository,
+        private CommentService $commentService,
+        private CommentNotificationMailerInterface $commentNotificationMailer,
+        private MessageBusInterface $bus
+    )
+    {
+    }
+
+    /**
+     * @param CreateCommentMessenger $message
+     *
+     * @throws ExceptionInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @return void
+     */
+    public function __invoke(CreateCommentMessenger $message): void
+    {
+        $this->handleMessage($message);
+        $this->handleMail($message);
+        $this->handleNotification($message);
+    }
+
+    /**
+     * @param CreateCommentMessenger $message
+     *
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    private function handleMessage(CreateCommentMessenger $message): void
+    {
+        $this->commentService->saveComment(
+            $message->getComment(),
+            $message->getPostId(),
+            $message->getUserId(),
+            $message->getData()
+        );
+    }
+
+    /**
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @throws ORMException
+     */
+    private function handleMail(CreateCommentMessenger $message): void
+    {
+        $post = $this->postRepository->find($message->getPostId());
+        $this->commentNotificationMailer->sendCommentNotificationEmail(
+            $post?->getAuthor()->toString(),
+            $message->getUserId(),
+            $post?->getSlug()
+        );
+    }
+
+    /**
+     * @param CreateCommentMessenger $message
+     *
+     * @throws ExceptionInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    private function handleNotification(CreateCommentMessenger $message): void
+    {
+        $post = $this->postRepository->find($message->getPostId());
+        $this->bus->dispatch(
+            new CreateNotificationMessenger(
+                $message->getToken(),
+                'PUSH',
+                $message->getUserId(),
+                $message->getPostId(),
+                $message->getComment()?->getId(),
+                $post?->getBlog()?->getId()
+            )
+        );
+    }
+}

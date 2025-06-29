@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Service;
 
+use App\Blog\Domain\Entity\Comment;
+use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
+use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
+use Ramsey\Uuid\Uuid;
+
 /**
  * Class CommentService
  *
@@ -13,7 +21,29 @@ namespace App\Blog\Application\Service;
 readonly class CommentService
 {
     public function __construct(
+        private CommentRepositoryInterface $commentRepository,
+        private PostRepositoryInterface $postRepository
     ) {}
+
+    /**
+     * @param Comment     $comment
+     * @param string|null $postId
+     * @param string|null $userId
+     * @param array|null  $data
+     *
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    public function saveComment(Comment $comment, ?string $postId, ?string $userId, ?array $data): void
+    {
+        $post = $this->postRepository->find($postId);
+        $comment->setPost($post);
+        $comment->setAuthor(Uuid::fromString($userId));
+        $comment->setContent($data['content']);
+        $this->commentRepository->save($comment);
+    }
+
 
     /**
      * @param $comment

@@ -44,13 +44,6 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="Media-User">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="Notification">
         <serverdata>
           <mappings>
@@ -104,6 +97,13 @@
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Server">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/blog.bro-world.org" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

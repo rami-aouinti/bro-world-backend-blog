@@ -30,7 +30,6 @@ use Symfony\Contracts\Cache\ItemInterface;
 readonly class GetBlogController
 {
     public function __construct(
-        private SerializerInterface $serializer,
         private CacheInterface $cache,
         private BlogRepositoryInterface $blogRepository
     ) {

@@ -26,8 +26,7 @@ trait SlugTrait
         'Post.slug',
         'Blog',
         'Blog.slug',
-        'Post_Show',
-        self::SET_BLOG_INDEX,
+        'Post_Show'
     ])]
     private ?string $slug = null;
 

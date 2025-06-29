@@ -6,13 +6,10 @@ namespace App\General\Infrastructure\Service;
 
 use App\General\Domain\Service\Interfaces\ApiProxyServiceInterface;
 use InvalidArgumentException;
+use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -38,15 +35,16 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
 
     /**
      *
-     * @param string  $method
-     * @param string  $type
-     * @param Request $request
-     * @param array   $body
-     * @param string  $path
+     * @param string      $method
+     * @param string      $type
+     * @param string|null $token
+     * @param array       $body
+     * @param string      $path
      *
      * @throws TransportExceptionInterface
+     * @throws JsonException
      */
-    public function request(string $method, string $type, Request $request, array $body = [], string $path = ''): void
+    public function request(string $method, string $type, ?string $token, array $body = [], string $path = ''): void
     {
         if (!isset($this->baseUrls[$type])) {
             throw new InvalidArgumentException("Failed : {$type}");
@@ -55,9 +53,9 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
         $options = [
             'headers' => array_filter([
                 'Content-Type' => 'application/json',
-                'Authorization' => $request->headers->get('Authorization'),
+                'Authorization' => $token,
             ]),
-            'body' => !empty($body) ? json_encode($body) : null,
+            'body' => !empty($body) ? json_encode($body, JSON_THROW_ON_ERROR) : null,
         ];
 
         $this->httpClient->request($method, $this->baseUrls[$type] . $path, array_filter($options));
@@ -75,7 +73,7 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
 
         foreach ($files as $key => $file) {
             $filesArray[$key] = new DataPart(
-                fopen($file->getPathname(), 'r'),
+                fopen($file->getPathname(), 'rb'),
                 $file->getClientOriginalName(),
                 $file->getMimeType()
             );

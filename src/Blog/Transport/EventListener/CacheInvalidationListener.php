@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\EventListener;
 
+use App\Blog\Domain\Entity\Comment;
+use App\Blog\Domain\Entity\Like;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Psr\Cache\CacheItemPoolInterface;
 use App\Blog\Domain\Entity\Post;
@@ -29,13 +31,47 @@ class CacheInvalidationListener
      */
     public function postPersist(LifecycleEventArgs $args): void
     {
-        $entity = $args->getObject();
+        $this->handleInvalidation($args->getObject());
+    }
 
-        if (!$entity instanceof Post) {
-            return;
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function postUpdate(LifecycleEventArgs $args): void
+    {
+        $this->handleInvalidation($args->getObject());
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function postRemove(LifecycleEventArgs $args): void
+    {
+        $this->handleInvalidation($args->getObject());
+    }
+
+    /**
+     *
+     * @param object $entity
+     *
+     * @throws InvalidArgumentException
+     */
+    private function handleInvalidation(object $entity): void
+    {
+        $post = match (true) {
+            $entity instanceof Post => $entity,
+            $entity instanceof Comment => $entity->getPost(),
+            $entity instanceof Like => $entity->getPost() ?? $entity->getComment()?->getPost(),
+            default => null,
+        };
+
+        if ($post instanceof Post) {
+            for ($page = 1; $page <= 3; $page++) {
+                $cacheKey = "post_public_{$page}_10";
+                $this->cache->deleteItem($cacheKey);
+            }
+
+            $this->cache->deleteItem("post_{$post->getId()}");
         }
-
-        $cacheKey = 'application_posts_page_1';
-        $this->cache->deleteItem($cacheKey);
     }
 }
