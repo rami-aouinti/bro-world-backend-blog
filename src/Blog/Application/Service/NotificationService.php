@@ -76,7 +76,7 @@ readonly class NotificationService
         $sender['firstName'] = '';
         $sender['lastName'] = '';
         if($postId) {
-            $this->getPost($postId);
+            $post = $this->getPost($postId);
         }
 
         $users = $this->userProxy->getUsers();
@@ -122,7 +122,6 @@ readonly class NotificationService
             if($comment->getPost()) {
                 return $comment->getPost();
             }
-
             return $this->getPost($comment->getParent()?->getId());
         }
     }
