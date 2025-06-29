@@ -48,16 +48,17 @@ readonly class NotificationService
      * @param string|null $postId
      * @param string|null $commentId
      * @param string|null $blogId
+     * @param string|null $title
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
+     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @throws JsonException
      * @return void
      */
     public function createNotification(
@@ -66,25 +67,22 @@ readonly class NotificationService
         ?string $userId,
         ?string $postId,
         ?string $commentId,
-        ?string $blogId
+        ?string $blogId,
+        ?string $title
     ): void
     {
-        $scopeTarget = [];
         $post = [];
         $user['firstName'] = '';
         $user['lastName'] = '';
         if($postId) {
             $post = $this->postRepository->find($postId);
-            $scopeTarget = $post?->getAuthor()->toString();
         }
         if($commentId) {
             $comment = $this->commentRepository->find($commentId);
-            $scopeTarget = $comment?->getAuthor()->toString();
             $post = $comment?->getPost();
         }
         if($blogId) {
             $blog = $this->blogRepository->find($blogId);
-            $scopeTarget = $blog?->getAuthor()->toString();
         }
         if($userId) {
             $users = $this->userProxy->getUsers();
@@ -96,17 +94,17 @@ readonly class NotificationService
         }
 
 
-        $data = [
+        $notification = [
             'channel' => $channel,
             'scope' => 'INDIVIDUAL',
-            'topic' => '/notifications/' . $scopeTarget,
-            'pushTitle' => $user['firstName'] . ' ' . $user['lastName'] . ' commented on your post.',
+            'topic' => '/notifications/' . $user['id'],
+            'pushTitle' => $user['firstName'] . ' ' . $user['lastName'] . ' ' .  $title,
             'pushSubtitle' => 'Someone commented on your post.',
             'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
-            'scopeTarget' => '["' . $scopeTarget . '"]',
+            'scopeTarget' => '["' . $user['id'] . '"]',
         ];
 
-        $this->createPush($token, $data);
+        $this->createPush($token, $notification);
     }
 
 

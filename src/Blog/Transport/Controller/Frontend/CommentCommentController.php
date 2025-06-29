@@ -76,10 +76,11 @@ readonly class CommentCommentController
         $this->notificationService->createNotification(
             $request->headers->get('Authorization'),
             'PUSH',
-            $symfonyUser->getUserIdentifier(),
+            $comment->getAuthor()->toString(),
             $comment->getPost()?->getId(),
-            $comment->getId(),
-            $comment->getPost()?->getBlog()?->getId()
+            null,
+            null,
+            'commented on your comment.'
         );
 
         $this->commentRepository->save($newComment);

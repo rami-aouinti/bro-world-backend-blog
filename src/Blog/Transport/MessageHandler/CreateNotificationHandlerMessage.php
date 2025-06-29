@@ -71,8 +71,9 @@ readonly class CreateNotificationHandlerMessage
             $message->getChannel(),
             $message->getUserId(),
             $message->getPostId(),
-            $message->getCommentId(),
-            $message->getBlogId()
+            null,
+            null,
+            'commented on your post.'
         );
     }
 }

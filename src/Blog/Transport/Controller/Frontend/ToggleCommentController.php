@@ -73,10 +73,11 @@ readonly class ToggleCommentController
         $this->notificationService->createNotification(
             $request->headers->get('Authorization'),
             'PUSH',
-            $symfonyUser->getUserIdentifier(),
-            $comment->getPost()?->getId(),
+            $comment->getAuthor()->toString(),
+            null,
             $comment->getId(),
-            $comment->getPost()?->getBlog()?->getId()
+            null,
+            'liked on your comment.'
         );
         $this->likeRepository->save($like);
         $result = [];
