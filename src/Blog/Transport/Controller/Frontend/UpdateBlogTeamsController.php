@@ -59,7 +59,6 @@ readonly class UpdateBlogTeamsController
     {
 
         $data = json_decode($request->getContent(), true);
-        $teams = $data['teams'] ?? null;
 
         if (!isset($data['teams']) || !is_array($data['teams'])) {
             return new JsonResponse(['error' => 'Missing or invalid "teams" array'], Response::HTTP_BAD_REQUEST);
