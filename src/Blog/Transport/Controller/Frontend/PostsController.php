@@ -93,7 +93,7 @@ readonly class PostsController
     private function getClosure($limit, $offset): Closure
     {
         return function (ItemInterface $item) use($limit, $offset): array {
-            $item->expiresAfter(3600);
+            $item->expiresAfter(31536000);
 
             return $this->getFormattedPosts($limit, $offset);
         };

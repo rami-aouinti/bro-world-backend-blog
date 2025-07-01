@@ -80,7 +80,7 @@ readonly class PostController
     private function getClosure(string $slug): Closure
     {
         return function (ItemInterface $item) use ($slug): array {
-            $item->expiresAfter(3600);
+            $item->expiresAfter(31536000);
 
             return $this->getFormattedPost($slug);
         };
