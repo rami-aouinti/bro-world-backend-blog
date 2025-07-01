@@ -31,5 +31,5 @@ interface UserElasticsearchServiceInterface
      * @see http://symfony2-document.readthedocs.org/en/latest/cookbook/security/entity_provider.html
      *      #managing-roles-in-the-database
      */
-    public function searchUser(string $id): array;
+    public function searchUser(string $id): array|null;
 }

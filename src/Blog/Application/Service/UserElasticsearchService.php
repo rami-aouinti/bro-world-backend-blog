@@ -35,7 +35,7 @@ readonly class UserElasticsearchService implements UserElasticsearchServiceInter
         return array_map(static fn ($hit) => $hit['_source'], $response['hits']['hits']);
     }
 
-    public function searchUser(string $id): array
+    public function searchUser(string $id): array|null
     {
         $response = $this->elasticsearchService->search(
             'users',
@@ -51,6 +51,7 @@ readonly class UserElasticsearchService implements UserElasticsearchServiceInter
         );
 
         $result = array_map(static fn ($hit) => $hit['_source'], $response['hits']['hits']);
-        return $result[0];
+
+        return $result[0] ?? null;
     }
 }
