@@ -109,17 +109,11 @@ readonly class PostsController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     * @throws InvalidArgumentException
      * @return array
      */
     private function getFormattedPosts($limit, $offset): array
     {
-        $users = $this->userProxy->getUsers();
-
-        $usersById = [];
-        foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
-        }
-
         $posts = $this->getPosts($limit, $offset);
         $output = [];
 
@@ -141,13 +135,13 @@ readonly class PostsController
                     'title' => $post->getBlog()?->getTitle(),
                     'blogSubtitle' => $post->getBlog()?->getBlogSubtitle(),
                 ],
-                'user' => $usersById[$authorId] ?? null,
+                'user' => $this->userProxy->searchUser($authorId),
                 'comments' => [],
             ];
 
             foreach ($post->getLikes() as $key => $like) {
                 $postData['likes'][$key]['id'] = $like->getId();
-                $postData['likes'][$key]['user']  = $usersById[$like->getUser()->toString()] ?? null;
+                $postData['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
             }
 
             $rootComments = array_filter(
@@ -156,7 +150,7 @@ readonly class PostsController
             );
 
             foreach ($rootComments as $comment) {
-                $postData['comments'][] = $this->formatCommentRecursively($comment, $usersById);
+                $postData['comments'][] = $this->formatCommentRecursively($comment);
             }
 
             $output[] = $postData;
@@ -166,11 +160,11 @@ readonly class PostsController
 
     /**
      * @param       $comment
-     * @param array $usersById
      *
+     * @throws InvalidArgumentException
      * @return array
      */
-    private function formatCommentRecursively($comment, array $usersById): array
+    private function formatCommentRecursively($comment): array
     {
         $authorId = $comment->getAuthor()->toString();
 
@@ -179,15 +173,16 @@ readonly class PostsController
             'content' => $comment->getContent(),
             'likes' => [],
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
-            'user' => $usersById[$authorId] ?? null,
+            'user' => $this->userProxy->searchUser($authorId),
             'children' => [],
         ];
         foreach ($comment->getLikes() as $key => $like) {
             $formatted['likes'][$key]['id'] = $like->getId();
-            $formatted['likes'][$key]['user']  = $usersById[$like->getUser()->toString()] ?? null;
+
+            $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
         }
         foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child, $usersById);
+            $formatted['children'][] = $this->formatCommentRecursively($child);
         }
 
         return $formatted;

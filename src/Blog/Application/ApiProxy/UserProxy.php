@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\ApiProxy;
 
+use App\Blog\Application\Service\UserCacheService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -21,7 +23,8 @@ readonly class UserProxy
 {
 
     public function __construct(
-        private HttpClientInterface $httpClient
+        private HttpClientInterface $httpClient,
+        private UserCacheService $userCacheService
     )
     {
     }
@@ -42,6 +45,39 @@ readonly class UserProxy
         ]);
 
         return $response->toArray();
+    }
+
+    /**
+     * @param string $query
+     *
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    public function searchUsers(string $query): array
+    {
+        return $this->userCacheService->search($query);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    public function searchUser(string $id): array
+    {
+        return $this->userCacheService->searchUser($id);
+    }
+
+    /**
+     * @param string $query
+     *
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    public function searchMedias(string $query): array
+    {
+        return $this->userCacheService->search($query);
     }
 
     /**
