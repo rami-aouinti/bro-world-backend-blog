@@ -95,17 +95,11 @@ readonly class PostController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     * @throws InvalidArgumentException
      * @return array
      */
     private function getFormattedPost(string $slug): array
     {
-        $users = $this->userProxy->getUsers();
-
-        $usersById = [];
-        foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
-        }
-
         $post = $this->getPost($slug);
         $postData = [];
         if($post) {
@@ -125,13 +119,13 @@ readonly class PostController
                     'title' => $post->getBlog()?->getTitle(),
                     'blogSubtitle' => $post->getBlog()?->getBlogSubtitle(),
                 ],
-                'user' => $usersById[$authorId] ?? null,
+                'user' => $this->userProxy->searchUser($authorId),
                 'comments' => [],
             ];
 
             foreach ($post->getLikes() as $key => $like) {
                 $postData['likes'][$key]['id'] = $like->getId();
-                $postData['likes'][$key]['user']  = $usersById[$like->getUser()->toString()] ?? null;
+                $postData['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
             }
 
             $rootComments = array_filter(
@@ -140,7 +134,7 @@ readonly class PostController
             );
 
             foreach ($rootComments as $comment) {
-                $postData['comments'][] = $this->formatCommentRecursively($comment, $usersById);
+                $postData['comments'][] = $this->formatCommentRecursively($comment);
             }
         }
 
@@ -149,25 +143,33 @@ readonly class PostController
 
     /**
      * @param       $comment
-     * @param array $usersById
      *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      * @return array
      */
-    private function formatCommentRecursively($comment, array $usersById): array
+    private function formatCommentRecursively($comment): array
     {
         $authorId = $comment->getAuthor()->toString();
 
         $formatted = [
             'id' => $comment->getId(),
             'content' => $comment->getContent(),
-            'likes' => $comment->getLikes(),
+            'likes' => [],
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
-            'user' => $usersById[$authorId] ?? null,
+            'user' => $this->userProxy->searchUser($authorId),
             'children' => [],
         ];
-
+        foreach ($comment->getLikes() as $key => $like) {
+            $formatted['likes'][$key]['id'] = $like->getId();
+            $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
+        }
         foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child, $usersById);
+            $formatted['children'][] = $this->formatCommentRecursively($child);
         }
 
         return $formatted;
