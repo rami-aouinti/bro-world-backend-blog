@@ -61,12 +61,27 @@ readonly class UserProxy
     /**
      * @param string $id
      *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
-     * @return array
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array|null
      */
-    public function searchUser(string $id): array
+    public function searchUser(string $id): array|null
     {
-        return $this->userCacheService->searchUser($id);
+        if ($this->userCacheService->searchUser($id) !== null) {
+            return $this->userCacheService->searchUser($id);
+        }
+        $users = $this->getUsers();
+
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersById[$user['id']] = $user;
+        }
+
+        return $usersById[$id] ?? null;
     }
 
     /**

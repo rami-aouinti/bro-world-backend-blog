@@ -47,19 +47,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
 
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($id) {
             $item->expiresAfter(600);
-
-            if ($this->userElasticsearchService->searchUser($id) !== null) {
                 return $this->userElasticsearchService->searchUser($id);
-            }
-
-            $users = $this->userProxy->getUsers();
-
-            $usersById = [];
-            foreach ($users as $user) {
-                $usersById[$user['id']] = $user;
-            }
-
-            return $usersById[$id] ?? null;
         });
     }
 }
