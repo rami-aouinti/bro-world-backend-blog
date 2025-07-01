@@ -19,7 +19,8 @@ readonly class UserCacheService implements UserCacheServiceInterface
 {
     public function __construct(
         private CacheInterface $userCache,
-        private UserElasticsearchServiceInterface $userElasticsearchService
+        private UserElasticsearchServiceInterface $userElasticsearchService,
+        private UserProxy $userProxy
     ) {
     }
 
@@ -40,14 +41,25 @@ readonly class UserCacheService implements UserCacheServiceInterface
     /**
      * @throws InvalidArgumentException
      */
-    public function searchUser(string $id): array
+    public function searchUser(string $id): array|null
     {
         $cacheKey = 'search_user_' . md5($id);
 
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($id) {
             $item->expiresAfter(600);
 
-            return $this->userElasticsearchService->searchUser($id);
+            if ($this->userElasticsearchService->searchUser($id) !== null) {
+                return $this->userElasticsearchService->searchUser($id);
+            }
+
+            $users = $this->userProxy->getUsers();
+
+            $usersById = [];
+            foreach ($users as $user) {
+                $usersById[$user['id']] = $user;
+            }
+
+            return $usersById[$id] ?? null;
         });
     }
 }
