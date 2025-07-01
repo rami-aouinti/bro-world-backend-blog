@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Service;
 
-use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\Interfaces\UserCacheServiceInterface;
 use App\Blog\Application\Service\Interfaces\UserElasticsearchServiceInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -19,8 +18,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
 {
     public function __construct(
         private CacheInterface $userCache,
-        private UserElasticsearchServiceInterface $userElasticsearchService,
-        private UserProxy $userProxy
+        private UserElasticsearchServiceInterface $userElasticsearchService
     ) {
     }
 
