@@ -92,7 +92,7 @@ readonly class CreateCommentHandlerMessage
      */
     private function handleNotification(CreateCommentMessenger $message): void
     {
-        $post = $this->postRepository->find($message->getPostId());
+        $this->postRepository->find($message->getPostId());
         $this->bus->dispatch(
             new CreateNotificationMessenger(
                 $message->getToken(),
