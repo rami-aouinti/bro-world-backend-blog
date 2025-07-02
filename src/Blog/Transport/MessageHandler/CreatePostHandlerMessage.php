@@ -61,7 +61,7 @@ readonly class CreatePostHandlerMessage
     private function handleMessage(CreatePostMessenger $message): void
     {
         $this->postService->savePost($message->getPost(), $message->getMediasIds());
-        $cacheKey = 'all_posts' . 1 . '_' . 10;
+        $cacheKey = 'all_posts_' . 1 . '_' . 10;
         $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure(10, 1)($item));
     }
 

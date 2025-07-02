@@ -67,6 +67,7 @@ class CacheInvalidationListener
 
         $cacheKey = "post_public_1_10";
         $this->cache->deleteItem($cacheKey);
+        $this->cache->deleteItem("all_posts_1_10");
         $this->cache->deleteItem("post_{$post?->getId()}");
     }
 }
