@@ -10,6 +10,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use JsonException;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -37,6 +38,7 @@ readonly class CreateNotificationHandlerMessage
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
@@ -63,6 +65,7 @@ readonly class CreateNotificationHandlerMessage
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     * @throws InvalidArgumentException
      */
     private function handleMessage(CreateNotificationMessenger $message): void
     {

@@ -14,6 +14,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use JsonException;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -57,6 +58,7 @@ readonly class NotificationService
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
+     * @throws InvalidArgumentException
      * @return void
      */
     public function createNotification(
@@ -76,20 +78,14 @@ readonly class NotificationService
                 $post = $this->getOriginPost($postId);
             }
 
-            $users = $this->userProxy->getUsers();
-            $usersById = [];
-            foreach ($users as $user) {
-                $usersById[$user['id']] = $user;
-            }
-            $sender = $usersById[$symfonyUserId];
-
+            $sender = $this->userProxy->searchUser($userId);
 
             $notification = [
                 'channel' => $channel,
                 'scope' => 'INDIVIDUAL',
                 'topic' => '/notifications/' . $userId,
                 'pushTitle' => $sender['firstName'] . ' ' . $sender['lastName'] . ' ' .  $title,
-                'pushSubtitle' => 'Someone commented on your post.',
+                'pushSubtitle' => $sender['photo'],
                 'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
                 'scopeTarget' => '["' . $userId . '"]',
             ];

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
-use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Message\CreateNotificationMessenger;
@@ -13,10 +12,8 @@ use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
 use JsonException;
 use OpenApi\Attributes as OA;
-use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,13 +22,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Throwable;
 
 /**
  * @package App\Blog
@@ -43,7 +33,6 @@ readonly class ToggleCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
-        private NotificationService $notificationService,
         private MessageBusInterface $bus
     ) {
     }
@@ -55,16 +44,10 @@ readonly class ToggleCommentController
      * @param Request     $request
      * @param Comment     $comment
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransactionRequiredException
-     * @throws TransportExceptionInterface
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
      * @return JsonResponse
      */
@@ -78,8 +61,8 @@ readonly class ToggleCommentController
             new CreateNotificationMessenger(
                 $request->headers->get('Authorization'),
                 'PUSH',
-                $comment->getAuthor()->toString(),
                 $symfonyUser->getUserIdentifier(),
+                $comment->getAuthor()->toString(),
                 $comment->getPost()?->getId(),
                 'liked your comment.'
             )
