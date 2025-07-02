@@ -7,6 +7,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Like;
+use App\Blog\Domain\Message\CreateNotificationMessenger;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -20,6 +21,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -41,7 +43,8 @@ readonly class ToggleCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
-        private NotificationService $notificationService
+        private NotificationService $notificationService,
+        private MessageBusInterface $bus
     ) {
     }
 
@@ -60,8 +63,9 @@ readonly class ToggleCommentController
      * @throws OptimisticLockException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
      * @throws TransactionRequiredException
+     * @throws TransportExceptionInterface
+     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
@@ -70,13 +74,15 @@ readonly class ToggleCommentController
         $like = new Like();
         $like->setComment($comment);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $this->notificationService->createNotification(
-            $request->headers->get('Authorization'),
-            'PUSH',
-            $symfonyUser->getUserIdentifier(),
-            $comment->getAuthor()->toString(),
-            $comment->getId(),
-            'liked on your comment.'
+        $this->bus->dispatch(
+            new CreateNotificationMessenger(
+                $request->headers->get('Authorization'),
+                'PUSH',
+                $comment->getAuthor()->toString(),
+                $symfonyUser->getUserIdentifier(),
+                $comment->getPost()?->getId(),
+                'liked your comment.'
+            )
         );
         $this->likeRepository->save($like);
         $result = [];

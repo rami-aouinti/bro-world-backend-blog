@@ -72,7 +72,7 @@ readonly class CreateNotificationHandlerMessage
             $message->getSenderId(),
             $message->getUserId(),
             $message->getPostId(),
-            'commented on your post.'
+            $message->getMessage()
         );
     }
 }

@@ -100,6 +100,7 @@ readonly class CreateCommentHandlerMessage
                 $message->getSenderId(),
                 $message->getUserId(),
                 $message->getPostId(),
+                'commented on your post.'
             )
         );
     }

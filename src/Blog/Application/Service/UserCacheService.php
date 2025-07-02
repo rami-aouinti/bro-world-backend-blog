@@ -30,7 +30,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
         $cacheKey = 'search_users_' . md5($query);
 
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($query) {
-            $item->expiresAfter(600);
+            $item->expiresAfter(31536000);
 
             return $this->userElasticsearchService->searchUsers($query);
         });
@@ -44,7 +44,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
         $cacheKey = 'search_user_' . md5($id);
 
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($id) {
-            $item->expiresAfter(600);
+            $item->expiresAfter(31536000);
                 return $this->userElasticsearchService->searchUser($id);
         });
     }

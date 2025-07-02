@@ -76,7 +76,7 @@ readonly class UserBlogController
     private function getClosure(string $userId): Closure
     {
         return function (ItemInterface $item) use($userId): array {
-            $item->expiresAfter(3600);
+            $item->expiresAfter(31536000);
 
             return $this->getFormattedBlog($userId);
         };

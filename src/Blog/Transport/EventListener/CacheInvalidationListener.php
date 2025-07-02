@@ -65,13 +65,8 @@ class CacheInvalidationListener
             default => null,
         };
 
-        if ($post instanceof Post) {
-            for ($page = 1; $page <= 10; $page++) {
-                $cacheKey = "post_public_{$page}_10";
-                $this->cache->deleteItem($cacheKey);
-            }
-
-            $this->cache->deleteItem("post_{$post->getId()}");
-        }
+        $cacheKey = "post_public_1_10";
+        $this->cache->deleteItem($cacheKey);
+        $this->cache->deleteItem("post_{$post?->getId()}");
     }
 }

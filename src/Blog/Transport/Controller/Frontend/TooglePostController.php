@@ -7,6 +7,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Entity\Post;
+use App\Blog\Domain\Message\CreateNotificationMessenger;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -15,15 +16,14 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use JsonException;
 use OpenApi\Attributes as OA;
-use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -40,7 +40,8 @@ readonly class TooglePostController
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
-        private NotificationService $notificationService
+        private NotificationService $notificationService,
+        private MessageBusInterface $bus
     ) {
     }
 
@@ -59,8 +60,9 @@ readonly class TooglePostController
      * @throws OptimisticLockException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
      * @throws TransactionRequiredException
+     * @throws TransportExceptionInterface
+     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
      * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/like', name: 'like_post', methods: [Request::METHOD_POST])]
@@ -69,17 +71,17 @@ readonly class TooglePostController
         $like = new Like();
         $like->setPost($post);
         $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-
-        $this->notificationService->createNotification(
-            $request->headers->get('Authorization'),
-            'PUSH',
-            $symfonyUser->getUserIdentifier(),
-            $post->getAuthor()->toString(),
-            $post->getId(),
-            'liked on your post.'
+        $this->bus->dispatch(
+            new CreateNotificationMessenger(
+                $request->headers->get('Authorization'),
+                'PUSH',
+                $post->getAuthor()->toString(),
+                $symfonyUser->getUserIdentifier(),
+                $post->getId(),
+                'liked your post.'
+            )
         );
         $this->likeRepository->save($like);
-
         $result = [];
         $result['id'] = $like->getId();
         $result['user'] = $symfonyUser;

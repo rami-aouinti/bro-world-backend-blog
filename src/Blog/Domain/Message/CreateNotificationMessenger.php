@@ -19,7 +19,8 @@ readonly class CreateNotificationMessenger implements MessageHighInterface
         private ?string $channel,
         private ?string $senderId,
         private ?string $userId,
-        private ?string $postId
+        private ?string $postId,
+        private ?string $message
     )
     {
     }
@@ -47,5 +48,10 @@ readonly class CreateNotificationMessenger implements MessageHighInterface
     public function getPostId(): ?string
     {
         return $this->postId;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
     }
 }
