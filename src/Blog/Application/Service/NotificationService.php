@@ -78,7 +78,7 @@ readonly class NotificationService
                 $post = $this->getOriginPost($postId);
             }
 
-            $sender = $this->userProxy->searchUser($userId);
+            $sender = $this->userProxy->searchUser($symfonyUserId);
 
             $notification = [
                 'channel' => $channel,
