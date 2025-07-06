@@ -83,7 +83,7 @@ readonly class PostService
                 'medias' => $post->getMediaEntities()->map(
                     fn(Media $media) => $media->toArray()
                 )->toArray(),
-                'user' => $user
+                'user' => $this->userProxy->searchUser($user->getUserIdentifier()),
             ]
         );
     }
