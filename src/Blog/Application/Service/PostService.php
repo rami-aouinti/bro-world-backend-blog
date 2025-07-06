@@ -173,9 +173,9 @@ readonly class PostService
      */
     public function uploadFiles(Request $request, Post $post): JsonResponse|Post
     {
-        $files = $request->files->get('files');
+        $files = $request->files->all();
 
-        foreach ($files as $file) {
+        foreach ($files["files"] as $file) {
 
             $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeFilename = $this->slugger->slug($originalFilename);
