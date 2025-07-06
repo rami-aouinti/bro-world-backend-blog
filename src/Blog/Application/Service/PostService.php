@@ -71,7 +71,7 @@ readonly class PostService
             $user,
             $request
         );
-        $post = $request->files->all() ? $this->uploadFiles($request, $post) : [];
+        $post = $request->files->all() ? $this->uploadFiles($request, $post) : $post;
 
         $this->bus->dispatch(
             new CreatePostMessenger($post, null)
