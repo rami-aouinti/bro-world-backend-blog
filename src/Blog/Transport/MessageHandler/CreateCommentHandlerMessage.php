@@ -62,7 +62,7 @@ readonly class CreateCommentHandlerMessage
         $this->commentService->saveComment(
             $message->getComment(),
             $message->getPostId(),
-            $message->getUserId(),
+            $message->getSenderId(),
             $message->getData()
         );
     }
