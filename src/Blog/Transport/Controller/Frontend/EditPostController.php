@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend;
 
+use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\MediaService;
 use App\Blog\Application\Service\PostService;
+use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreatePostMessenger;
+use App\Blog\Infrastructure\Repository\PostRepository;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -39,8 +42,8 @@ readonly class EditPostController
 {
     public function __construct(
         private PostService $postService,
-        private MediaService $mediaService,
-        private MessageBusInterface $bus
+        private UserProxy $userProxy,
+        private PostRepository $postRepository
     ) {
     }
 
@@ -66,7 +69,7 @@ readonly class EditPostController
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
         $data = $request->request->all();
-        $medias = $request->files->all() ? $this->mediaService->createMedia($request, 'media') : [];
+
         if(isset($data['title'])) {
             $post->setTitle($data['title']);
             $post->setSlug($data['title'] ?? $this->generateRandomString(20));
@@ -78,15 +81,16 @@ readonly class EditPostController
             $post->setUrl($data['url']);
         }
 
-        $this->bus->dispatch(
-            new CreatePostMessenger($post, $medias)
-        );
+        $data = $request->files->all() ? $this->postService->uploadFiles($request, $post) : $post;
+        $this->postRepository->save($post);
 
         $newPost = array_merge(
-            $post->toArray(),
+            $data->toArray(),
             [
-                'medias' => $this->postService->getMedia($medias),
-                'user' => $symfonyUser
+                'medias' => $post->getMediaEntities()->map(
+                    fn(Media $media) => $media->toArray()
+                )->toArray(),
+                'user' => $this->userProxy->searchUser($symfonyUser->getUserIdentifier()),
             ]
         );
 
