@@ -176,7 +176,7 @@ readonly class PostService
         $files = $request->files->get('files');
 
         foreach ($files as $file) {
-
+            $type = $file->getMimeType();
             $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeFilename = $this->slugger->slug($originalFilename);
             $newFilename = $safeFilename.'-'.uniqid('', true).'.'.$file->guessExtension();
@@ -193,7 +193,7 @@ readonly class PostService
             $relativePath = '/uploads/post/' . $newFilename;
             $media = new Media();
             $media->setUrl($baseUrl . $relativePath);
-            $media->setType($file->getMimeType());
+            $media->setType($type);
             $media->setPost($post);
             $post->addMedia($media);
         }
