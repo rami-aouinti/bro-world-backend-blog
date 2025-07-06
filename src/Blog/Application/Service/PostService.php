@@ -6,6 +6,7 @@ namespace App\Blog\Application\Service;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Blog;
+use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Message\CreatePostMessenger;
@@ -20,8 +21,11 @@ use Doctrine\ORM\TransactionRequiredException;
 use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Random\RandomException;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -46,7 +50,9 @@ readonly class PostService
         private TagRepositoryInterface $tagRepository,
         private PostRepositoryInterface $postRepository,
         private UserProxy $userProxy,
-        private MessageBusInterface $bus
+        private MessageBusInterface $bus,
+        private string $postDirectory,
+        private SluggerInterface $slugger,
     ) {}
 
     /**
@@ -59,22 +65,24 @@ readonly class PostService
      */
     public function createPost(SymfonyUser $user, Request $request): array
     {
-        $medias = $request->files->all() ? $this->mediaService->createMedia($request, 'media') : [];
 
         $post = $this->generatePostAttributes(
             $this->blogService->getBlog($request, $user),
             $user,
             $request
         );
+        $post = $request->files->all() ? $this->uploadFiles($request, $post) : [];
 
         $this->bus->dispatch(
-            new CreatePostMessenger($post, $medias)
+            new CreatePostMessenger($post, null)
         );
 
         return array_merge(
             $post->toArray(),
             [
-                'medias' => $this->getMedia($medias),
+                'medias' => $post->getMediaEntities()->map(
+                    fn(Media $media) => $media->toArray()
+                )->toArray(),
                 'user' => $user
             ]
         );
@@ -90,7 +98,7 @@ readonly class PostService
     public function savePost(Post $post, ?array $mediaIds): void
     {
         if (!empty($mediaIds)) {
-            $post->setMedias($mediaIds);
+            //$post->setMedias($mediaIds);
         }
         $this->postRepository->save($post);
     }
@@ -155,5 +163,41 @@ readonly class PostService
         }
 
         return $randomString;
+    }
+
+    /**
+     * @param Request $request
+     * @param Post    $post
+     *
+     * @return JsonResponse|array
+     */
+    public function uploadFiles(Request $request, Post $post): JsonResponse|Post
+    {
+        $files = $request->files->get('files');
+
+        foreach ($files as $file) {
+
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $this->slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid('', true).'.'.$file->guessExtension();
+
+            try {
+                $file->move(
+                    $this->postDirectory,
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => $e->getMessage()], 500);
+            }
+            $baseUrl = $request->getSchemeAndHttpHost();
+            $relativePath = '/uploads/post/' . $newFilename;
+            $media = new Media();
+            $media->setUrl($baseUrl . $relativePath);
+            $media->setType($file->getMimeType());
+            $media->setPost($post);
+            $post->addMedia($media);
+        }
+
+        return $post;
     }
 }

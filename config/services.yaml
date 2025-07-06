@@ -9,6 +9,7 @@ parameters:
     api_media_base_url: '%env(API_MEDIA_BASE_URL)%'
     api_notification_base_url: '%env(API_NOTIFICATION_BASE_URL)%'
     logo_directory: '%kernel.project_dir%/public/uploads/logo'
+    post_directory: '%kernel.project_dir%/public/uploads/post'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -134,7 +135,9 @@ services:
     App\Blog\Application\Service\BlogService:
         arguments:
             $logoDirectory: '%logo_directory%'
-
+    App\Blog\Application\Service\PostService:
+        arguments:
+            $postDirectory: '%post_directory%'
 when@dev:
     services:
         _defaults:

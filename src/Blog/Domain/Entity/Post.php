@@ -133,12 +133,15 @@ class Post implements EntityInterface, Stringable
     #[Assert\Count(max: 4, maxMessage: 'post.too_many_tags')]
     private Collection $tags;
 
-    #[ORM\Column(type: 'json', nullable: true)]
+    /**
+     * @var Collection<int, Media>
+     */
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Media::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups([
         'Post',
         self::SET_BLOG_INDEX,
     ])]
-    private ?array $medias = [];
+    private Collection $medias;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Like::class, cascade: ['persist', 'remove'])]
     #[Groups([
@@ -292,14 +295,31 @@ class Post implements EntityInterface, Stringable
         return $this;
     }
 
-    public function getMedias(): ?array
+    public function getMediaEntities(): Collection
     {
         return $this->medias;
     }
 
-    public function setMedias(?array $medias): void
+    public function addMedia(Media $media): self
     {
-        $this->medias = $medias;
+        if (!$this->medias->contains($media)) {
+            $this->medias[] = $media;
+            $media->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMedia(Media $media): self
+    {
+        if ($this->medias->removeElement($media)) {
+            // break the association
+            if ($media->getPost() === $this) {
+                $media->setPost(null);
+            }
+        }
+
+        return $this;
     }
 
     public function getLikes(): Collection
@@ -344,7 +364,9 @@ class Post implements EntityInterface, Stringable
             'publishedAt' => $this->getPublishedAt()->format('Y-m-d H:i:s'),
             'comments' => $this->getComments()->toArray(),
             'tags' => $this->getTags()->toArray(),
-            'medias' => $this->getMedias(),
+            'medias' => $this->getMediaEntities()->map(
+                fn(Media $media) => $media->toArray()
+            )->toArray(),
             'likes' => $this->getLikes()->toArray(),
         ];
     }
