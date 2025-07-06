@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use Closure;
@@ -128,7 +129,9 @@ readonly class PostsController
                 'content' => $post->getContent(),
                 'slug' => $post->getSlug(),
                 'tags' => $post->getTags(),
-                'medias' =>  $this->getMedia($post->getMedias()),
+                'medias' =>  $post->getMediaEntities()->map(
+                    fn(Media $media) => $media->toArray()
+                )->toArray(),
                 'likes' => [],
                 'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                 'blog' => [
@@ -192,27 +195,6 @@ readonly class PostsController
 
         return $formatted;
     }
-
-
-    /**
-     * @param array|null $mediaIds
-     *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     * @return array
-     */
-    private function getMedia(?array $mediaIds): array
-    {
-        $medias  = [];
-        foreach ($mediaIds as $id) {
-            $medias[] = $this->userProxy->getMedia($id);
-        }
-        return $medias;
-    }
-
 
     /**
      * @param $limit
