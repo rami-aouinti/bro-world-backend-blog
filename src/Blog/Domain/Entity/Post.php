@@ -167,6 +167,7 @@ class Post implements EntityInterface, Stringable
         $this->comments = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->medias = new ArrayCollection();
     }
 
     public function __toString(): string
