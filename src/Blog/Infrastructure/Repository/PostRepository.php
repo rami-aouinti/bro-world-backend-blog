@@ -16,6 +16,7 @@ use Exception;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 
 use function count;
+use function sprintf;
 use function Symfony\Component\String\u;
 
 /**
@@ -52,12 +53,22 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
 
     public function countPostsByMonth(): array
     {
-        $qb = $this->createQueryBuilder('p')
-            ->select("CONCAT_WS('-', YEAR(p.createdAt), LPAD(MONTH(p.createdAt), 2, '0')) AS month, COUNT(p.id) AS count")
-            ->groupBy("CONCAT_WS('-', YEAR(p.createdAt), LPAD(MONTH(p.createdAt), 2, '0'))")
-            ->orderBy("CONCAT_WS('-', YEAR(p.createdAt), LPAD(MONTH(p.createdAt), 2, '0'))", 'DESC');
+        $qb = $this->createQueryBuilder('b')
+            ->select('YEAR(b.createdAt) AS year, MONTH(b.createdAt) AS month, COUNT(b.id) AS count')
+            ->groupBy('year, month')
+            ->orderBy('year', 'DESC')
+            ->addOrderBy('month', 'DESC');
 
-        return array_column($qb->getQuery()->getResult(), 'count', 'month');
+        $result = $qb->getQuery()->getResult();
+
+        // Transformer le résultat : ['2025-07' => 12, ...]
+        $formatted = [];
+        foreach ($result as $row) {
+            $key = sprintf('%04d-%02d', $row['year'], $row['month']);
+            $formatted[$key] = (int) $row['count'];
+        }
+
+        return $formatted;
     }
 
     /**

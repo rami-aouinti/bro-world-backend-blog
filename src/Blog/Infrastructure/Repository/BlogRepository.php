@@ -9,6 +9,8 @@ use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+use function sprintf;
+
 /**
  * @package App\Blog
  *
@@ -44,10 +46,20 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
     public function countBlogsByMonth(): array
     {
         $qb = $this->createQueryBuilder('b')
-            ->select("CONCAT_WS('-', YEAR(b.createdAt), LPAD(MONTH(b.createdAt), 2, '0')) AS month, COUNT(b.id) AS count")
-            ->groupBy("CONCAT_WS('-', YEAR(b.createdAt), LPAD(MONTH(b.createdAt), 2, '0'))")
-            ->orderBy("CONCAT_WS('-', YEAR(b.createdAt), LPAD(MONTH(b.createdAt), 2, '0'))", 'DESC');
+            ->select('YEAR(b.createdAt) AS year, MONTH(b.createdAt) AS month, COUNT(b.id) AS count')
+            ->groupBy('year, month')
+            ->orderBy('year', 'DESC')
+            ->addOrderBy('month', 'DESC');
 
-        return array_column($qb->getQuery()->getResult(), 'count', 'month');
+        $result = $qb->getQuery()->getResult();
+
+        // Transformer le résultat : ['2025-07' => 12, ...]
+        $formatted = [];
+        foreach ($result as $row) {
+            $key = sprintf('%04d-%02d', $row['year'], $row['month']);
+            $formatted[$key] = (int) $row['count'];
+        }
+
+        return $formatted;
     }
 }
