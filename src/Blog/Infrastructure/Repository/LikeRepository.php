@@ -40,4 +40,14 @@ class LikeRepository extends BaseRepository implements LikeRepositoryInterface
         protected ManagerRegistry $managerRegistry
     ) {
     }
+
+    public function countLikesByMonth(): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select("DATE_FORMAT(l.createdAt, '%Y-%m') AS month, COUNT(l.id) AS count")
+            ->groupBy('month')
+            ->orderBy('month', 'DESC');
+
+        return array_column($qb->getQuery()->getResult(), 'count', 'month');
+    }
 }

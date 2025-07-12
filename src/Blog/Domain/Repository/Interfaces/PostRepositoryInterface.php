@@ -9,4 +9,8 @@ namespace App\Blog\Domain\Repository\Interfaces;
  */
 interface PostRepositoryInterface
 {
+    /**
+     * @return array
+     */
+    public function countPostsByMonth(): array;
 }

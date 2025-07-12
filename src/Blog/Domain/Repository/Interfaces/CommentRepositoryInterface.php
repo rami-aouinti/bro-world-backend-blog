@@ -9,4 +9,8 @@ namespace App\Blog\Domain\Repository\Interfaces;
  */
 interface CommentRepositoryInterface
 {
+    /**
+     * @return array
+     */
+    public function countCommentsByMonth(): array;
 }

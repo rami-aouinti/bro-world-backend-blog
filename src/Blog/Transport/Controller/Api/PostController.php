@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Api;
 
-use App\Blog\Application\DTO\Blog\BlogCreate;
-use App\Blog\Application\DTO\Blog\BlogPatch;
-use App\Blog\Application\DTO\Blog\BlogUpdate;
-use App\Blog\Application\Resource\BlogResource;
+use App\Blog\Application\DTO\Post\PostCreate;
+use App\Blog\Application\DTO\Post\PostPatch;
+use App\Blog\Application\DTO\Post\PostUpdate;
+use App\Blog\Application\Resource\PostResource;
 use App\General\Transport\Rest\Controller;
 use App\General\Transport\Rest\ResponseHandler;
 use App\General\Transport\Rest\Traits\Actions;
@@ -18,18 +18,18 @@ use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * @package App\Blog
+ * @package App\Post
  *
- * @method BlogResource getResource()
+ * @method PostResource getResource()
  * @method ResponseHandler getResponseHandler()
  */
 #[AsController]
 #[Route(
-    path: '/v1/blog',
+    path: '/v1/post',
 )]
-#[OA\Tag(name: 'Blog Management')]
+#[OA\Tag(name: 'Post Management')]
 #[IsGranted(AuthenticatedVoter::PUBLIC_ACCESS)]
-class BlogController extends Controller
+class PostController extends Controller
 {
     use Actions\Admin\CountAction;
     use Actions\Admin\FindAction;
@@ -43,13 +43,13 @@ class BlogController extends Controller
      * @var array<string, string>
      */
     protected static array $dtoClasses = [
-        Controller::METHOD_CREATE => BlogCreate::class,
-        Controller::METHOD_UPDATE => BlogUpdate::class,
-        Controller::METHOD_PATCH => BlogPatch::class,
+        Controller::METHOD_CREATE => PostCreate::class,
+        Controller::METHOD_UPDATE => PostUpdate::class,
+        Controller::METHOD_PATCH => PostPatch::class,
     ];
 
     public function __construct(
-        BlogResource $resource,
+        PostResource $resource,
     ) {
         parent::__construct($resource);
     }

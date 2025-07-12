@@ -40,4 +40,14 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
         protected ManagerRegistry $managerRegistry
     ) {
     }
+
+    public function countBlogsByMonth(): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select("DATE_FORMAT(b.createdAt, '%Y-%m') AS month, COUNT(b.id) AS count")
+            ->groupBy('month')
+            ->orderBy('month', 'DESC');
+
+        return array_column($qb->getQuery()->getResult(), 'count', 'month');
+    }
 }

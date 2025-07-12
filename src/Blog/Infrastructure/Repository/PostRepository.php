@@ -50,81 +50,14 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     ) {
     }
 
-    /**
-     * @throws Exception
-     */
-    public function findLatest(int $page = 1, ?Tag $tag = null): Paginator
+    public function countPostsByMonth(): array
     {
         $qb = $this->createQueryBuilder('p')
-            ->addSelect('t', 'l')
-            ->leftJoin('p.tags', 't')
-            ->leftJoin('p.likes', 'l')
-            ->where('p.publishedAt <= :now')
-            ->orderBy('p.publishedAt', 'DESC')
-            ->setParameter('now', new DateTimeImmutable());
+            ->select("DATE_FORMAT(p.createdAt, '%Y-%m') AS month, COUNT(p.id) AS count")
+            ->groupBy('month')
+            ->orderBy('month', 'DESC');
 
-        if (null !== $tag) {
-            $qb->andWhere(':tag MEMBER OF p.tags')
-                ->setParameter('tag', $tag);
-        }
-
-        return (new Paginator($qb))->paginate($page);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function findLatestByBlog(int $page, ?Tag $tag, Blog $blog): Paginator
-    {
-
-        $qb = $this->createQueryBuilder('p')
-            ->addSelect('t', 'l', 'b')
-            ->leftJoin('p.tags', 't')
-            ->leftJoin('p.likes', 'l')
-            ->leftJoin('p.blog', 'b')
-            ->where('p.publishedAt <= :now')
-            ->andWhere('b.slug = :blog')
-            ->setParameter('blog', $blog->getSlug())
-            ->orderBy('p.publishedAt', 'DESC')
-            ->setParameter('now', new DateTimeImmutable());
-
-        if (null !== $tag) {
-            $qb->andWhere(':tag MEMBER OF p.tags')
-                ->setParameter('tag', $tag);
-        }
-
-        return (new Paginator($qb))->paginate($page);
-    }
-
-    /**
-     * @return Entity[]
-     */
-    public function findBySearchQuery(string $query, int $limit = Paginator::PAGE_SIZE): array
-    {
-        $searchTerms = $this->extractSearchTerms($query);
-
-        if (0 === count($searchTerms)) {
-            return [];
-        }
-
-        $queryBuilder = $this->createQueryBuilder('p');
-
-        foreach ($searchTerms as $key => $term) {
-            $queryBuilder
-                ->orWhere('p.title LIKE :t_'.$key)
-                ->setParameter('t_'.$key, '%'.$term.'%')
-            ;
-        }
-
-        /** @var Entity[] $result */
-        $result = $queryBuilder
-            ->orderBy('p.publishedAt', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult()
-        ;
-
-        return $result;
+        return array_column($qb->getQuery()->getResult(), 'count', 'month');
     }
 
     /**

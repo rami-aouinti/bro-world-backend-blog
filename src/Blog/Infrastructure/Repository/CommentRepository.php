@@ -40,4 +40,14 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
         protected ManagerRegistry $managerRegistry
     ) {
     }
+
+    public function countCommentsByMonth(): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select("DATE_FORMAT(c.createdAt, '%Y-%m') AS month, COUNT(c.id) AS count")
+            ->groupBy('month')
+            ->orderBy('month', 'DESC');
+
+        return array_column($qb->getQuery()->getResult(), 'count', 'month');
+    }
 }
