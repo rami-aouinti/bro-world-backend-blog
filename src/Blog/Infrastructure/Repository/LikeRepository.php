@@ -44,9 +44,9 @@ class LikeRepository extends BaseRepository implements LikeRepositoryInterface
     public function countLikesByMonth(): array
     {
         $qb = $this->createQueryBuilder('l')
-            ->select("(YEAR(l.createdAt) * 100 + MONTH(l.createdAt)) AS monthKey, COUNT(l.id) AS count")
-            ->groupBy('month')
-            ->orderBy('month', 'DESC');
+            ->select("CONCAT_WS('-', YEAR(l.createdAt), LPAD(MONTH(l.createdAt), 2, '0')) AS month, COUNT(l.id) AS count")
+            ->groupBy("CONCAT_WS('-', YEAR(l.createdAt), LPAD(MONTH(l.createdAt), 2, '0'))")
+            ->orderBy("CONCAT_WS('-', YEAR(l.createdAt), LPAD(MONTH(l.createdAt), 2, '0'))", 'DESC');
 
         return array_column($qb->getQuery()->getResult(), 'count', 'month');
     }
