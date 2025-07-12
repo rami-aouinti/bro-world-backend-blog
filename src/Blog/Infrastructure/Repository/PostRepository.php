@@ -53,7 +53,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     public function countPostsByMonth(): array
     {
         $qb = $this->createQueryBuilder('p')
-            ->select("CONCAT(YEAR(p.createdAt), '-', LPAD(MONTH(p.createdAt), 2, '0')) AS month, COUNT(p.id) AS count")
+            ->select("(YEAR(p.createdAt) * 100 + MONTH(p.createdAt)) AS monthKey, COUNT(p.id) AS count")
             ->groupBy('month')
             ->orderBy('month', 'DESC');
 

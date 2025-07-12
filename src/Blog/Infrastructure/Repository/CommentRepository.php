@@ -44,7 +44,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
     public function countCommentsByMonth(): array
     {
         $qb = $this->createQueryBuilder('c')
-            ->select("CONCAT(YEAR(c.createdAt), '-', LPAD(MONTH(c.createdAt), 2, '0')) AS month, COUNT(c.id) AS count")
+            ->select("(YEAR(c.createdAt) * 100 + MONTH(c.createdAt)) AS monthKey, COUNT(c.id) AS count")
             ->groupBy('month')
             ->orderBy('month', 'DESC');
 
