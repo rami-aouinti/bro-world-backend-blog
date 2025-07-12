@@ -44,7 +44,7 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
     public function countBlogsByMonth(): array
     {
         $qb = $this->createQueryBuilder('b')
-            ->select("DATE_FORMAT(b.createdAt, '%Y-%m') AS month, COUNT(b.id) AS count")
+            ->select("CONCAT(YEAR(b.createdAt), '-', LPAD(MONTH(b.createdAt), 2, '0')) AS month, COUNT(b.id) AS count")
             ->groupBy('month')
             ->orderBy('month', 'DESC');
 
