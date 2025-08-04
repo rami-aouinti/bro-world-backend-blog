@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Blog\Infrastructure\Repository;
 
-use App\Blog\Application\Pagination\Paginator;
-use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Post as Entity;
-use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
 use DateTimeImmutable;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 
+use Ramsey\Uuid\Uuid;
 use function count;
 use function sprintf;
 use function Symfony\Component\String\u;
+use App\Blog\Domain\Entity\Comment;
 
 /**
  * @package App\Blog
@@ -49,6 +49,90 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     public function __construct(
         protected ManagerRegistry $managerRegistry
     ) {
+    }
+
+    /** ⚡ Récupère posts avec relations principales (sans tout charger) */
+    public function findWithRelations(int $limit, int $offset): array
+    {
+        // 1️⃣ Récupère uniquement les IDs des posts pour la page demandée
+        $ids = $this->createQueryBuilder('p')
+            ->select('p.id')
+            ->orderBy('p.publishedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getScalarResult();
+
+        if (!$ids) {
+            return [];
+        }
+
+        $ids = array_column($ids, 'id');
+
+        // 2️⃣ Récupère les posts + relations en utilisant un WHERE IN
+        return $this->createQueryBuilder('p')
+            ->select('DISTINCT p', 'c', 'l', 'm')
+            ->leftJoin('p.comments', 'c')->addSelect('c')
+            ->leftJoin('p.likes', 'l')->addSelect('l')
+            ->leftJoin('p.medias', 'm')->addSelect('m')
+            ->where('p.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('p.publishedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
+
+    /**
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     * @return int
+     */
+    public function countPosts(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getRootComments(string $postId, int $limit, int $offset): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('c', 'children', 'likes')
+            ->from(Comment::class, 'c')
+            ->leftJoin('c.children', 'children')
+            ->leftJoin('c.likes', 'likes')
+            ->join('c.post', 'p')
+            ->where('p.id = :postId')
+            ->andWhere('c.parent IS NULL')
+            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // ✅ conversion
+            ->orderBy('c.publishedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param string $postId
+     *
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     * @return int
+     */
+    public function countComments(string $postId): int
+    {
+        return (int) $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(c.id)')
+            ->from(Comment::class, 'c')
+            ->join('c.post', 'p')
+            ->where('p.id = :postId')
+            ->andWhere('c.parent IS NULL')
+            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // ✅ conversion UUID
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**

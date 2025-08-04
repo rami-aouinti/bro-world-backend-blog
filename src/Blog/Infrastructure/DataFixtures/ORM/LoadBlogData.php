@@ -8,6 +8,8 @@ use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Tag;
+use App\Blog\Domain\Entity\Like;
+use App\Blog\Domain\Entity\Reaction;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
@@ -17,38 +19,40 @@ use Faker\Factory;
 use Override;
 use Ramsey\Uuid\Uuid;
 use Random\RandomException;
-use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Throwable;
 
 use function array_slice;
-use function Symfony\Component\String\u;
 
 /**
- * @package App\User
+ * Class LoadBlogData
  *
- * @psalm-suppress PropertyNotSetInConstructor
+ * @package App\Blog\Infrastructure\DataFixtures\ORM
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class LoadBlogData extends Fixture implements OrderedFixtureInterface
 {
     public static array $uuids = [
-         '20000000-0000-1000-8000-000000000021',
+        '20000000-0000-1000-8000-000000000021',
         '20000000-0000-1000-8000-000000000022',
-       '20000000-0000-1000-8000-000000000023',
+        '20000000-0000-1000-8000-000000000023',
         '20000000-0000-1000-8000-000000000024',
         '20000000-0000-1000-8000-000000000032',
         '20000000-0000-1000-8000-000000000033',
     ];
 
-    public function __construct(
-        private readonly SluggerInterface $slugger,
-    ) {
+    private \Faker\Generator $faker;
+
+    private array $reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
+
+    public function __construct(private readonly SluggerInterface $slugger)
+    {
+        $this->faker = Factory::create();
     }
 
     /**
-     * Load data fixtures with the passed EntityManager
-     *
      * @throws Throwable
+     * @throws RandomException
      */
     #[Override]
     public function load(ObjectManager $manager): void
@@ -57,9 +61,6 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         $this->loadPosts($manager);
     }
 
-    /**
-     * Get the order of this fixture
-     */
     #[Override]
     public function getOrder(): int
     {
@@ -73,10 +74,9 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
     {
         foreach ($this->getTagData() as $name) {
             $tag = new Tag($name);
-            $tag->setDescription('description' .  $name);
-
+            $tag->setDescription('description' . $name);
             $manager->persist($tag);
-            $this->addReference('tag-'.$name, $tag);
+            $this->addReference('tag-' . $name, $tag);
         }
 
         $manager->flush();
@@ -95,7 +95,6 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         $blogGeneral->setAuthor(Uuid::uuid1());
         $manager->persist($blogGeneral);
 
-
         foreach ($this->getPostData() as [$title, $slug, $summary, $content, $publishedAt, $author, $tags]) {
             $post = new Post();
             $post->setTitle($title);
@@ -107,14 +106,37 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
             $post->addTag(...$tags);
             $post->setBlog($blogGeneral);
 
-            foreach (range(1, 5) as $i) {
+            // ✅ Ajout des commentaires
+            foreach (range(1, random_int(1, 8)) as $i) {
                 $comment = new Comment();
                 $comment->setAuthor(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
-                $comment->setContent($this->getRandomText(random_int(255, 512)));
-                $comment->setPublishedAt(new DateTimeImmutable('now + '.$i.'seconds'));
-
+                $comment->setContent($this->faker->sentence(random_int(5, 15)));
+                $comment->setPublishedAt(new DateTimeImmutable('now + ' . $i . ' seconds'));
                 $post->addComment($comment);
+                $manager->persist($comment);
+
+                // ✅ Ajout de likes sur les commentaires
+                foreach (range(1, random_int(1, 4)) as $_) {
+                    $like = new Like();
+                    $like->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
+                    $like->setComment($comment);
+                    $manager->persist($like);
+                }
+
+                // ✅ Ajout de réactions sur les commentaires
+                $this->addRandomReactions($manager, null, $comment);
             }
+
+            // ✅ Ajout de likes sur les posts
+            foreach (range(1, random_int(1, 6)) as $_) {
+                $like = new Like();
+                $like->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
+                $like->setPost($post);
+                $manager->persist($like);
+            }
+
+            // ✅ Ajout de réactions sur les posts
+            $this->addRandomReactions($manager, $post, null);
 
             $manager->persist($post);
         }
@@ -128,34 +150,28 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
     private function getTagData(): array
     {
         return [
-            'lorem',
-            'ipsum',
-            'consectetur',
-            'adipiscing',
-            'incididunt',
-            'labore',
-            'voluptate',
-            'dolore',
-            'pariatur',
+            'lorem', 'ipsum', 'consectetur', 'adipiscing',
+            'incididunt', 'labore', 'voluptate', 'dolore', 'pariatur',
         ];
     }
 
     /**
      * @throws Exception
-     *
-     * @return array<int, array{0: string, 1: AbstractUnicodeString, 2: string, 3: string, 4: DateTimeImmutable, 6: array<Tag>}>
      */
     private function getPostData(): array
     {
         $posts = [];
 
-        foreach ($this->getPhrases() as $i => $title) {
+        // ✅ Ajout de titres faker en plus
+        $titles = array_merge($this->getPhrases(), $this->generateFakerTitles(290));
+
+        foreach ($titles as $i => $title) {
             $posts[] = [
                 $title,
                 $this->slugger->slug($title)->lower(),
-                $this->getRandomText(),
-                $this->getPostContent(),
-                (new DateTimeImmutable('now - '.$i.'days'))->setTime(random_int(8, 17), random_int(7, 49), random_int(0, 59)),
+                $this->faker->sentence(12),
+                $this->faker->paragraphs(5, true),
+                (new DateTimeImmutable('now - ' . $i . ' days'))->setTime(random_int(8, 17), random_int(0, 59)),
                 Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)),
                 $this->getRandomTags(),
             ];
@@ -164,9 +180,6 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         return $posts;
     }
 
-    /**
-     * @return string[]
-     */
     private function getPhrases(): array
     {
         return [
@@ -180,86 +193,28 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
             'Ut eleifend mauris et risus ultrices egestas',
             'Aliquam sodales odio id eleifend tristique',
             'Urna nisl sollicitudin id varius orci quam id turpis',
-            'Nulla porta lobortis ligula vel egestas',
-            'Curabitur aliquam euismod dolor non ornare',
-            'Sed varius a risus eget aliquam',
-            'Nunc viverra elit ac laoreet suscipit',
-            'Pellentesque et sapien pulvinar consectetur',
-            'Ubi est barbatus nix',
-            'Abnobas sunt hilotaes de placidus vita',
-            'Ubi est audax amicitia',
-            'Eposs sunt solems de superbus fortis',
-            'Vae humani generis',
-            'Diatrias tolerare tanquam noster caesium',
-            'Teres talis saepe tractare de camerarius flavum sensorem',
-            'Silva de secundus galatae demitto quadra',
-            'Sunt accentores vitare salvus flavum parses',
-            'Potus sensim ad ferox abnoba',
-            'Sunt seculaes transferre talis camerarius fluctuies',
-            'Era brevis ratione est',
-            'Sunt torquises imitari velox mirabilis medicinaes',
-            'Mineralis persuadere omnes finises desiderium',
-            'Bassus fatalis classiss virtualiter transferre de flavum',
         ];
     }
 
-    private function getRandomText(int $maxLength = 255): string
+    /**
+     * @throws RandomException
+     */
+    private function generateFakerTitles(int $count): array
     {
-        $phrases = $this->getPhrases();
-        shuffle($phrases);
-
-        do {
-            $text = u('. ')->join($phrases)->append('.');
-            array_pop($phrases);
-        } while ($text->length() > $maxLength);
-
-        return (string)$text;
+        $titles = [];
+        foreach (range(1, $count) as $_) {
+            $titles[] = $this->faker->sentence(random_int(4, 8));
+        }
+        return $titles;
     }
 
-    private function getPostContent(): string
+    private function getRandomText(): string
     {
-        return <<<'MARKDOWN'
-            Lorem ipsum dolor sit amet consectetur adipisicing elit, sed do eiusmod tempor
-            incididunt ut labore et **dolore magna aliqua**: Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-            deserunt mollit anim id est laborum.
-
-              * Ut enim ad minim veniam
-              * Quis nostrud exercitation *ullamco laboris*
-              * Nisi ut aliquip ex ea commodo consequat
-
-            Praesent id fermentum lorem. Ut est lorem, fringilla at accumsan nec, euismod at
-            nunc. Aenean mattis sollicitudin mattis. Nullam pulvinar vestibulum bibendum.
-            Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-            himenaeos. Fusce nulla purus, gravida ac interdum ut, blandit eget ex. Duis a
-            luctus dolor.
-
-            Integer auctor massa maximus nulla scelerisque accumsan. *Aliquam ac malesuada*
-            ex. Pellentesque tortor magna, vulputate eu vulputate ut, venenatis ac lectus.
-            Praesent ut lacinia sem. Mauris a lectus eget felis mollis feugiat. Quisque
-            efficitur, mi ut semper pulvinar, urna urna blandit massa, eget tincidunt augue
-            nulla vitae est.
-
-            Ut posuere aliquet tincidunt. Aliquam erat volutpat. **Class aptent taciti**
-            sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Morbi
-            arcu orci, gravida eget aliquam eu, suscipit et ante. Morbi vulputate metus vel
-            ipsum finibus, ut dapibus massa feugiat. Vestibulum vel lobortis libero. Sed
-            tincidunt tellus et viverra scelerisque. Pellentesque tincidunt cursus felis.
-            Sed in egestas erat.
-
-            Aliquam pulvinar interdum massa, vel ullamcorper ante consectetur eu. Vestibulum
-            lacinia ac enim vel placerat. Integer pulvinar magna nec dui malesuada, nec
-            congue nisl dictum. Donec mollis nisl tortor, at congue erat consequat a. Nam
-            tempus elit porta, blandit elit vel, viverra lorem. Sed sit amet tellus
-            tincidunt, faucibus nisl in, aliquet libero.
-            MARKDOWN;
+        return $this->faker->text(255);
     }
 
     /**
      * @throws Exception
-     *
-     * @return array<Tag>
      */
     private function getRandomTags(): array
     {
@@ -267,11 +222,31 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         shuffle($tagNames);
         $selectedTags = array_slice($tagNames, 0, random_int(2, 4));
 
-        return array_map(function ($tagName) {
-            /** @var Tag $tag */
-            $tag = $this->getReference('tag-'.$tagName, Tag::class);
+        return array_map(fn($tagName) => $this->getReference('tag-' . $tagName, Tag::class), $selectedTags);
+    }
 
-            return $tag;
-        }, $selectedTags);
+    /**
+     * ✅ Ajoute des réactions aléatoires pour un post ou un commentaire
+     *
+     * @param ObjectManager $manager
+     * @param Post|null     $post
+     * @param Comment|null  $comment
+     *
+     * @throws RandomException
+     */
+    private function addRandomReactions(ObjectManager $manager, ?Post $post = null, ?Comment $comment = null): void
+    {
+        foreach (range(1, random_int(1, 6)) as $_) {
+            $reaction = new Reaction();
+            $reaction->setType($this->reactionTypes[array_rand($this->reactionTypes)]);
+            $reaction->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
+            if ($post) {
+                $reaction->setPost($post);
+            }
+            if ($comment) {
+                $reaction->setComment($comment);
+            }
+            $manager->persist($reaction);
+        }
     }
 }

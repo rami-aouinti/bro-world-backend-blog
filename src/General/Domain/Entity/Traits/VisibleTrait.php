@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\General\Domain\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @package App\General
@@ -13,8 +13,14 @@ use JMS\Serializer\Annotation as Serializer;
 trait VisibleTrait
 {
     #[ORM\Column(name: 'visible', type: 'boolean', nullable: false)]
-    #[Serializer\Expose]
-    #[Serializer\Groups(['Default'])]
+    #[Groups([
+        'Post',
+        'Post.slug',
+        'Blog',
+        'Blog.slug',
+        'Post_Show',
+        'BlogProfile'
+    ])]
     private bool $visible = true;
 
     public function isVisible(): bool

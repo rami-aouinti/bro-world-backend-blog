@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-/* For licensing terms, see /license.txt */
-
 namespace App\Blog\Domain\Entity;
 
 use App\General\Domain\Entity\Interfaces\EntityInterface;
@@ -149,6 +147,9 @@ class Post implements EntityInterface, Stringable
         self::SET_BLOG_INDEX,
     ])]
     private Collection $likes;
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Reaction::class, cascade: ['remove'])]
+    private Collection $reactions;
 
     #[ORM\Column]
     #[Groups([
@@ -328,6 +329,11 @@ class Post implements EntityInterface, Stringable
         return $this->likes;
     }
 
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
+    }
+
     public function addLike(Like $like): self
     {
         if (!$this->likes->contains($like)) {
@@ -369,6 +375,7 @@ class Post implements EntityInterface, Stringable
                 fn(Media $media) => $media->toArray()
             )->toArray(),
             'likes' => $this->getLikes()->toArray(),
+            'reactions' => $this->getReactions()->toArray(),
         ];
     }
 }

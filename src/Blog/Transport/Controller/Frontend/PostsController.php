@@ -6,163 +6,149 @@ namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Media;
-use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Domain\Utils\JSON;
-use Closure;
-use Doctrine\ORM\Exception\NotSupported;
-use Exception;
-use JsonException;
+use App\Blog\Infrastructure\Repository\PostRepository;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
+use function array_slice;
+
 /**
- * @package App\Blog
+ * Class PostsController
+ *
+ * @package App\Blog\Transport\Controller\Frontend
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
 readonly class PostsController
 {
     public function __construct(
-        private SerializerInterface $serializer,
-        private CacheInterface $cache,
-        private PostRepositoryInterface $postRepository,
+        private TagAwareCacheInterface $cache, // ✅ utilise cache taggable
+        private PostRepository $postRepository,
         private UserProxy $userProxy
-    ) {
-    }
+    ) {}
 
-    /**
-     * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users
+    /** ✅ Endpoint principal : liste des posts avec preview
      *
      * @param Request $request
      *
-     * @throws ExceptionInterface
      * @throws InvalidArgumentException
-     * @throws JsonException
-     * @throws NotSupported
      * @return JsonResponse
      */
-    #[Route(path: '/public/post', name: 'public_post_index', methods: [Request::METHOD_GET])]
-    #[Cache(smaxage: 10)]
-    public function __invoke(Request $request): JsonResponse
+    #[Route('/public/post', name: 'public_post_index', methods: ['GET'])]
+    public function index(Request $request): JsonResponse
     {
-        $page = max(1, (int)$request->query->get('page', 1));
-        $limit = (int)$request->query->get('limit', 10);
+        $page   = max(1, (int) $request->query->get('page', 1));
+        $limit  = (int) $request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
-        $cacheKey = 'all_posts_' . $page . '_' . $limit;
+        $cacheKey = "posts_page_{$page}_limit_{$limit}";
 
-        $posts = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($limit, $offset)($item));
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $posts,
-                'json',
-                [
-                    'groups' => 'Post',
-                ]
-            ),
-            true,
-        );
-        $results = [
-            'data' => $output,
-            'page' => $page,
-            'limit' => $limit,
-            'count' => count($this->postRepository->findAll()),
-        ];
-        return new JsonResponse($results);
+        $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page) {
+            $item->tag(['posts']); // ✅ tag global
+            $item->expiresAfter(20);
+
+            $posts = $this->postRepository->findWithRelations($limit, $offset);
+            $total = $this->postRepository->countPosts();
+
+            $userIds = [];
+            foreach ($posts as $post) {
+                $userIds[] = $post->getAuthor()->toString();
+                foreach ($post->getLikes() as $like) {
+                    $userIds[] = $like->getUser()->toString();
+                }
+                foreach ($post->getReactions() as $reaction) {
+                    $userIds[] = $reaction->getUser()->toString();
+                }
+                foreach ($post->getComments() as $comment) {
+                    $userIds[] = $comment->getAuthor()->toString();
+                }
+            }
+            $users = $this->userProxy->batchSearchUsers($userIds);
+
+            $data = [];
+            foreach ($posts as $post) {
+                $data[] = [
+                    'id' => $post->getId(),
+                    'title' => $post->getTitle(),
+                    'summary' => $post->getSummary(),
+                    'url' => $post->getUrl(),
+                    'slug' => $post->getSlug(),
+                    'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
+                    'likes_count' => count($post->getLikes()),
+                    'reactions_count' => count($post->getReactions()),
+                    'totalComments' => count($post->getComments()),
+                    'user' => $users[$post->getAuthor()->toString()] ?? null,
+                    'comments_preview' => array_slice(array_map(static fn($c) => [
+                        'id' => $c->getId(),
+                        'content' => $c->getContent(),
+                        'user' => $users[$c->getAuthor()->toString()] ?? null
+                    ], $post->getComments()->toArray()), 0, 2),
+                ];
+            }
+
+            return ['data' => $data, 'page' => $page, 'limit' => $limit, 'count' => $total];
+        });
+
+        return new JsonResponse($result);
     }
 
-    /**
+    /** ✅ Endpoint lazy load commentaires
      *
-     * @param $limit
-     * @param $offset
+     * @param string  $id
+     * @param Request $request
      *
-     * @return Closure
-     */
-    private function getClosure($limit, $offset): Closure
-    {
-        return function (ItemInterface $item) use($limit, $offset): array {
-            $item->expiresAfter(31536000);
-
-            return $this->getFormattedPosts($limit, $offset);
-        };
-    }
-
-    /**
-     * @param $limit
-     * @param $offset
-     *
+     * @throws InvalidArgumentException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
-     * @throws NotSupported
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @throws InvalidArgumentException
-     * @return array
+     * @return JsonResponse
      */
-    private function getFormattedPosts($limit, $offset): array
+    #[Route('/public/post/{id}/comments', name: 'public_post_comments', methods: ['GET'])]
+    public function comments(string $id, Request $request): JsonResponse
     {
-        $posts = $this->getPosts($limit, $offset);
-        $output = [];
+        $page   = max(1, (int) $request->query->get('page', 1));
+        $limit  = (int) $request->query->get('limit', 10);
+        $offset = ($page - 1) * $limit;
 
-        foreach ($posts as $post) {
-            $authorId = $post->getAuthor()->toString();
+        $comments = $this->postRepository->getRootComments($id, $limit, $offset);
+        $total    = $this->postRepository->countComments($id);
 
-            $postData = [
-                'id' => $post->getId(),
-                'title' => $post->getTitle(),
-                'url' => $post->getUrl(),
-                'summary' => $post->getSummary(),
-                'content' => $post->getContent(),
-                'slug' => $post->getSlug(),
-                'tags' => $post->getTags(),
-                'medias' =>  $post->getMediaEntities()->map(
-                    fn(Media $media) => $media->toArray()
-                )->toArray(),
-                'likes' => [],
-                'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
-                'blog' => [
-                    'title' => $post->getBlog()?->getTitle(),
-                    'blogSubtitle' => $post->getBlog()?->getBlogSubtitle(),
-                ],
-                'user' => $this->userProxy->searchUser($authorId),
-                'comments' => [],
-            ];
+        $userIds = array_map(static fn($c) => $c->getAuthor()->toString(), $comments);
+        $users   = $this->userProxy->batchSearchUsers($userIds);
 
-            foreach ($post->getLikes() as $key => $like) {
-                $postData['likes'][$key]['id'] = $like->getId();
-                $postData['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
-            }
+        $data = array_map(static fn($c) => [
+            'id' => $c->getId(),
+            'content' => $c->getContent(),
+            'user' => $users[$c->getAuthor()->toString()] ?? null
+        ], $comments);
 
-            $rootComments = array_filter(
-                $post->getComments()->toArray(),
-                static fn($comment) => $comment->getParent() === null
-            );
-
-            foreach ($rootComments as $comment) {
-                $postData['comments'][] = $this->formatCommentRecursively($comment);
-            }
-
-            $output[] = $postData;
-        }
-        return $output;
+        return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
     }
 
-    /**
-     * @param       $comment
+    /** ✅ Endpoint lazy load likes
+     *
+     * @param string $id
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -170,41 +156,53 @@ readonly class PostsController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @return JsonResponse
      */
-    private function formatCommentRecursively($comment): array
+    #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
+    public function likes(string $id): JsonResponse
     {
-        $authorId = $comment->getAuthor()->toString();
+        $post = $this->postRepository->find($id);
+        $userIds = array_map(static fn($l) => $l->getUser()->toString(), $post?->getLikes()->toArray());
+        $users   = $this->userProxy->batchSearchUsers($userIds);
 
-        $formatted = [
-            'id' => $comment->getId(),
-            'content' => $comment->getContent(),
-            'likes' => [],
-            'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
-            'user' => $this->userProxy->searchUser($authorId),
-            'children' => [],
-        ];
-        foreach ($comment->getLikes() as $key => $like) {
-            $formatted['likes'][$key]['id'] = $like->getId();
+        $likes = array_map(static fn($l) => [
+            'id' => $l->getId(),
+            'user' => $users[$l->getUser()->toString()] ?? null
+        ], $post?->getLikes()->toArray());
 
-            $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
-        }
-        foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child);
-        }
-
-        return $formatted;
+        return new JsonResponse(['likes' => $likes, 'total' => count($likes)]);
     }
 
-    /**
-     * @param $limit
-     * @param $offset
+    /** ✅ Endpoint lazy load likes
      *
-     * @throws NotSupported
-     * @return array
+     * @param string $id
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @return JsonResponse
      */
-    private function getPosts($limit, $offset): array
+    #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
+    public function reactions(string $id): JsonResponse
     {
-        return $this->postRepository->findBy([], ['publishedAt' => 'DESC'], $limit, $offset);
+        $post = $this->postRepository->find($id);
+        $userIds = array_map(static fn($l) => $l->getUser()->toString(), $post?->getReactions()->toArray());
+        $users   = $this->userProxy->batchSearchUsers($userIds);
+
+        $reactions = array_map(static fn($l) => [
+            'id' => $l->getId(),
+            'user' => $users[$l->getUser()->toString()] ?? null
+        ], $post?->getReactions()->toArray());
+
+        return new JsonResponse(['reactions' => $reactions, 'total' => count($reactions)]);
     }
 }

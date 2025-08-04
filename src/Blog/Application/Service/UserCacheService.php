@@ -25,6 +25,21 @@ readonly class UserCacheService implements UserCacheServiceInterface
     /**
      * @throws InvalidArgumentException
      */
+    public function searchMultiple(array $ids): array
+    {
+        $results = [];
+        foreach ($ids as $id) {
+            $user = $this->searchUser($id);
+            if ($user !== null) {
+                $results[$id] = $user;
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
     public function search(string $query): array
     {
         $cacheKey = 'search_users_' . md5($query);
@@ -46,6 +61,24 @@ readonly class UserCacheService implements UserCacheServiceInterface
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($id) {
             $item->expiresAfter(31536000);
                 return $this->userElasticsearchService->searchUser($id);
+        });
+    }
+
+    /**
+     *
+     * @param string $id
+     * @param array  $user
+     * @param int    $ttl Durée de vie du cache en secondes (par défaut 1 an)
+     *
+     * @throws InvalidArgumentException
+     */
+    public function save(string $id, array $user, int $ttl = 31536000): void
+    {
+        $cacheKey = 'search_user_' . md5($id);
+        $this->userCache->delete($cacheKey);
+        $this->userCache->get($cacheKey, function (ItemInterface $item) use ($user, $ttl) {
+            $item->expiresAfter($ttl);
+            return $user;
         });
     }
 }

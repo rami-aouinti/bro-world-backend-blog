@@ -138,6 +138,9 @@ services:
     App\Blog\Application\Service\PostService:
         arguments:
             $postDirectory: '%post_directory%'
+
+    Symfony\Contracts\Cache\TagAwareCacheInterface: '@cache.app.taggable'
+
 when@dev:
     services:
         _defaults:

@@ -115,6 +115,9 @@ class Comment implements EntityInterface
     ])]
     private DateTimeImmutable $publishedAt;
 
+    #[ORM\OneToMany(mappedBy: 'comment', targetEntity: Reaction::class, cascade: ['remove'])]
+    private Collection $reactions;
+
     /**
      * @throws Throwable
      */
@@ -251,5 +254,10 @@ class Comment implements EntityInterface
     public function setPublishedAt(DateTimeImmutable $publishedAt): void
     {
         $this->publishedAt = $publishedAt;
+    }
+
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
     }
 }

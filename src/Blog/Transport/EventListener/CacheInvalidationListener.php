@@ -10,6 +10,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Psr\Cache\CacheItemPoolInterface;
 use App\Blog\Domain\Entity\Post;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Class CacheInvalidationListener
@@ -31,7 +32,6 @@ class CacheInvalidationListener
      */
     public function postPersist(LifecycleEventArgs $args): void
     {
-        $this->handleInvalidation($args->getObject());
     }
 
     /**
@@ -67,7 +67,6 @@ class CacheInvalidationListener
 
         $cacheKey = "post_public_1_10";
         $this->cache->deleteItem($cacheKey);
-        $this->cache->deleteItem("all_posts_1_10");
         $this->cache->deleteItem("post_{$post?->getId()}");
     }
 }

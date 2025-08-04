@@ -6,7 +6,10 @@ framework:
         # The "app" cache stores to the filesystem by default.
         # The data in this cache should persist between deploys.
         # Other options include:
-
+        pools:
+            cache.app.taggable:
+                adapter: cache.adapter.redis_tag_aware
+                provider: '%env(REDIS_URL)%'
         # Redis
         app: cache.adapter.redis
         default_redis_provider: '%env(resolve:REDIS_URL)%'
