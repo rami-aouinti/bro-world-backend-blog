@@ -174,7 +174,7 @@ readonly class LoggedPostsController
 
         $userIds = array_merge(
             array_map(static fn($c) => $c->getAuthor()->toString(), $comments),
-            ...array_map(static fn($c) => array_map(fn($l) => $l->getUser()->toString(), $c->getLikes()->toArray()), $comments)
+            ...array_map(static fn($c) => array_map(static fn($l) => $l->getUser()->toString(), $c->getLikes()->toArray()), $comments)
         );
         $users   = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
@@ -219,7 +219,19 @@ readonly class LoggedPostsController
             'user' => $users[$l->getUser()->toString()] ?? null
         ], $post?->getLikes()->toArray());
 
-        return new JsonResponse(['likes' => $likes, 'total' => count($likes)]);
+        $reactions = array_map(static fn($r) => [
+            'id' => $r->getId(),
+            'type' => $r->getType(),
+            'user' => $users[$r->getUser()->toString()] ?? null
+        ], $post?->getReactions()->toArray());
+
+        return new JsonResponse([
+            'likes' => $likes,
+                'reactions' => $reactions,
+                'total_likes' => count($likes),
+                'total_reactions' => count($reactions)
+            ]
+        );
     }
 
     /** ✅ Endpoint lazy load reactions d’un post
