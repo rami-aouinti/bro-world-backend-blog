@@ -91,7 +91,6 @@ readonly class PostsController
                     'url' => $post->getUrl(),
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                    'likes_count' => count($post->getLikes()),
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,

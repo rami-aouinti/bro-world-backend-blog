@@ -101,13 +101,10 @@ readonly class LoggedPostsController
                     'url' => $post->getUrl(),
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                    'likes_count' => count($post->getLikes()),
-                    'isLiked' => $this->userHasLiked($post->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                    'isReacted' => $this->userHasReacted($post->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
-
-                    // ✅ Ajout des likes/reactions pour chaque commentaire
                     'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                         return [
                             'id' => $r->getId(),
@@ -132,6 +129,23 @@ readonly class LoggedPostsController
         });
 
         return new JsonResponse($result);
+    }
+
+    /**
+     * @param array  $reactions
+     * @param string $currentUserId
+     *
+     * @return string|null
+     */
+    private function userHasReacted(array $reactions, string $currentUserId): ?string
+    {
+        if ($currentUserId === '') {
+            return null;
+        }
+
+        $found = array_filter($reactions, static fn($r) => $r->getUser()?->toString() === $currentUserId);
+
+        return $found ? reset($found)->getType() : null;
     }
 
     /**
