@@ -14,6 +14,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Psr\Cache\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @package App\Blog
@@ -33,7 +35,8 @@ readonly class ReactPostController
     public function __construct(
         private SerializerInterface $serializer,
         private ReactionRepositoryInterface $reactionRepository,
-        private MessageBusInterface $bus
+        private MessageBusInterface $bus,
+        private TagAwareCacheInterface $cache
     ) {
     }
 
@@ -50,39 +53,76 @@ readonly class ReactPostController
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
+     * @throws InvalidArgumentException
      * @return JsonResponse
      */
     #[Route(path: '/v1/private/post/{post}/react/{type}', name: 'react_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post, string $type): JsonResponse
     {
-        $reaction = new Reaction();
-        $reaction->setPost($post);
-        $reaction->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $reaction->setType($type);
-        $this->bus->dispatch(
-            new CreateNotificationMessenger(
-                $request->headers->get('Authorization'),
-                'PUSH',
-                $symfonyUser->getUserIdentifier(),
-                $post->getAuthor()->toString(),
-                $post->getId(),
-                'reacted to your post.'
-            )
-        );
-        $this->reactionRepository->save($reaction);
-        $result = [];
-        $result['id'] = $reaction->getId();
-        $result['user'] = $symfonyUser;
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $result,
-                'json',
-                [
-                    'groups' => 'Reaction',
-                ]
-            ),
-            true,
-        );
+        $reaction = $this->reactionRepository->findOneBy([
+            'user' => Uuid::fromString($symfonyUser->getUserIdentifier()),
+            'post' => $post->getId()
+        ]);
+        if ($type === 'delete') {
+            if ($reaction) {
+                $this->reactionRepository->remove($reaction);
+                $output = JSON::decode(
+                    $this->serializer->serialize(
+                        'success',
+                        'json',
+                        [
+                            'groups' => 'Reaction',
+                        ]
+                    ),
+                    true,
+                );
+            } else {
+                $output = JSON::decode(
+                    $this->serializer->serialize(
+                        'reaction not found',
+                        'json',
+                        [
+                            'groups' => 'Reaction',
+                        ]
+                    ),
+                    true,
+                );
+            }
+        } else {
+            if ($reaction) {
+                $this->reactionRepository->remove($reaction);
+            }
+            $reaction = new Reaction();
+            $reaction->setPost($post);
+            $reaction->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+            $reaction->setType($type);
+            $this->bus->dispatch(
+                new CreateNotificationMessenger(
+                    $request->headers->get('Authorization'),
+                    'PUSH',
+                    $symfonyUser->getUserIdentifier(),
+                    $post->getAuthor()->toString(),
+                    $post->getId(),
+                    'reacted to your post.'
+                )
+            );
+            $this->reactionRepository->save($reaction);
+            $cacheKey = "posts_page_1_limit_20_user_{$symfonyUser->getUserIdentifier()}";
+            $this->cache->delete($cacheKey);
+            $result = [];
+            $result['id'] = $reaction->getId();
+            $result['user'] = $symfonyUser;
+            $output = JSON::decode(
+                $this->serializer->serialize(
+                    $result,
+                    'json',
+                    [
+                        'groups' => 'Reaction',
+                    ]
+                ),
+                true,
+            );
+        }
         return new JsonResponse($output);
     }
 }
