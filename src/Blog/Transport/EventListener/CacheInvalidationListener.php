@@ -32,6 +32,7 @@ class CacheInvalidationListener
      */
     public function postPersist(LifecycleEventArgs $args): void
     {
+        $this->handleInvalidation($args->getObject());
     }
 
     /**
