@@ -78,6 +78,16 @@ class Reaction implements EntityInterface, Stringable
         $this->comment = $comment;
     }
 
+    public function getPost(): ?Post
+    {
+        return $this->post;
+    }
+
+    public function getComment(): ?Comment
+    {
+        return $this->comment;
+    }
+
     public function getUser(): UuidInterface
     {
         return $this->user;

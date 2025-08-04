@@ -23,7 +23,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @package App\Blog
@@ -35,8 +34,7 @@ readonly class ReactPostController
     public function __construct(
         private SerializerInterface $serializer,
         private ReactionRepositoryInterface $reactionRepository,
-        private MessageBusInterface $bus,
-        private TagAwareCacheInterface $cache
+        private MessageBusInterface $bus
     ) {
     }
 
@@ -107,8 +105,6 @@ readonly class ReactPostController
                 )
             );
             $this->reactionRepository->save($reaction);
-            $cacheKey = "posts_page_1_limit_20_user_{$symfonyUser->getUserIdentifier()}";
-            $this->cache->delete($cacheKey);
             $result = [];
             $result['id'] = $reaction->getId();
             $result['user'] = $symfonyUser;
