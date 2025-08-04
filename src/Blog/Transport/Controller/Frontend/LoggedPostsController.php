@@ -108,6 +108,13 @@ readonly class LoggedPostsController
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
 
                     // ✅ Ajout des likes/reactions pour chaque commentaire
+                    'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                        return [
+                            'id' => $r->getId(),
+                            'type' => $r->getType(),
+                            'user' => $users[$r->getUser()->toString()] ?? null,
+                        ];
+                    }, $post->getReactions()->toArray()), 0, 2),
                     'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
                         return [
                             'id' => $c->getId(),

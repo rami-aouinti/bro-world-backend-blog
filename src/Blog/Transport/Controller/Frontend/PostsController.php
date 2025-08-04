@@ -95,6 +95,13 @@ readonly class PostsController
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
+                    'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                        return [
+                            'id' => $r->getId(),
+                            'type' => $r->getType(),
+                            'user' => $users[$r->getUser()->toString()] ?? null,
+                        ];
+                    }, $post->getReactions()->toArray()), 0, 2),
                     'comments_preview' => array_slice(array_map(static fn($c) => [
                         'id' => $c->getId(),
                         'content' => $c->getContent(),
