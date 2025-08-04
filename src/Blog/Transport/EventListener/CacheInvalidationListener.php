@@ -32,7 +32,7 @@ class CacheInvalidationListener
      */
     public function postPersist(LifecycleEventArgs $args): void
     {
-        $this->handleInvalidation($args->getObject());
+        //$this->handleInvalidation($args->getObject());
     }
 
     /**
@@ -66,7 +66,7 @@ class CacheInvalidationListener
             default => null,
         };
 
-        $cacheKey = "post_public_1_10";
+        $cacheKey = "posts_page_1_10";
         $this->cache->deleteItem($cacheKey);
         $this->cache->deleteItem("post_{$post?->getId()}");
     }
