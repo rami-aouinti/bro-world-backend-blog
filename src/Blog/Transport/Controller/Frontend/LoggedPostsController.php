@@ -102,7 +102,7 @@ readonly class LoggedPostsController
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
                     'likes_count' => count($post->getLikes()),
-                    'isLiked' => $this->userHasLiked($post->getLikes()->toArray(), $symfonyUser->getUserIdentifier()),
+                    'isLiked' => $this->userHasLiked($post->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
@@ -114,7 +114,7 @@ readonly class LoggedPostsController
                             'content' => $c->getContent(),
                             'user' => $users[$c->getAuthor()->toString()] ?? null,
                             'likes_count' => count($c->getLikes()),
-                            'isLiked' => $this->userHasLiked($c->getLikes()->toArray(), $symfonyUser->getUserIdentifier()),
+                            'isLiked' => $this->userHasLiked($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                             'reactions_count' => count($c->getReactions()),
                         ];
                     }, $post->getComments()->toArray()), 0, 2),
@@ -184,7 +184,7 @@ readonly class LoggedPostsController
                 'content' => $c->getContent(),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                 'likes_count' => count($c->getLikes()),
-                'isLiked' => $this->userHasLiked($c->getLikes()->toArray(), $symfonyUser->getUserIdentifier()),
+                'isLiked' => $this->userHasLiked($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                 'reactions_count' => count($c->getReactions()),
             ];
         }, $comments);
