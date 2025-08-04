@@ -127,6 +127,7 @@ class Comment implements EntityInterface
         $this->publishedAt = new DateTimeImmutable();
         $this->children = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->reactions = new ArrayCollection();
     }
 
     public function __toString(): string
