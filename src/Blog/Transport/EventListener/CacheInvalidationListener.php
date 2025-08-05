@@ -97,12 +97,8 @@ class CacheInvalidationListener
             default => null,
         };
 
-        $users = $this->userProxy->getUsers();
-        foreach ($users as $user) {
-            $cacheKey = "posts_page_1_10_user_" . $user['id'];
-            $this->cache->deleteItem($cacheKey);
-        }
 
-        $this->cache->deleteItem("public_post_{$post?->getSlug()}");
+
+        //$this->cache->deleteItem("public_post_{$post?->getSlug()}");
     }
 }
