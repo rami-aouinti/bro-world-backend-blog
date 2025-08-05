@@ -93,7 +93,6 @@ class CacheInvalidationListener
             $entity instanceof Post => $entity,
             $entity instanceof Comment => $entity->getPost() ?? $entity->getParent()?->getPost(),
             $entity instanceof Like => $entity->getPost() ?? $entity->getComment()?->getPost(),
-            $entity instanceof Reaction => $entity->getPost() ?? $entity->getComment()?->getPost(),
             default => null,
         };
 
