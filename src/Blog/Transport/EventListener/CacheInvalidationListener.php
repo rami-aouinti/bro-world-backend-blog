@@ -40,12 +40,6 @@ class CacheInvalidationListener
     /**
      * @param LifecycleEventArgs $args
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws InvalidArgumentException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
      */
     public function postPersist(LifecycleEventArgs $args): void
     {
