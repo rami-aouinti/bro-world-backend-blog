@@ -16,6 +16,7 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Faker\Factory;
+use Faker\Generator;
 use Override;
 use Ramsey\Uuid\Uuid;
 use Random\RandomException;
@@ -23,6 +24,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Throwable;
 
 use function array_slice;
+use function in_array;
 
 /**
  * Class LoadBlogData
@@ -41,7 +43,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         '20000000-0000-1000-8000-000000000033',
     ];
 
-    private \Faker\Generator $faker;
+    private Generator $faker;
 
     private array $reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
 
@@ -236,16 +238,28 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
      */
     private function addRandomReactions(ObjectManager $manager, ?Post $post = null, ?Comment $comment = null): void
     {
-        foreach (range(1, random_int(1, 6)) as $_) {
+        $usedUsers = []; // ✅ pour éviter les doublons user+post/comment
+        $maxReactions = random_int(1, 6);
+
+        foreach (range(1, $maxReactions) as $_) {
+            // Générer un user unique pour ce post/comment
+            do {
+                $userUuid = '20000000-0000-1000-8000-00000000000' . random_int(1, 6);
+            } while (in_array($userUuid, $usedUsers, true));
+
+            $usedUsers[] = $userUuid;
+
             $reaction = new Reaction();
             $reaction->setType($this->reactionTypes[array_rand($this->reactionTypes)]);
-            $reaction->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
+            $reaction->setUser(Uuid::fromString($userUuid));
+
             if ($post) {
                 $reaction->setPost($post);
             }
             if ($comment) {
                 $reaction->setComment($comment);
             }
+
             $manager->persist($reaction);
         }
     }

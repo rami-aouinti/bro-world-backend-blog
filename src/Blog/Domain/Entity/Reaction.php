@@ -19,6 +19,8 @@ use function sprintf;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'blog_reactions')]
+#[ORM\UniqueConstraint(name: 'uniq_user_post', columns: ['user', 'post_id'])]
+#[ORM\Index(columns: ['user', 'post_id'])]
 class Reaction implements EntityInterface, Stringable
 {
     use Timestampable;
