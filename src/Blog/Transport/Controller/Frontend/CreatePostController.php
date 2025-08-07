@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Throwable;
 
 /**
@@ -24,7 +25,8 @@ use Throwable;
 readonly class CreatePostController
 {
     public function __construct(
-        private PostService $postService
+        private PostService $postService,
+        private TagAwareCacheInterface $cache
     ) {
     }
 
@@ -41,11 +43,11 @@ readonly class CreatePostController
     #[Route(path: '/v1/platform/post', name: 'post_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
-        return new JsonResponse(
-            $this->postService->createPost(
-                $symfonyUser,
-                $request
-            )
-        );
+        $response = $this->postService->createPost($symfonyUser, $request);
+
+        // Invalidation du cache des posts
+        $this->cache->invalidateTags(['posts']);
+
+        return new JsonResponse($response);
     }
 }
