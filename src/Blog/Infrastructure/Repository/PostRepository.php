@@ -51,10 +51,8 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     ) {
     }
 
-    /** ⚡ Récupère posts avec relations principales (sans tout charger) */
     public function findWithRelations(int $limit, int $offset): array
     {
-        // 1️⃣ Récupère uniquement les IDs des posts pour la page demandée
         $ids = $this->createQueryBuilder('p')
             ->select('p.id')
             ->orderBy('p.publishedAt', 'DESC')
@@ -69,20 +67,20 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
 
         $ids = array_column($ids, 'id');
 
-        // 2️⃣ Récupère les posts + relations en utilisant un WHERE IN
         return $this->createQueryBuilder('p')
-            ->select('DISTINCT p', 'c', 'l', 'm')
+            ->select('DISTINCT p', 'c', 'l', 'm', 'r', 'cl', 'cr')
             ->leftJoin('p.comments', 'c')->addSelect('c')
             ->leftJoin('p.likes', 'l')->addSelect('l')
             ->leftJoin('p.medias', 'm')->addSelect('m')
+            ->leftJoin('p.reactions', 'r')->addSelect('r')
+            ->leftJoin('c.likes', 'cl')->addSelect('cl')
+            ->leftJoin('c.reactions', 'cr')->addSelect('cr')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $ids)
             ->orderBy('p.publishedAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
-
-
 
     /**
      * @throws NoResultException

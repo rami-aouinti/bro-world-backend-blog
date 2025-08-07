@@ -12,7 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @package App\User\User\Application\Service
- * @author Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author Rami Aouinti
  */
 readonly class UserCacheService implements UserCacheServiceInterface
 {
@@ -60,24 +60,31 @@ readonly class UserCacheService implements UserCacheServiceInterface
 
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($id) {
             $item->expiresAfter(31536000);
-                return $this->userElasticsearchService->searchUser($id);
+            return $this->userElasticsearchService->searchUser($id);
         });
     }
 
     /**
+     * Sauvegarde un utilisateur manuellement dans le cache, avec un tag "users".
      *
      * @param string $id
-     * @param array  $user
-     * @param int    $ttl Durée de vie du cache en secondes (par défaut 1 an)
-     *
+     * @param array $user
+     * @param int $ttl
      * @throws InvalidArgumentException
      */
     public function save(string $id, array $user, int $ttl = 31536000): void
     {
         $cacheKey = 'search_user_' . md5($id);
         $this->userCache->delete($cacheKey);
+
         $this->userCache->get($cacheKey, function (ItemInterface $item) use ($user, $ttl) {
             $item->expiresAfter($ttl);
+
+            // ✅ Ajoute le tag 'users' si le cache le permet
+            if (method_exists($item, 'tag')) {
+                $item->tag(['users']);
+            }
+
             return $user;
         });
     }

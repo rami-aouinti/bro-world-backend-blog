@@ -68,7 +68,6 @@ services:
     Cocur\Slugify\Slugify: ~
 
     App\Blog\Transport\EventListener\CacheInvalidationListener:
-        arguments: [ '@cache.app' ]
         tags:
             - { name: doctrine.event_listener, event: postPersist }
             - { name: doctrine.event_listener, event: postUpdate }

@@ -19,19 +19,18 @@ use function in_array;
  * Class UserProxy
  *
  * @package App\Blog\Application\ApiProxy
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti
  */
 readonly class UserProxy
 {
-
     public function __construct(
         private HttpClientInterface $httpClient,
         private UserCacheService $userCacheService
-    )
-    {
-    }
+    ) {}
 
     /**
+     * Récupère tous les utilisateurs depuis l'API externe.
+     *
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
@@ -50,10 +49,9 @@ readonly class UserProxy
     }
 
     /**
-     * @param string $query
+     * Recherche des utilisateurs depuis le cache avec un mot-clé.
      *
      * @throws InvalidArgumentException
-     * @return array
      */
     public function searchUsers(string $query): array
     {
@@ -61,36 +59,34 @@ readonly class UserProxy
     }
 
     /**
-     * @param string $id
+     * Recherche un utilisateur spécifique par son ID.
      *
+     * @throws InvalidArgumentException
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
-     * @throws InvalidArgumentException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array|null
      */
-    public function searchUser(string $id): array|null
+    public function searchUser(string $id): ?array
     {
-        if ($this->userCacheService->searchUser($id) !== null) {
-            return $this->userCacheService->searchUser($id);
+        $cachedUser = $this->userCacheService->searchUser($id);
+        if ($cachedUser !== null) {
+            return $cachedUser;
         }
+
         $users = $this->getUsers();
-
-        $usersById = [];
         foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
+            $this->userCacheService->save($user['id'], $user); // Ajoute tous les users au cache
         }
 
-        return $usersById[$id] ?? null;
+        return $users[$id] ?? null;
     }
 
     /**
-     * @param string $query
+     * Recherche des médias (fallback méthode, potentiellement inutile ici).
      *
      * @throws InvalidArgumentException
-     * @return array
      */
     public function searchMedias(string $query): array
     {
@@ -98,33 +94,32 @@ readonly class UserProxy
     }
 
     /**
-     * Récupère plusieurs utilisateurs d’un coup.
+     * Récupère plusieurs utilisateurs à partir d'une liste d'IDs.
+     * Mise en cache avec tag 'users' pour chaque nouvel utilisateur.
      *
      * @param string[] $ids
+     * @return array<string, array> [userId => userData]
+     *
      * @throws InvalidArgumentException
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array<string, array>  // [userId => userData]
      */
     public function batchSearchUsers(array $ids): array
     {
         $ids = array_unique($ids);
-        $usersData = [];
+        $usersData = $this->userCacheService->searchMultiple($ids);
 
-        // ✅ lecture cache groupée
-        $cached = $this->userCacheService->searchMultiple($ids);
-        $usersData = $cached;
-        $missing = array_diff($ids, array_keys($cached));
-
+        $missing = array_diff($ids, array_keys($usersData));
         if (!empty($missing)) {
-            $allUsers = $this->getUsers(); // API externe
+            $allUsers = $this->getUsers();
             foreach ($allUsers as $user) {
                 if (in_array($user['id'], $missing, true)) {
                     $usersData[$user['id']] = $user;
-                    $this->userCacheService->save($user['id'], $user); // ✅ stockage direct
+                    // ✅ stockage avec tag 'users'
+                    $this->userCacheService->save($user['id'], $user);
                 }
             }
         }
@@ -132,22 +127,20 @@ readonly class UserProxy
         return $usersData;
     }
 
-
     /**
-     * @param $mediaId
+     * Récupère les informations d’un média via son ID.
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
      */
-    public function getMedia($mediaId): array
+    public function getMedia(string $mediaId): array
     {
         $response = $this->httpClient->request(
             'GET',
-            "https://media.bro-world.org/v1/platform/media/" . $mediaId
+            "https://media.bro-world.org/v1/platform/media/{$mediaId}"
         );
 
         return $response->toArray();
