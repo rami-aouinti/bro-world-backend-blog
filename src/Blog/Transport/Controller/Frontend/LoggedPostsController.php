@@ -46,7 +46,7 @@ readonly class LoggedPostsController
         private UserProxy $userProxy
     ) {}
 
-    /** ✅ Liste des posts (privé) avec `isLiked` et `reactions_count`
+    /**
      *
      * @param SymfonyUser $symfonyUser
      * @param Request     $request
@@ -69,7 +69,6 @@ readonly class LoggedPostsController
             $posts = $this->postRepository->findWithRelations($limit, $offset);
             $total = $this->postRepository->countPosts();
 
-            // ✅ Récupère tous les userIds (post, likes, reactions, commentaires)
             $userIds = [];
             foreach ($posts as $post) {
                 $userIds[] = $post->getAuthor()->toString();
@@ -91,7 +90,6 @@ readonly class LoggedPostsController
             }
             $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
-            // ✅ Construction des données
             $data = [];
             foreach ($posts as $post) {
                 $data[] = [
@@ -117,8 +115,7 @@ readonly class LoggedPostsController
                             'id' => $c->getId(),
                             'content' => $c->getContent(),
                             'user' => $users[$c->getAuthor()->toString()] ?? null,
-                            'likes_count' => count($c->getLikes()),
-                            'isLiked' => $this->userHasLiked($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                            'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                             'reactions_count' => count($c->getReactions()),
                         ];
                     }, $post->getComments()->toArray()), 0, 2),
@@ -146,25 +143,6 @@ readonly class LoggedPostsController
         $found = array_filter($reactions, static fn($r) => $r->getUser()?->toString() === $currentUserId);
 
         return $found ? reset($found)->getType() : null;
-    }
-
-    /**
-     * @param array       $likes
-     * @param string|null $currentUserId
-     *
-     * @return bool
-     */
-    private function userHasLiked(array $likes, ?string $currentUserId): bool
-    {
-        if (!$currentUserId) {
-            return false;
-        }
-        foreach ($likes as $like) {
-            if ($like->getUser()->toString() === $currentUserId) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /** ✅ Endpoint lazy load commentaires (avec `isLiked` et `reactions_count`)
@@ -204,8 +182,7 @@ readonly class LoggedPostsController
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
-                'likes_count' => count($c->getLikes()),
-                'isLiked' => $this->userHasLiked($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                 'reactions_count' => count($c->getReactions()),
             ];
         }, $comments);
