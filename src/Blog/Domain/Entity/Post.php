@@ -87,7 +87,7 @@ class Post implements EntityInterface, Stringable
     ])]
     protected ?Blog $blog = null;
 
-    #[ORM\Column(type: Types::STRING)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(max: 255)]
     #[Groups([
@@ -97,7 +97,7 @@ class Post implements EntityInterface, Stringable
     ])]
     private ?string $summary = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\NotBlank(message: 'post.blank_content')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
     #[Groups([
