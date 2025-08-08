@@ -59,7 +59,7 @@ final readonly class CacheInvalidationListener
             $entity instanceof Comment ||
             $entity instanceof Reaction
         ) {
-            $this->cache->invalidateTags(['posts']);
+            //$this->cache->invalidateTags(['posts']);
         }
     }
 }
