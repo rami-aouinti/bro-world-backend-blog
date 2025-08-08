@@ -7,6 +7,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Comment;
+use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\NotSupported;
@@ -43,6 +44,7 @@ readonly class LoggedPostsController
     public function __construct(
         private TagAwareCacheInterface $cache,
         private PostRepository $postRepository,
+        private CommentRepository $commentRepository,
         private UserProxy $userProxy
     ) {}
 
@@ -116,7 +118,15 @@ readonly class LoggedPostsController
                             'content' => $c->getContent(),
                             'user' => $users[$c->getAuthor()->toString()] ?? null,
                             'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                            'totalComments' => count($c->getChildren()),
                             'reactions_count' => count($c->getReactions()),
+                            'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                                return [
+                                    'id' => $r->getId(),
+                                    'type' => $r->getType(),
+                                    'user' => $users[$r->getUser()->toString()] ?? null,
+                                ];
+                            }, $c->getReactions()->toArray()), 0, 2),
                         ];
                     }, $post->getComments()->toArray()), 0, 2),
                 ];
@@ -182,8 +192,16 @@ readonly class LoggedPostsController
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
+                'totalComments' => count($c->getChildren()),
                 'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                 'reactions_count' => count($c->getReactions()),
+                'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                    return [
+                        'id' => $r->getId(),
+                        'type' => $r->getType(),
+                        'user' => $users[$r->getUser()->toString()] ?? null,
+                    ];
+                }, $c->getReactions()->toArray()), 0, 2),
             ];
         }, $comments);
 
@@ -225,6 +243,48 @@ readonly class LoggedPostsController
 
         return new JsonResponse([
             'likes' => $likes,
+                'reactions' => $reactions,
+                'total_likes' => count($likes),
+                'total_reactions' => count($reactions)
+            ]
+        );
+    }
+
+    /** ✅ Endpoint lazy load likes d’un post
+     *
+     * @param string $id
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransactionRequiredException
+     * @throws TransportExceptionInterface
+     * @return JsonResponse
+     */
+    #[Route('/private/comment/{id}/likes', name: 'private_comment_likes', methods: ['GET'])]
+    public function commentLikes(string $id): JsonResponse
+    {
+        $comment = $this->commentRepository->find($id);
+        $userIds = array_map(static fn($l) => $l->getUser()->toString(), $comment?->getLikes()->toArray());
+        $users   = $this->userProxy->batchSearchUsers($userIds);
+
+        $likes = array_map(static fn($l) => [
+            'id' => $l->getId(),
+            'user' => $users[$l->getUser()->toString()] ?? null
+        ], $comment?->getLikes()->toArray());
+
+        $reactions = array_map(static fn($r) => [
+            'id' => $r->getId(),
+            'type' => $r->getType(),
+            'user' => $users[$r->getUser()->toString()] ?? null
+        ], $comment?->getReactions()->toArray());
+
+        return new JsonResponse([
+                'likes' => $likes,
                 'reactions' => $reactions,
                 'total_likes' => count($likes),
                 'total_reactions' => count($reactions)
