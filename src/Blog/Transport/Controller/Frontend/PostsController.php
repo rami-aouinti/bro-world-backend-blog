@@ -100,6 +100,7 @@ readonly class PostsController
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
                     'isReacted' => null,
+                    'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                     'sharedFrom' => $post->getSharedFrom() ? [
                         'id' => $post->getSharedFrom()->getId(),
                         'title' => $post->getSharedFrom()->getTitle(),
@@ -111,6 +112,7 @@ readonly class PostsController
                         'reactions_count' => count($post->getSharedFrom()->getReactions()),
                         'totalComments' => count($post->getSharedFrom()->getComments()),
                         'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
+                        'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                         'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                             return [
                                 'id' => $r->getId(),
@@ -126,6 +128,7 @@ readonly class PostsController
                                 'isReacted' => null,
                                 'totalComments' => count($c->getChildren()),
                                 'reactions_count' => count($c->getReactions()),
+                                'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
                                 'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                                     return [
                                         'id' => $r->getId(),
@@ -155,6 +158,7 @@ readonly class PostsController
                             'isReacted' => null,
                             'totalComments' => count($c->getChildren()),
                             'reactions_count' => count($c->getReactions()),
+                            'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
                             'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                                 return [
                                     'id' => $r->getId(),

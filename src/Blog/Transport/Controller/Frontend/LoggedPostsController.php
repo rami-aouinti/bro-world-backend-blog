@@ -109,6 +109,7 @@ readonly class LoggedPostsController
                         'reactions_count' => count($post->getSharedFrom()->getReactions()),
                         'totalComments' => count($post->getSharedFrom()->getComments()),
                         'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
+                        'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                         'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                             return [
                                 'id' => $r->getId(),
@@ -124,6 +125,7 @@ readonly class LoggedPostsController
                                 'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                                 'totalComments' => count($c->getChildren()),
                                 'reactions_count' => count($c->getReactions()),
+                                'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
                                 'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                                     return [
                                         'id' => $r->getId(),
@@ -134,6 +136,7 @@ readonly class LoggedPostsController
                             ];
                         }, $post->getSharedFrom()->getComments()->toArray()), 0, 2),
                     ] : null,
+                    'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
                     'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                         return [
@@ -150,6 +153,7 @@ readonly class LoggedPostsController
                             'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                             'totalComments' => count($c->getChildren()),
                             'reactions_count' => count($c->getReactions()),
+                            'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
                             'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                                 return [
                                     'id' => $r->getId(),
