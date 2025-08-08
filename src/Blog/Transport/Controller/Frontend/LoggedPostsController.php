@@ -98,6 +98,42 @@ readonly class LoggedPostsController
                     'isReacted' => $this->userHasReacted($post->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
+                    'sharedFrom' => $post->getSharedFrom() ? [
+                        'id' => $post->getSharedFrom()->getId(),
+                        'title' => $post->getSharedFrom()->getTitle(),
+                        'summary' => $post->getSharedFrom()->getSummary(),
+                        'url' => $post->getSharedFrom()->getUrl(),
+                        'slug' => $post->getSharedFrom()->getSlug(),
+                        'medias' => $post->getSharedFrom()->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
+                        'isReacted' => $this->userHasReacted($post->getSharedFrom()->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                        'reactions_count' => count($post->getSharedFrom()->getReactions()),
+                        'totalComments' => count($post->getSharedFrom()->getComments()),
+                        'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
+                        'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                            return [
+                                'id' => $r->getId(),
+                                'type' => $r->getType(),
+                                'user' => $users[$r->getUser()->toString()] ?? null,
+                            ];
+                        }, $post->getSharedFrom()->getReactions()->toArray()), 0, 2),
+                        'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
+                            return [
+                                'id' => $c->getId(),
+                                'content' => $c->getContent(),
+                                'user' => $users[$c->getAuthor()->toString()] ?? null,
+                                'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                                'totalComments' => count($c->getChildren()),
+                                'reactions_count' => count($c->getReactions()),
+                                'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                                    return [
+                                        'id' => $r->getId(),
+                                        'type' => $r->getType(),
+                                        'user' => $users[$r->getUser()->toString()] ?? null,
+                                    ];
+                                }, $c->getReactions()->toArray()), 0, 2),
+                            ];
+                        }, $post->getSharedFrom()->getComments()->toArray()), 0, 2),
+                    ] : null,
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
                     'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                         return [

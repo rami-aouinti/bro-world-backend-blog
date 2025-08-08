@@ -100,6 +100,42 @@ readonly class PostsController
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
                     'isReacted' => null,
+                    'sharedFrom' => $post->getSharedFrom() ? [
+                        'id' => $post->getSharedFrom()->getId(),
+                        'title' => $post->getSharedFrom()->getTitle(),
+                        'summary' => $post->getSharedFrom()->getSummary(),
+                        'url' => $post->getSharedFrom()->getUrl(),
+                        'slug' => $post->getSharedFrom()->getSlug(),
+                        'medias' => $post->getSharedFrom()->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
+                        'isReacted' => null,
+                        'reactions_count' => count($post->getSharedFrom()->getReactions()),
+                        'totalComments' => count($post->getSharedFrom()->getComments()),
+                        'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
+                        'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                            return [
+                                'id' => $r->getId(),
+                                'type' => $r->getType(),
+                                'user' => $users[$r->getUser()->toString()] ?? null,
+                            ];
+                        }, $post->getSharedFrom()->getReactions()->toArray()), 0, 2),
+                        'comments_preview' => array_slice(array_map(static function ($c) use ($users) {
+                            return [
+                                'id' => $c->getId(),
+                                'content' => $c->getContent(),
+                                'user' => $users[$c->getAuthor()->toString()] ?? null,
+                                'isReacted' => null,
+                                'totalComments' => count($c->getChildren()),
+                                'reactions_count' => count($c->getReactions()),
+                                'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                                    return [
+                                        'id' => $r->getId(),
+                                        'type' => $r->getType(),
+                                        'user' => $users[$r->getUser()->toString()] ?? null,
+                                    ];
+                                }, $c->getReactions()->toArray()), 0, 2),
+                            ];
+                        }, $post->getSharedFrom()->getComments()->toArray()), 0, 2),
+                    ] : null,
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
