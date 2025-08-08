@@ -151,6 +151,13 @@ class Post implements EntityInterface, Stringable
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Reaction::class, cascade: ['remove'])]
     private Collection $reactions;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'sharedBy')]
+    #[ORM\JoinColumn(name: 'shared_from_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Post $sharedFrom = null;
+
+    #[ORM\OneToMany(mappedBy: 'sharedFrom', targetEntity: self::class)]
+    private Collection $sharedBy;
+
     #[ORM\Column]
     #[Groups([
         'Post',
@@ -170,6 +177,7 @@ class Post implements EntityInterface, Stringable
         $this->likes = new ArrayCollection();
         $this->medias = new ArrayCollection();
         $this->reactions = new ArrayCollection();
+        $this->sharedBy = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -361,6 +369,26 @@ class Post implements EntityInterface, Stringable
         $this->publishedAt = $publishedAt;
     }
 
+    public function getSharedFrom(): ?Post
+    {
+        return $this->sharedFrom;
+    }
+
+    public function setSharedFrom(?Post $post): self
+    {
+        $this->sharedFrom = $post;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getSharedBy(): Collection
+    {
+        return $this->sharedBy;
+    }
+
+
     public function toArray(): array
     {
         return [
@@ -377,6 +405,11 @@ class Post implements EntityInterface, Stringable
             )->toArray(),
             'likes' => $this->getLikes()->toArray(),
             'reactions' => $this->getReactions()->toArray(),
+            'sharedFrom' => $this->sharedFrom ? [
+                'id' => $this->sharedFrom->getId(),
+                'title' => $this->sharedFrom->getTitle(),
+                'summary' => $this->sharedFrom->getSummary(),
+            ] : null,
         ];
     }
 }

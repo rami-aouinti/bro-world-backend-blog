@@ -74,17 +74,11 @@ readonly class LoggedPostsController
             $userIds = [];
             foreach ($posts as $post) {
                 $userIds[] = $post->getAuthor()->toString();
-                foreach ($post->getLikes() as $like) {
-                    $userIds[] = $like->getUser()->toString();
-                }
                 foreach ($post->getReactions() as $reaction) {
                     $userIds[] = $reaction->getUser()->toString();
                 }
                 foreach ($post->getComments() as $comment) {
                     $userIds[] = $comment->getAuthor()->toString();
-                    foreach ($comment->getLikes() as $like) {
-                        $userIds[] = $like->getUser()->toString();
-                    }
                     foreach ($comment->getReactions() as $reaction) {
                         $userIds[] = $reaction->getUser()->toString();
                     }
