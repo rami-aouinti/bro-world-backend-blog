@@ -51,23 +51,27 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     ) {
     }
 
-    public function findWithRelations(int $limit, int $offset): array
+    public function findWithRelations(int $limit, int $offset, ?string $authorId = null): array
     {
-        $ids = $this->createQueryBuilder('p')
+        $qbIds = $this->createQueryBuilder('p')
             ->select('p.id')
             ->orderBy('p.publishedAt', 'DESC')
             ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getScalarResult();
+            ->setFirstResult($offset);
 
+        if ($authorId) {
+            $qbIds->andWhere('p.author = :author')
+                ->setParameter('author', Uuid::fromString($authorId));
+        }
+
+        $ids = $qbIds->getQuery()->getScalarResult();
         if (!$ids) {
             return [];
         }
 
         $ids = array_column($ids, 'id');
 
-        return $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p')
             ->select('DISTINCT p', 'c', 'l', 'm', 'r', 'cl', 'cr')
             ->leftJoin('p.comments', 'c')->addSelect('c')
             ->leftJoin('p.likes', 'l')->addSelect('l')
@@ -77,22 +81,30 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
             ->leftJoin('c.reactions', 'cr')->addSelect('cr')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $ids)
-            ->orderBy('p.publishedAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('p.publishedAt', 'DESC');
+
+        return $qb->getQuery()->getResult();
     }
 
-    /**
+    /** Compte les posts (optionnellement par auteur)
+     *
+     * @param string|null $authorId
+     *
      * @throws NoResultException
      * @throws NonUniqueResultException
      * @return int
      */
-    public function countPosts(): int
+    public function countPosts(?string $authorId = null): int
     {
-        return (int) $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->getQuery()
-            ->getSingleScalarResult();
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)');
+
+        if ($authorId) {
+            $qb->andWhere('p.author = :author')
+                ->setParameter('author', Uuid::fromString($authorId));
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function getRootComments(string $postId, int $limit, int $offset): array

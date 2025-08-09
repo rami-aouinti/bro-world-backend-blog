@@ -9,6 +9,7 @@ use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
+use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -38,7 +39,7 @@ use function array_slice;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class PostsController
+readonly class MyPostsController
 {
     public function __construct(
         private TagAwareCacheInterface $cache,
@@ -49,40 +50,35 @@ readonly class PostsController
 
     /**
      *
+     * @param SymfonyUser $symfonyUser
      * @param Request     $request
      *
      * @throws InvalidArgumentException
      * @return JsonResponse
      */
-    #[Route('/public/post', name: 'public_post_index', methods: [Request::METHOD_GET])]
-    public function __invoke(Request $request): JsonResponse
+    #[Route('/v1/profile/post', name: 'profile_post_index', methods: [Request::METHOD_GET])]
+    public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
         $page   = max(1, (int) $request->query->get('page', 1));
         $limit  = (int) $request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
-        $cacheKey = "posts_page_{$page}_limit_{$limit}";
+        $cacheKey = "posts_page_{$page}_limit_{$limit}_profile_{$symfonyUser->getUserIdentifier()}";
 
-        $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page) {
+        $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page, $symfonyUser) {
             $item->tag(['posts']);
             $item->expiresAfter(20);
 
-            $posts = $this->postRepository->findWithRelations($limit, $offset);
-            $total = $this->postRepository->countPosts();
+            $posts = $this->postRepository->findWithRelations($limit, $offset, $symfonyUser->getUserIdentifier());
+            $total = $this->postRepository->countPosts($symfonyUser->getUserIdentifier());
 
             $userIds = [];
             foreach ($posts as $post) {
                 $userIds[] = $post->getAuthor()->toString();
-                foreach ($post->getLikes() as $like) {
-                    $userIds[] = $like->getUser()->toString();
-                }
                 foreach ($post->getReactions() as $reaction) {
                     $userIds[] = $reaction->getUser()->toString();
                 }
                 foreach ($post->getComments() as $comment) {
                     $userIds[] = $comment->getAuthor()->toString();
-                    foreach ($comment->getLikes() as $like) {
-                        $userIds[] = $like->getUser()->toString();
-                    }
                     foreach ($comment->getReactions() as $reaction) {
                         $userIds[] = $reaction->getUser()->toString();
                     }
@@ -99,8 +95,9 @@ readonly class PostsController
                     'url' => $post->getUrl(),
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                    'isReacted' => null,
-                    'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
+                    'isReacted' => $this->userHasReacted($post->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                    'reactions_count' => count($post->getReactions()),
+                    'totalComments' => count($post->getComments()),
                     'sharedFrom' => $post->getSharedFrom() ? [
                         'id' => $post->getSharedFrom()->getId(),
                         'title' => $post->getSharedFrom()->getTitle(),
@@ -108,7 +105,7 @@ readonly class PostsController
                         'url' => $post->getSharedFrom()->getUrl(),
                         'slug' => $post->getSharedFrom()->getSlug(),
                         'medias' => $post->getSharedFrom()->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                        'isReacted' => null,
+                        'isReacted' => $this->userHasReacted($post->getSharedFrom()->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                         'reactions_count' => count($post->getSharedFrom()->getReactions()),
                         'totalComments' => count($post->getSharedFrom()->getComments()),
                         'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
@@ -120,12 +117,12 @@ readonly class PostsController
                                 'user' => $users[$r->getUser()->toString()] ?? null,
                             ];
                         }, $post->getSharedFrom()->getReactions()->toArray()), 0, 2),
-                        'comments_preview' => array_slice(array_map(static function ($c) use ($users) {
+                        'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
                             return [
                                 'id' => $c->getId(),
                                 'content' => $c->getContent(),
                                 'user' => $users[$c->getAuthor()->toString()] ?? null,
-                                'isReacted' => null,
+                                'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                                 'totalComments' => count($c->getChildren()),
                                 'reactions_count' => count($c->getReactions()),
                                 'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
@@ -139,8 +136,7 @@ readonly class PostsController
                             ];
                         }, $post->getSharedFrom()->getComments()->toArray()), 0, 2),
                     ] : null,
-                    'reactions_count' => count($post->getReactions()),
-                    'totalComments' => count($post->getComments()),
+                    'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                     'user' => $users[$post->getAuthor()->toString()] ?? null,
                     'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                         return [
@@ -149,13 +145,12 @@ readonly class PostsController
                             'user' => $users[$r->getUser()->toString()] ?? null,
                         ];
                     }, $post->getReactions()->toArray()), 0, 2),
-                    'comments_preview' => array_slice(array_map(static function ($c) use ($users) {
+                    'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
                         return [
                             'id' => $c->getId(),
                             'content' => $c->getContent(),
                             'user' => $users[$c->getAuthor()->toString()] ?? null,
-                            'likes_count' => count($c->getLikes()),
-                            'isReacted' => null,
+                            'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
                             'totalComments' => count($c->getChildren()),
                             'reactions_count' => count($c->getReactions()),
                             'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
@@ -177,9 +172,27 @@ readonly class PostsController
         return new JsonResponse($result);
     }
 
+    /**
+     * @param array  $reactions
+     * @param string $currentUserId
+     *
+     * @return string|null
+     */
+    private function userHasReacted(array $reactions, string $currentUserId): ?string
+    {
+        if ($currentUserId === '') {
+            return null;
+        }
+
+        $found = array_filter($reactions, static fn($r) => $r->getUser()?->toString() === $currentUserId);
+
+        return $found ? reset($found)->getType() : null;
+    }
+
     /** ✅ Endpoint lazy load commentaires (avec `isLiked` et `reactions_count`)
      *
      * @param string      $id
+     * @param SymfonyUser $symfonyUser
      * @param Request     $request
      *
      * @throws ClientExceptionInterface
@@ -192,8 +205,8 @@ readonly class PostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/public/post/{id}/comments', name: 'public_post_comments', methods: ['GET'])]
-    public function comments(string $id, Request $request): JsonResponse
+    #[Route('/profile/post/{id}/comments', name: 'profile_post_comments', methods: ['GET'])]
+    public function comments(string $id, SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
         $page   = max(1, (int) $request->query->get('page', 1));
         $limit  = (int) $request->query->get('limit', 10);
@@ -208,16 +221,15 @@ readonly class PostsController
         );
         $users   = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
-        $data = array_map(function ($c) use ($users) {
+        $data = array_map(function ($c) use ($users, $symfonyUser) {
             return [
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
-                'children' => $this->formatCommentRecursively($c, $users),
+                'children' => $this->formatCommentRecursively($c, $users, $symfonyUser),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
-                'likes_count' => count($c->getLikes()),
-                'isReacted' => null,
-                'reactions_count' => count($c->getReactions()),
                 'totalComments' => count($c->getChildren()),
+                'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+                'reactions_count' => count($c->getReactions()),
                 'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                     return [
                         'id' => $r->getId(),
@@ -227,13 +239,13 @@ readonly class PostsController
                 }, $c->getReactions()->toArray()), 0, 2),
             ];
         }, $comments);
-
         return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
     }
 
     /**
      * @param       $comment
      * @param       $users
+     * @param       $symfonyUser
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -243,7 +255,7 @@ readonly class PostsController
      * @throws TransportExceptionInterface
      * @return array
      */
-    private function formatCommentRecursively($comment, $users): array
+    private function formatCommentRecursively($comment, $users, $symfonyUser): array
     {
         $authorId = $comment->getAuthor()->toString();
 
@@ -255,7 +267,7 @@ readonly class PostsController
             'user' => $this->userProxy->searchUser($authorId),
             'children' => [],
             'totalComments' => count($comment->getChildren()),
-            'isReacted' => null,
+            'isReacted' => $this->userHasReacted($comment->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
             'reactions_count' => count($comment->getReactions()),
             'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
                 return [
@@ -270,7 +282,7 @@ readonly class PostsController
             $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
         }
         foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child, $users);
+            $formatted['children'][] = $this->formatCommentRecursively($child, $users, $symfonyUser);
         }
 
         return $formatted;
@@ -291,7 +303,7 @@ readonly class PostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
+    #[Route('/profile/post/{id}/likes', name: 'profile_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
     {
         $post = $this->postRepository->find($id);
@@ -310,7 +322,7 @@ readonly class PostsController
         ], $post?->getReactions()->toArray());
 
         return new JsonResponse([
-                'likes' => $likes,
+            'likes' => $likes,
                 'reactions' => $reactions,
                 'total_likes' => count($likes),
                 'total_reactions' => count($reactions)
@@ -333,7 +345,7 @@ readonly class PostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/public/comment/{id}/likes', name: 'public_comment_likes', methods: ['GET'])]
+    #[Route('/profile/comment/{id}/likes', name: 'profile_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
     {
         $comment = $this->commentRepository->find($id);
@@ -375,7 +387,7 @@ readonly class PostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
+    #[Route('/profile/post/{id}/reactions', name: 'profile_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
     {
         $post = $this->postRepository->find($id);
@@ -404,7 +416,7 @@ readonly class PostsController
      * @throws NotSupported
      * @return JsonResponse
      */
-    #[Route('/public/comment/{id}/reactions', name: 'public_comment_reactions', methods: ['GET'])]
+    #[Route('/profile/comment/{id}/reactions', name: 'profile_comment_reactions', methods: ['GET'])]
     public function commentReactions(string $id): JsonResponse
     {
         /** @var Comment|null $comment */
