@@ -208,11 +208,11 @@ readonly class PostsController
         );
         $users   = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
-        $data = array_map(static function ($c) use ($users) {
+        $data = array_map(function ($c) use ($users) {
             return [
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
-                'children' => $c->getChildren(),
+                'children' => $this->formatCommentRecursively($c),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                 'likes_count' => count($c->getLikes()),
                 'isReacted' => null,
@@ -229,6 +229,40 @@ readonly class PostsController
         }, $comments);
 
         return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
+    }
+
+    /**
+     * @param       $comment
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
+     */
+    private function formatCommentRecursively($comment): array
+    {
+        $authorId = $comment->getAuthor()->toString();
+
+        $formatted = [
+            'id' => $comment->getId(),
+            'content' => $comment->getContent(),
+            'likes' => [],
+            'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
+            'user' => $this->userProxy->searchUser($authorId),
+            'children' => [],
+        ];
+        foreach ($comment->getLikes() as $key => $like) {
+            $formatted['likes'][$key]['id'] = $like->getId();
+            $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
+        }
+        foreach ($comment->getChildren() as $child) {
+            $formatted['children'][] = $this->formatCommentRecursively($child);
+        }
+
+        return $formatted;
     }
 
     /** ✅ Endpoint lazy load likes d’un post
