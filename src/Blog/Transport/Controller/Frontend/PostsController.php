@@ -212,6 +212,7 @@ readonly class PostsController
             return [
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
+                'children' => $c->getChildren(),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                 'likes_count' => count($c->getLikes()),
                 'isReacted' => null,

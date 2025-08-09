@@ -225,6 +225,7 @@ readonly class LoggedPostsController
             return [
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
+                'children' => $c->getChildren(),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                 'totalComments' => count($c->getChildren()),
                 'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
