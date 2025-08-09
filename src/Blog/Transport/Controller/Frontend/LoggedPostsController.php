@@ -225,7 +225,7 @@ readonly class LoggedPostsController
             return [
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
-                'children' => $this->formatCommentRecursively($c),
+                'children' => $this->formatCommentRecursively($c, $users, $symfonyUser),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                 'totalComments' => count($c->getChildren()),
                 'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
@@ -244,6 +244,8 @@ readonly class LoggedPostsController
 
     /**
      * @param       $comment
+     * @param       $users
+     * @param       $symfonyUser
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -253,7 +255,7 @@ readonly class LoggedPostsController
      * @throws TransportExceptionInterface
      * @return array
      */
-    private function formatCommentRecursively($comment): array
+    private function formatCommentRecursively($comment, $users, $symfonyUser): array
     {
         $authorId = $comment->getAuthor()->toString();
 
@@ -264,13 +266,23 @@ readonly class LoggedPostsController
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
             'user' => $this->userProxy->searchUser($authorId),
             'children' => [],
+            'totalComments' => count($comment->getChildren()),
+            'isReacted' => $this->userHasReacted($comment->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
+            'reactions_count' => count($comment->getReactions()),
+            'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                return [
+                    'id' => $r->getId(),
+                    'type' => $r->getType(),
+                    'user' => $users[$r->getUser()->toString()] ?? null,
+                ];
+            }, $comment->getReactions()->toArray()), 0, 2),
         ];
         foreach ($comment->getLikes() as $key => $like) {
             $formatted['likes'][$key]['id'] = $like->getId();
             $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
         }
         foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child);
+            $formatted['children'][] = $this->formatCommentRecursively($child, $users, $symfonyUser);
         }
 
         return $formatted;

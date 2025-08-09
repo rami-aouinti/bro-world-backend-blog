@@ -212,7 +212,7 @@ readonly class PostsController
             return [
                 'id' => $c->getId(),
                 'content' => $c->getContent(),
-                'children' => $this->formatCommentRecursively($c),
+                'children' => $this->formatCommentRecursively($c, $users),
                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                 'likes_count' => count($c->getLikes()),
                 'isReacted' => null,
@@ -242,7 +242,7 @@ readonly class PostsController
      * @throws TransportExceptionInterface
      * @return array
      */
-    private function formatCommentRecursively($comment): array
+    private function formatCommentRecursively($comment, $users): array
     {
         $authorId = $comment->getAuthor()->toString();
 
@@ -253,13 +253,23 @@ readonly class PostsController
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
             'user' => $this->userProxy->searchUser($authorId),
             'children' => [],
+            'totalComments' => count($comment->getChildren()),
+            'isReacted' => null,
+            'reactions_count' => count($comment->getReactions()),
+            'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
+                return [
+                    'id' => $r->getId(),
+                    'type' => $r->getType(),
+                    'user' => $users[$r->getUser()->toString()] ?? null,
+                ];
+            }, $comment->getReactions()->toArray()), 0, 2),
         ];
         foreach ($comment->getLikes() as $key => $like) {
             $formatted['likes'][$key]['id'] = $like->getId();
             $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
         }
         foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child);
+            $formatted['children'][] = $this->formatCommentRecursively($child, $users);
         }
 
         return $formatted;
