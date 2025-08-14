@@ -96,6 +96,7 @@ readonly class PostsController
                     'id' => $post->getId(),
                     'title' => $post->getTitle(),
                     'summary' => $post->getSummary(),
+                    'content' => $post->getContent(),
                     'url' => $post->getUrl(),
                     'slug' => $post->getSlug(),
                     'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
