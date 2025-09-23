@@ -4,14 +4,25 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\DTO\Post;
 
+use App\Blog\Domain\Entity\Blog;
+use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post as Entity;
+use App\Blog\Domain\Entity\Tag;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\DTO\RestDto;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Override;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+
+use function array_filter;
+use function array_map;
+use function array_values;
+use function in_array;
+use function is_string;
 
 /**
  * @package App\Post
@@ -22,53 +33,53 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Post extends RestDto
 {
+    /**
+     * @var array<string, string>
+     */
+    protected static array $mappings = [
+        'tags' => 'updateTags',
+        'mediaIds' => 'updateMediaRelations',
+    ];
 
-    #[Assert\NotBlank(message: 'User ID cannot be blank.')]
-    protected UuidInterface $userId;
+    #[Assert\NotBlank(allowNull: true)]
+    #[Assert\Length(max: 250)]
+    protected ?string $title = null;
 
-    #[Assert\NotBlank]
-    #[Assert\NotNull]
-    #[Assert\Length(min: 2, max: 255)]
-    protected string $title= '';
+    #[Assert\Length(max: 250)]
+    #[Assert\Url]
+    protected ?string $url = null;
 
-    #[Assert\NotBlank]
-    #[Assert\NotNull]
-    protected string $description = '';
+    #[Assert\NotBlank(allowNull: true)]
+    #[Assert\Length(max: 255)]
+    protected ?string $summary = null;
 
-    #[Assert\NotBlank]
-    #[Assert\NotNull]
-    protected string $gender = '';
+    #[Assert\NotBlank(allowNull: true)]
+    #[Assert\Length(min: 10)]
+    protected ?string $content = null;
 
-    protected UuidInterface $photo;
+    protected ?UuidInterface $author = null;
 
-    #[Assert\Date(message: 'The birthday must be a valid date.')]
-    protected ?DateTimeInterface $birthday = null;
+    protected ?Blog $blog = null;
 
-    protected ?string $googleId = "";
+    /**
+     * @var array<int, Tag>
+     */
+    protected array $tags = [];
 
-    protected ?string $githubId = "";
+    /**
+     * @var array<int, string>
+     */
+    #[Assert\All(new Assert\Uuid(message: 'This value is not a valid UUID.'))]
+    protected array $mediaIds = [];
 
-    protected ?string $githubUrl = "";
+    protected ?DateTimeImmutable $publishedAt = null;
 
-    protected ?string $instagramUrl = "";
-
-    protected ?string $linkedInId = "";
-
-    protected ?string $linkedInUrl = "";
-
-    protected ?string $twitterUrl = "";
-
-    protected ?string $facebookUrl = "";
-
-    protected ?string $phone = "";
-
-
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(?string $title): self
     {
         $this->setVisited('title');
         $this->title = $title;
@@ -76,186 +87,165 @@ class Post extends RestDto
         return $this;
     }
 
-    public function getDescription(): string
+    public function getUrl(): ?string
     {
-        return $this->description;
+        return $this->url;
     }
 
-    public function setDescription(string $description): self
+    public function setUrl(?string $url): self
     {
-        $this->setVisited('description');
-        $this->description = $description;
+        $this->setVisited('url');
+        $this->url = $url;
 
         return $this;
     }
 
-    public function getUserId(): UuidInterface
+    public function getSummary(): ?string
     {
-        return $this->userId;
+        return $this->summary;
     }
 
-    public function setUserId(UuidInterface $userId): self
+    public function setSummary(?string $summary): self
     {
-        $this->setVisited('userId');
-        $this->userId = $userId;
+        $this->setVisited('summary');
+        $this->summary = $summary;
 
         return $this;
     }
 
-    public function getGender(): string
+    public function getContent(): ?string
     {
-        return $this->gender;
+        return $this->content;
     }
 
-    public function setGender(string $gender): self
+    public function setContent(?string $content): self
     {
-        $this->setVisited('gender');
-        $this->gender = $gender;
+        $this->setVisited('content');
+        $this->content = $content;
 
         return $this;
     }
 
-    public function getPhoto(): UuidInterface
+    public function getAuthor(): ?UuidInterface
     {
-        return $this->photo;
+        return $this->author;
     }
 
-    public function setPhoto(UuidInterface $photo): self
+    public function setAuthor(UuidInterface|string|null $author): self
     {
-        $this->setVisited('photo');
-        $this->photo = $photo;
+        $this->setVisited('author');
+        if (is_string($author)) {
+            $author = $author === '' ? null : Uuid::fromString($author);
+        }
+
+        $this->author = $author;
 
         return $this;
     }
 
-    public function getBirthday(): ?DateTimeInterface
+    public function getBlog(): ?Blog
     {
-        return $this->birthday;
+        return $this->blog;
     }
 
-    public function setBirthday(?DateTimeInterface $birthday): self
+    public function setBlog(?Blog $blog): self
     {
-        $this->setVisited('birthday');
-        $this->birthday = $birthday;
+        $this->setVisited('blog');
+        $this->blog = $blog;
 
         return $this;
     }
 
-    public function getGoogleId(): ?string
+    /**
+     * @return array<int, Tag>
+     */
+    public function getTags(): array
     {
-        return $this->googleId;
+        return $this->tags;
     }
 
-    public function setGoogleId(?string $googleId): self
+    /**
+     * @param array<int, Tag> $tags
+     */
+    public function setTags(array $tags): self
     {
-        $this->setVisited('googleId');
-        $this->googleId = $googleId;
+        $this->setVisited('tags');
+        $this->tags = array_values(array_filter(
+            $tags,
+            static fn ($tag): bool => $tag instanceof Tag
+        ));
 
         return $this;
     }
 
-    public function getGithubId(): ?string
+    /**
+     * @return array<int, string>
+     */
+    public function getMediaIds(): array
     {
-        return $this->githubId;
+        return $this->mediaIds;
     }
 
-    public function setGithubId(?string $githubId): self
+    /**
+     * @param array<int, string> $mediaIds
+     */
+    public function setMediaIds(array $mediaIds): self
     {
-        $this->setVisited('githubId');
-        $this->githubId = $githubId;
+        $this->setVisited('mediaIds');
+        $this->mediaIds = $mediaIds;
 
         return $this;
     }
 
-    public function getGithubUrl(): ?string
+    public function getPublishedAt(): ?DateTimeImmutable
     {
-        return $this->githubUrl;
+        return $this->publishedAt;
     }
 
-    public function setGithubUrl(?string $githubUrl): self
+    public function setPublishedAt(DateTimeInterface|string|null $publishedAt): self
     {
-        $this->setVisited('githubUrl');
-        $this->githubUrl = $githubUrl;
+        $this->setVisited('publishedAt');
+
+        if ($publishedAt === null) {
+            $this->publishedAt = null;
+
+            return $this;
+        }
+
+        if (is_string($publishedAt)) {
+            $publishedAt = new DateTimeImmutable($publishedAt);
+        }
+
+        $this->publishedAt = DateTimeImmutable::createFromInterface($publishedAt);
 
         return $this;
     }
 
-    public function getInstagramUrl(): ?string
+    protected function updateTags(Entity $entity, array $tags): void
     {
-        return $this->instagramUrl;
+        $ids = array_map(static fn (Tag $tag): string => $tag->getId(), $tags);
+
+        foreach ($entity->getTags() as $existing) {
+            if (!in_array($existing->getId(), $ids, true)) {
+                $entity->removeTag($existing);
+            }
+        }
+
+        $entity->addTag(...$tags);
     }
 
-    public function setInstagramUrl(?string $instagramUrl): self
+    /**
+     * @param array<int, string> $mediaIds
+     */
+    protected function updateMediaRelations(Entity $entity, array $mediaIds): void
     {
-        $this->setVisited('instagramUrl');
-        $this->instagramUrl = $instagramUrl;
+        $mediaIds = array_filter($mediaIds, static fn ($value): bool => is_string($value) && $value !== '');
 
-        return $this;
-    }
-
-    public function getLinkedInId(): ?string
-    {
-        return $this->linkedInId;
-    }
-
-    public function setLinkedInId(?string $linkedInId): self
-    {
-        $this->setVisited('linkedInId');
-        $this->linkedInId = $linkedInId;
-
-        return $this;
-    }
-
-    public function getLinkedInUrl(): ?string
-    {
-        return $this->linkedInUrl;
-    }
-
-    public function setLinkedInUrl(?string $linkedInUrl): self
-    {
-        $this->setVisited('linkedInUrl');
-        $this->linkedInUrl = $linkedInUrl;
-
-        return $this;
-    }
-
-    public function getTwitterUrl(): ?string
-    {
-        return $this->twitterUrl;
-    }
-
-    public function setTwitterUrl(?string $twitterUrl): self
-    {
-        $this->setVisited('twitterUrl');
-        $this->twitterUrl = $twitterUrl;
-
-        return $this;
-    }
-
-    public function getFacebookUrl(): ?string
-    {
-        return $this->facebookUrl;
-    }
-
-    public function setFacebookUrl(?string $facebookUrl): self
-    {
-        $this->setVisited('facebookUrl');
-        $this->facebookUrl = $facebookUrl;
-
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(?string $phone): self
-    {
-        $this->setVisited('phone');
-        $this->phone = $phone;
-
-        return $this;
+        foreach ($entity->getMediaEntities() as $media) {
+            if (!in_array($media->getId(), $mediaIds, true)) {
+                $entity->removeMedia($media);
+            }
+        }
     }
 
     /**
@@ -269,20 +259,16 @@ class Post extends RestDto
         if ($entity instanceof Entity) {
             $this->id = $entity->getId();
             $this->title = $entity->getTitle();
-            $this->description = $entity->getDescription();
-            $this->userId = $entity->getUserId();
-            $this->photo = $entity->getPhoto();
-            $this->birthday = $entity->getBirthday();
-            $this->gender = $entity->getGender();
-            $this->googleId = $entity->getGoogleId();
-            $this->githubId = $entity->getGithubId();
-            $this->githubUrl = $entity->getGithubUrl();
-            $this->instagramUrl = $entity->getInstagramUrl();
-            $this->linkedInId = $entity->getLinkedInId();
-            $this->linkedInUrl = $entity->getLinkedInUrl();
-            $this->twitterUrl = $entity->getTwitterUrl();
-            $this->facebookUrl = $entity->getFacebookUrl();
-            $this->phone = $entity->getPhone();
+            $this->url = $entity->getUrl();
+            $this->summary = $entity->getSummary();
+            $this->content = $entity->getContent();
+            $this->author = $entity->getAuthor();
+            $this->blog = $entity->getBlog();
+            $this->tags = $entity->getTags()->toArray();
+            $this->mediaIds = $entity->getMediaEntities()->map(
+                static fn (Media $media): string => $media->getId()
+            )->toArray();
+            $this->publishedAt = $entity->getPublishedAt();
         }
 
         return $this;
