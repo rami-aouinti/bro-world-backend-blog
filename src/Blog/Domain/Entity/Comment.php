@@ -90,7 +90,7 @@ class Comment implements EntityInterface
     ])]
     private Collection $children;
 
-    #[ORM\Column(type: 'uuid', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
         'Comment',
         'Comment.medias',
@@ -128,6 +128,7 @@ class Comment implements EntityInterface
         $this->children = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->reactions = new ArrayCollection();
+        $this->medias = [];
     }
 
     public function __toString(): string
@@ -218,12 +219,16 @@ class Comment implements EntityInterface
         $this->post = $post;
     }
 
-    /**
-     * @return array|null
-     */
-    public function getMedias(): ?array
+    public function getMedias(): array
     {
-        return $this->medias;
+        return $this->medias ?? [];
+    }
+
+    public function setMedias(?array $medias): self
+    {
+        $this->medias = $medias ?? [];
+
+        return $this;
     }
 
     public function getLikes(): Collection
