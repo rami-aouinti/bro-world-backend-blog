@@ -71,22 +71,33 @@ readonly class NotificationService
     ): void
     {
         if($symfonyUserId !== $userId) {
-            $post = [];
-            $sender['firstName'] = '';
-            $sender['lastName'] = '';
+            $post = null;
             if($postId) {
                 $post = $this->getOriginPost($postId);
             }
 
-            $sender = $this->userProxy->searchUser($symfonyUserId);
+            $senderData = $this->userProxy->searchUser($symfonyUserId) ?? [];
+
+            $firstName = is_array($senderData) ? (string) ($senderData['firstName'] ?? '') : '';
+            $lastName = is_array($senderData) ? (string) ($senderData['lastName'] ?? '') : '';
+            $photo = is_array($senderData) ? (string) ($senderData['photo'] ?? '') : '';
+
+            $titleParts = array_filter([
+                $firstName,
+                $lastName,
+                (string) ($title ?? ''),
+            ], static fn (string $part) => $part !== '');
+            $pushTitle = trim(implode(' ', $titleParts));
+
+            $slug = $post instanceof Post ? $post->getSlug() : '';
 
             $notification = [
                 'channel' => $channel,
                 'scope' => 'INDIVIDUAL',
                 'topic' => '/notifications/' . $userId,
-                'pushTitle' => $sender['firstName'] . ' ' . $sender['lastName'] . ' ' .  $title,
-                'pushSubtitle' => $sender['photo'],
-                'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
+                'pushTitle' => $pushTitle,
+                'pushSubtitle' => $photo,
+                'pushContent' => 'https://bro-world-space.com/post/' . $slug,
                 'scopeTarget' => '["' . $userId . '"]',
             ];
 
