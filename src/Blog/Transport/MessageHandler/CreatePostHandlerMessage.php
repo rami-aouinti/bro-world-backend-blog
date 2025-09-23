@@ -6,8 +6,10 @@ namespace App\Blog\Transport\MessageHandler;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\PostService;
+use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
+use Doctrine\Common\Collections\Collection;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
@@ -110,7 +112,7 @@ readonly class CreatePostHandlerMessage
                 'content' => $post->getContent(),
                 'slug' => $post->getSlug(),
                 'tags' => $post->getTags(),
-                'medias' =>  $this->getMedia($post->getMedias()),
+                'medias' =>  $this->getMedia($post->getMediaEntities()),
                 'likes' => [],
                 'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
                 'blog' => [
@@ -177,7 +179,7 @@ readonly class CreatePostHandlerMessage
 
 
     /**
-     * @param array|null $mediaIds
+     * @param Collection $mediaEntities
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -186,11 +188,15 @@ readonly class CreatePostHandlerMessage
      * @throws TransportExceptionInterface
      * @return array
      */
-    private function getMedia(?array $mediaIds): array
+    private function getMedia(Collection $mediaEntities): array
     {
         $medias  = [];
-        foreach ($mediaIds as $id) {
-            $medias[] = $this->userProxy->getMedia($id);
+        foreach ($mediaEntities as $media) {
+            if (!$media instanceof Media) {
+                continue;
+            }
+
+            $medias[] = $this->userProxy->getMedia($media->getId());
         }
         return $medias;
     }
