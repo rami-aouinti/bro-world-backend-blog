@@ -7,6 +7,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\CommentResponseHelper;
 use App\Blog\Domain\Entity\Media;
+use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
@@ -48,6 +49,7 @@ readonly class LoggedPostsController
         private CommentRepository $commentRepository,
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
+        private PostFeedResponseBuilder $postFeedResponseBuilder
     ) {}
 
     /**
@@ -182,6 +184,13 @@ readonly class LoggedPostsController
             }
 
             return ['data' => $data, 'page' => $page, 'limit' => $limit, 'count' => $total];
+            return $this->postFeedResponseBuilder->build(
+                $posts,
+                $page,
+                $limit,
+                $total,
+                $symfonyUser->getUserIdentifier()
+            );
         });
 
         return new JsonResponse($result);
