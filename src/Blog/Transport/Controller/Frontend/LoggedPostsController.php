@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Domain\Entity\Media;
+use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
@@ -45,7 +45,8 @@ readonly class LoggedPostsController
         private TagAwareCacheInterface $cache,
         private PostRepository $postRepository,
         private CommentRepository $commentRepository,
-        private UserProxy $userProxy
+        private UserProxy $userProxy,
+        private PostFeedResponseBuilder $postFeedResponseBuilder
     ) {}
 
     /**
@@ -71,103 +72,13 @@ readonly class LoggedPostsController
             $posts = $this->postRepository->findWithRelations($limit, $offset);
             $total = $this->postRepository->countPosts();
 
-            $userIds = [];
-            foreach ($posts as $post) {
-                $userIds[] = $post->getAuthor()->toString();
-                foreach ($post->getReactions() as $reaction) {
-                    $userIds[] = $reaction->getUser()->toString();
-                }
-                foreach ($post->getComments() as $comment) {
-                    $userIds[] = $comment->getAuthor()->toString();
-                    foreach ($comment->getReactions() as $reaction) {
-                        $userIds[] = $reaction->getUser()->toString();
-                    }
-                }
-            }
-            $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
-
-            $data = [];
-            foreach ($posts as $post) {
-                $data[] = [
-                    'id' => $post->getId(),
-                    'title' => $post->getTitle(),
-                    'summary' => $post->getSummary(),
-                    'content' => $post->getContent(),
-                    'url' => $post->getUrl(),
-                    'slug' => $post->getSlug(),
-                    'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                    'isReacted' => $this->userHasReacted($post->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
-                    'reactions_count' => count($post->getReactions()),
-                    'totalComments' => count($post->getComments()),
-                    'sharedFrom' => $post->getSharedFrom() ? [
-                        'id' => $post->getSharedFrom()->getId(),
-                        'title' => $post->getSharedFrom()->getTitle(),
-                        'summary' => $post->getSharedFrom()->getSummary(),
-                        'url' => $post->getSharedFrom()->getUrl(),
-                        'slug' => $post->getSharedFrom()->getSlug(),
-                        'medias' => $post->getSharedFrom()->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                        'isReacted' => $this->userHasReacted($post->getSharedFrom()->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
-                        'reactions_count' => count($post->getSharedFrom()->getReactions()),
-                        'totalComments' => count($post->getSharedFrom()->getComments()),
-                        'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
-                        'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
-                        'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                            return [
-                                'id' => $r->getId(),
-                                'type' => $r->getType(),
-                                'user' => $users[$r->getUser()->toString()] ?? null,
-                            ];
-                        }, $post->getSharedFrom()->getReactions()->toArray()), 0, 2),
-                        'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
-                            return [
-                                'id' => $c->getId(),
-                                'content' => $c->getContent(),
-                                'user' => $users[$c->getAuthor()->toString()] ?? null,
-                                'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
-                                'totalComments' => count($c->getChildren()),
-                                'reactions_count' => count($c->getReactions()),
-                                'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
-                                'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                                    return [
-                                        'id' => $r->getId(),
-                                        'type' => $r->getType(),
-                                        'user' => $users[$r->getUser()->toString()] ?? null,
-                                    ];
-                                }, $c->getReactions()->toArray()), 0, 2),
-                            ];
-                        }, $post->getSharedFrom()->getComments()->toArray()), 0, 2),
-                    ] : null,
-                    'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
-                    'user' => $users[$post->getAuthor()->toString()] ?? null,
-                    'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                        return [
-                            'id' => $r->getId(),
-                            'type' => $r->getType(),
-                            'user' => $users[$r->getUser()->toString()] ?? null,
-                        ];
-                    }, $post->getReactions()->toArray()), 0, 2),
-                    'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
-                        return [
-                            'id' => $c->getId(),
-                            'content' => $c->getContent(),
-                            'user' => $users[$c->getAuthor()->toString()] ?? null,
-                            'isReacted' => $this->userHasReacted($c->getReactions()->toArray(), $symfonyUser->getUserIdentifier()),
-                            'totalComments' => count($c->getChildren()),
-                            'reactions_count' => count($c->getReactions()),
-                            'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
-                            'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                                return [
-                                    'id' => $r->getId(),
-                                    'type' => $r->getType(),
-                                    'user' => $users[$r->getUser()->toString()] ?? null,
-                                ];
-                            }, $c->getReactions()->toArray()), 0, 2),
-                        ];
-                    }, $post->getComments()->toArray()), 0, 2),
-                ];
-            }
-
-            return ['data' => $data, 'page' => $page, 'limit' => $limit, 'count' => $total];
+            return $this->postFeedResponseBuilder->build(
+                $posts,
+                $page,
+                $limit,
+                $total,
+                $symfonyUser->getUserIdentifier()
+            );
         });
 
         return new JsonResponse($result);
