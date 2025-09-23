@@ -2,23 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Domain\Entity\Comment;
-use App\Blog\Domain\Entity\Like;
-use App\Blog\Domain\Message\CreateNotificationMessenger;
-use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
+use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -28,12 +24,11 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class ToggleCommentController
+readonly class DeleteCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private LikeRepositoryInterface $likeRepository,
-        private MessageBusInterface $bus
+        private CommentRepository $commentRepository
     ) {
     }
 
@@ -44,39 +39,22 @@ readonly class ToggleCommentController
      * @param Request     $request
      * @param Comment     $comment
      *
-     * @throws ExceptionInterface
-     * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
+     * @throws JsonException
+     * @throws ExceptionInterface
      * @return JsonResponse
      */
-    #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
+    #[Route(path: '/v1/platform/comment/{comment}', name: 'delete_comment', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
-        $like = new Like();
-        $like->setComment($comment);
-        $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $this->bus->dispatch(
-            new CreateNotificationMessenger(
-                $request->headers->get('Authorization'),
-                'PUSH',
-                $symfonyUser->getUserIdentifier(),
-                $comment->getAuthor()->toString(),
-                $comment->getPost()?->getId(),
-                'liked your comment.'
-            )
-        );
-        $this->likeRepository->save($like);
-        $result = [];
-        $result['id'] = $like->getId();
-        $result['user'] = $symfonyUser;
+        $this->commentRepository->remove($comment);
         $output = JSON::decode(
             $this->serializer->serialize(
-                $result,
+                'deleted',
                 'json',
                 [
-                    'groups' => 'Like',
+                    'groups' => 'Comment',
                 ]
             ),
             true,

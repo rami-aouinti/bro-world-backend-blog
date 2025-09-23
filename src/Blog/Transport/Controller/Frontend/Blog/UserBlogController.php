@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Domain\Utils\JSON;

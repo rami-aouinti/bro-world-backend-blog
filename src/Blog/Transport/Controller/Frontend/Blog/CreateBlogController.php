@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Application\Service\BlogService;
 use App\Blog\Domain\Entity\Blog;
@@ -10,7 +10,6 @@ use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Throwable;
 
 /**
  * @package App\Blog

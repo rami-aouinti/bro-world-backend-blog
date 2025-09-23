@@ -2,18 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Comment;
 
-use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreateCommentMessenger;
-use App\Blog\Domain\Message\CreateNotificationMessenger;
-use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;

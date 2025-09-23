@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\React;
 
 use App\Blog\Domain\Entity\Like;
-use App\Blog\Domain\Entity\Post;
-use App\Blog\Domain\Message\CreateNotificationMessenger;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -14,11 +12,9 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
 use OpenApi\Attributes as OA;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -28,12 +24,11 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class TogglePostController
+readonly class DislikePostController
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private LikeRepositoryInterface $likeRepository,
-        private MessageBusInterface $bus
+        private LikeRepositoryInterface $likeRepository
     ) {
     }
 
@@ -42,38 +37,22 @@ readonly class TogglePostController
      *
      * @param SymfonyUser $symfonyUser
      * @param Request     $request
-     * @param Post        $post
+     * @param Like        $like
      *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
      * @return JsonResponse
      */
-    #[Route(path: '/v1/platform/post/{post}/like', name: 'like_post', methods: [Request::METHOD_POST])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
+    #[Route(path: '/v1/platform/post/{like}/dislike', name: 'dislike_post', methods: [Request::METHOD_POST])]
+    public function __invoke(SymfonyUser $symfonyUser, Request $request, Like $like): JsonResponse
     {
-        $like = new Like();
-        $like->setPost($post);
-        $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
-        $this->bus->dispatch(
-            new CreateNotificationMessenger(
-                $request->headers->get('Authorization'),
-                'PUSH',
-                $symfonyUser->getUserIdentifier(),
-                $post->getAuthor()->toString(),
-                $post->getId(),
-                'liked your post.'
-            )
-        );
-        $this->likeRepository->save($like);
-        $result = [];
-        $result['id'] = $like->getId();
-        $result['user'] = $symfonyUser;
+        $this->likeRepository->remove($like);
+
         $output = JSON::decode(
             $this->serializer->serialize(
-                $result,
+                'Success',
                 'json',
                 [
                     'groups' => 'Like',

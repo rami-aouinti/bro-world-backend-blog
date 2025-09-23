@@ -2,23 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Domain\Utils\JSON;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
 use Exception;
-use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 

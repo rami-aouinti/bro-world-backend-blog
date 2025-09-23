@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\React;
 
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;

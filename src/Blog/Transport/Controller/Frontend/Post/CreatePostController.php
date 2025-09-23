@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\Service\PostService;
 use App\General\Infrastructure\ValueObject\SymfonyUser;

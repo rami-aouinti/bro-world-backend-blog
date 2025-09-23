@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Media;
@@ -11,7 +11,6 @@ use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Domain\Utils\JSON;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
-use Exception;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;

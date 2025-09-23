@@ -2,17 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Application\Service\MediaService;
 use App\Blog\Application\Service\PostService;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
-use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Infrastructure\Repository\PostRepository;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
-use JsonException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
 use Random\RandomException;
@@ -20,15 +17,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-
 use Throwable;
 
 use function strlen;

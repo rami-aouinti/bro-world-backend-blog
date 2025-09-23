@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Post;

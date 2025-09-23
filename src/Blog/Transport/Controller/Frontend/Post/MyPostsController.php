@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\CommentResponseHelper;
-use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Comment;
+use App\Blog\Domain\Entity\Media;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -23,8 +23,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;

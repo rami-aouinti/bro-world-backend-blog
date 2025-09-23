@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Transport\Controller\Frontend;
+namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\CommentResponseHelper;
-use App\Blog\Domain\Entity\Media;
 use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -24,15 +22,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-
-use function array_slice;
 
 /**
  * Class LoggedPostsController
@@ -41,7 +37,7 @@ use function array_slice;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class LoggedPostsController
+readonly class PostsController
 {
     public function __construct(
         private TagAwareCacheInterface $cache,
@@ -49,148 +45,32 @@ readonly class LoggedPostsController
         private CommentRepositoryInterface $commentRepository,
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
-        private PostFeedResponseBuilder $postFeedResponseBuilder
+        private PostFeedResponseBuilder $postFeedResponseBuilder,
     ) {}
 
     /**
      *
-     * @param SymfonyUser $symfonyUser
      * @param Request     $request
      *
      * @throws InvalidArgumentException
      * @return JsonResponse
      */
-    #[Route('/v1/private/post', name: 'private_post_index', methods: [Request::METHOD_GET])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
+    #[Route('/public/post', name: 'public_post_index', methods: [Request::METHOD_GET])]
+    public function __invoke(Request $request): JsonResponse
     {
         $page   = max(1, (int) $request->query->get('page', 1));
         $limit  = (int) $request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
-        $cacheKey = "posts_page_{$page}_limit_{$limit}_user_{$symfonyUser->getUserIdentifier()}";
+        $cacheKey = "posts_page_{$page}_limit_{$limit}";
 
-        $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page, $symfonyUser) {
+        $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page) {
             $item->tag(['posts']);
             $item->expiresAfter(20);
 
             $posts = $this->postRepository->findWithRelations($limit, $offset);
             $total = $this->postRepository->countPosts();
 
-            $userIds = [];
-            foreach ($posts as $post) {
-                $userIds[] = $post->getAuthor()->toString();
-                foreach ($post->getReactions() as $reaction) {
-                    $userIds[] = $reaction->getUser()->toString();
-                }
-                foreach ($post->getComments() as $comment) {
-                    $userIds[] = $comment->getAuthor()->toString();
-                    foreach ($comment->getReactions() as $reaction) {
-                        $userIds[] = $reaction->getUser()->toString();
-                    }
-                }
-            }
-            $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
-
-            $data = [];
-            foreach ($posts as $post) {
-                $data[] = [
-                    'id' => $post->getId(),
-                    'title' => $post->getTitle(),
-                    'summary' => $post->getSummary(),
-                    'content' => $post->getContent(),
-                    'url' => $post->getUrl(),
-                    'slug' => $post->getSlug(),
-                    'medias' => $post->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                    'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
-                        $post->getReactions(),
-                        $symfonyUser->getUserIdentifier(),
-                    ),
-                    'reactions_count' => count($post->getReactions()),
-                    'totalComments' => count($post->getComments()),
-                    'sharedFrom' => $post->getSharedFrom() ? [
-                        'id' => $post->getSharedFrom()->getId(),
-                        'title' => $post->getSharedFrom()->getTitle(),
-                        'summary' => $post->getSharedFrom()->getSummary(),
-                        'url' => $post->getSharedFrom()->getUrl(),
-                        'slug' => $post->getSharedFrom()->getSlug(),
-                        'medias' => $post->getSharedFrom()->getMediaEntities()->map(fn(Media $m) => $m->toArray())->toArray(),
-                        'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
-                            $post->getSharedFrom()->getReactions(),
-                            $symfonyUser->getUserIdentifier(),
-                        ),
-                        'reactions_count' => count($post->getSharedFrom()->getReactions()),
-                        'totalComments' => count($post->getSharedFrom()->getComments()),
-                        'user' => $users[$post->getSharedFrom()->getAuthor()->toString()] ?? null,
-                        'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
-                        'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                            return [
-                                'id' => $r->getId(),
-                                'type' => $r->getType(),
-                                'user' => $users[$r->getUser()->toString()] ?? null,
-                            ];
-                        }, $post->getSharedFrom()->getReactions()->toArray()), 0, 2),
-                        'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
-                            return [
-                                'id' => $c->getId(),
-                                'content' => $c->getContent(),
-                                'user' => $users[$c->getAuthor()->toString()] ?? null,
-                                'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
-                                    $c->getReactions(),
-                                    $symfonyUser->getUserIdentifier(),
-                                ),
-                                'totalComments' => count($c->getChildren()),
-                                'reactions_count' => count($c->getReactions()),
-                                'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
-                                'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                                    return [
-                                        'id' => $r->getId(),
-                                        'type' => $r->getType(),
-                                        'user' => $users[$r->getUser()->toString()] ?? null,
-                                    ];
-                                }, $c->getReactions()->toArray()), 0, 2),
-                            ];
-                        }, $post->getSharedFrom()->getComments()->toArray()), 0, 2),
-                    ] : null,
-                    'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
-                    'user' => $users[$post->getAuthor()->toString()] ?? null,
-                    'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                        return [
-                            'id' => $r->getId(),
-                            'type' => $r->getType(),
-                            'user' => $users[$r->getUser()->toString()] ?? null,
-                        ];
-                    }, $post->getReactions()->toArray()), 0, 2),
-                    'comments_preview' => array_slice(array_map(function ($c) use ($users, $symfonyUser) {
-                        return [
-                            'id' => $c->getId(),
-                            'content' => $c->getContent(),
-                            'user' => $users[$c->getAuthor()->toString()] ?? null,
-                    'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
-                        $c->getReactions(),
-                        $symfonyUser->getUserIdentifier(),
-                    ),
-                            'totalComments' => count($c->getChildren()),
-                            'reactions_count' => count($c->getReactions()),
-                            'publishedAt' => $c->getPublishedAt()?->format(DATE_ATOM),
-                            'reactions_preview' => array_slice(array_map(static function ($r) use ($users) {
-                                return [
-                                    'id' => $r->getId(),
-                                    'type' => $r->getType(),
-                                    'user' => $users[$r->getUser()->toString()] ?? null,
-                                ];
-                            }, $c->getReactions()->toArray()), 0, 2),
-                        ];
-                    }, $post->getComments()->toArray()), 0, 2),
-                ];
-            }
-
-            return ['data' => $data, 'page' => $page, 'limit' => $limit, 'count' => $total];
-            return $this->postFeedResponseBuilder->build(
-                $posts,
-                $page,
-                $limit,
-                $total,
-                $symfonyUser->getUserIdentifier()
-            );
+            return $this->postFeedResponseBuilder->build($posts, $page, $limit, $total);
         });
 
         return new JsonResponse($result);
@@ -199,7 +79,6 @@ readonly class LoggedPostsController
     /** ✅ Endpoint lazy load commentaires (avec `isLiked` et `reactions_count`)
      *
      * @param string      $id
-     * @param SymfonyUser $symfonyUser
      * @param Request     $request
      *
      * @throws ClientExceptionInterface
@@ -212,8 +91,8 @@ readonly class LoggedPostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/private/post/{id}/comments', name: 'private_post_comments', methods: ['GET'])]
-    public function comments(string $id, SymfonyUser $symfonyUser, Request $request): JsonResponse
+    #[Route('/public/post/{id}/comments', name: 'public_post_comments', methods: ['GET'])]
+    public function comments(string $id, Request $request): JsonResponse
     {
         $page   = max(1, (int) $request->query->get('page', 1));
         $limit  = (int) $request->query->get('limit', 10);
@@ -239,10 +118,11 @@ readonly class LoggedPostsController
             fn(Comment $comment) => $this->commentResponseHelper->buildCommentThread(
                 $comment,
                 $users,
-                $symfonyUser->getUserIdentifier(),
+                includeLikesCount: true,
             ),
             $comments,
         );
+
         return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
     }
 
@@ -261,7 +141,7 @@ readonly class LoggedPostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/private/post/{id}/likes', name: 'private_post_likes', methods: ['GET'])]
+    #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
     {
         $post = $this->postRepository->find($id);
@@ -302,7 +182,7 @@ readonly class LoggedPostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/private/comment/{id}/likes', name: 'private_comment_likes', methods: ['GET'])]
+    #[Route('/public/comment/{id}/likes', name: 'public_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
     {
         $comment = $this->commentRepository->find($id);
@@ -343,7 +223,7 @@ readonly class LoggedPostsController
      * @throws TransportExceptionInterface
      * @return JsonResponse
      */
-    #[Route('/private/post/{id}/reactions', name: 'private_post_reactions', methods: ['GET'])]
+    #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
     {
         $post = $this->postRepository->find($id);
@@ -373,7 +253,7 @@ readonly class LoggedPostsController
      * @throws NotSupported
      * @return JsonResponse
      */
-    #[Route('/private/comment/{id}/reactions', name: 'private_comment_reactions', methods: ['GET'])]
+    #[Route('/public/comment/{id}/reactions', name: 'public_comment_reactions', methods: ['GET'])]
     public function commentReactions(string $id): JsonResponse
     {
         /** @var Comment|null $comment */
