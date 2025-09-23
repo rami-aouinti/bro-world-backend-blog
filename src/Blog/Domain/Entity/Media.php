@@ -41,9 +41,9 @@ class Media
 
     #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
     #[Groups(['Media', 'Post'])]
-    private string $type;
+    private ?string $type = null;
 
-    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'mediaEntities')]
+    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'medias')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Post $post;
 
@@ -74,12 +74,12 @@ class Media
         return $this;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
 
-    public function setType(string $type): self
+    public function setType(?string $type): self
     {
         $this->type = $type;
 
