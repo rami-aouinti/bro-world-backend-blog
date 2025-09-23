@@ -1,0 +1,2 @@
+notification.comment_created: 'Новий коментар до вашого допису'
+notification.comment_created.description: 'До вашого допису «%title%» залишили новий коментар. <a href="%link%">Переглянути коментар</a>.'
