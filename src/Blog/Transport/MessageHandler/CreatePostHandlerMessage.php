@@ -68,6 +68,11 @@ readonly class CreatePostHandlerMessage
 
         $cacheKey = 'all_posts_' . 1 . '_' . 10;
         $this->cache->delete($cacheKey);
+        $cacheKey = 'all_posts_' . 1 . '_' . 10;
+
+        $this->cache->invalidateTags(['posts']);
+        $this->cache->delete($cacheKey);
+
         $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure(10, 1)($item));
     }
 
@@ -82,6 +87,10 @@ readonly class CreatePostHandlerMessage
     {
         return function (ItemInterface $item) use($limit, $offset): array {
             $item->tag(['posts']);
+            if (method_exists($item, 'tag')) {
+                $item->tag(['posts']);
+            }
+
             $item->expiresAfter(31536000);
 
             return $this->getFormattedPosts($limit, $offset);

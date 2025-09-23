@@ -9,8 +9,8 @@ use App\Blog\Application\Service\CommentResponseHelper;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
-use App\Blog\Infrastructure\Repository\CommentRepository;
-use App\Blog\Infrastructure\Repository\PostRepository;
+use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
+use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
@@ -45,8 +45,8 @@ readonly class LoggedPostsController
 {
     public function __construct(
         private TagAwareCacheInterface $cache,
-        private PostRepository $postRepository,
-        private CommentRepository $commentRepository,
+        private PostRepositoryInterface $postRepository,
+        private CommentRepositoryInterface $commentRepository,
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
         private PostFeedResponseBuilder $postFeedResponseBuilder
@@ -377,7 +377,7 @@ readonly class LoggedPostsController
     public function commentReactions(string $id): JsonResponse
     {
         /** @var Comment|null $comment */
-        $comment = $this->postRepository->getEntityManager()->getRepository(Comment::class)->find($id);
+        $comment = $this->commentRepository->find($id);
         if (!$comment) {
             return new JsonResponse(['error' => 'Comment not found'], 404);
         }
