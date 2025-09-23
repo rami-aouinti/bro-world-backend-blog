@@ -64,6 +64,10 @@ readonly class CreatePostHandlerMessage
     {
         $this->postService->savePost($message->getPost(), $message->getMediasIds());
 
+        $this->cache->invalidateTags(['posts']);
+
+        $cacheKey = 'all_posts_' . 1 . '_' . 10;
+        $this->cache->delete($cacheKey);
         $cacheKey = 'all_posts_' . 1 . '_' . 10;
 
         $this->cache->invalidateTags(['posts']);
@@ -82,6 +86,7 @@ readonly class CreatePostHandlerMessage
     private function getClosure($limit, $offset): Closure
     {
         return function (ItemInterface $item) use($limit, $offset): array {
+            $item->tag(['posts']);
             if (method_exists($item, 'tag')) {
                 $item->tag(['posts']);
             }
