@@ -8,10 +8,15 @@ use App\Blog\Domain\Entity\Blog as Entity;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\DTO\RestDto;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use DateTimeInterface;
 use Override;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+
+use const FILTER_NULL_ON_FAILURE;
+use const FILTER_VALIDATE_BOOLEAN;
+use function filter_var;
+use function is_bool;
 
 /**
  * @package App\Blog
@@ -22,46 +27,31 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Blog extends RestDto
 {
-
-    #[Assert\NotBlank(message: 'User ID cannot be blank.')]
-    protected UuidInterface $userId;
-
     #[Assert\NotBlank]
     #[Assert\NotNull]
     #[Assert\Length(min: 2, max: 255)]
-    protected string $title= '';
+    protected string $title = '';
 
-    #[Assert\NotBlank]
+    #[Assert\Length(max: 250)]
+    protected ?string $blogSubtitle = null;
+
     #[Assert\NotNull]
-    protected string $description = '';
+    protected UuidInterface $author;
 
-    #[Assert\NotBlank]
-    #[Assert\NotNull]
-    protected string $gender = '';
+    #[Assert\Length(max: 255)]
+    protected ?string $logo = null;
 
-    protected UuidInterface $photo;
+    #[Assert\Type('array')]
+    protected ?array $teams = null;
 
-    #[Assert\Date(message: 'The birthday must be a valid date.')]
-    protected ?DateTimeInterface $birthday = null;
+    #[Assert\Type('bool')]
+    protected ?bool $visible = null;
 
-    protected ?string $googleId = "";
+    #[Assert\Length(max: 255)]
+    protected ?string $slug = null;
 
-    protected ?string $githubId = "";
-
-    protected ?string $githubUrl = "";
-
-    protected ?string $instagramUrl = "";
-
-    protected ?string $linkedInId = "";
-
-    protected ?string $linkedInUrl = "";
-
-    protected ?string $twitterUrl = "";
-
-    protected ?string $facebookUrl = "";
-
-    protected ?string $phone = "";
-
+    #[Assert\Length(max: 36)]
+    protected ?string $color = null;
 
     public function getTitle(): string
     {
@@ -76,184 +66,108 @@ class Blog extends RestDto
         return $this;
     }
 
-    public function getDescription(): string
+    public function getBlogSubtitle(): ?string
     {
-        return $this->description;
+        return $this->blogSubtitle;
     }
 
-    public function setDescription(string $description): self
+    public function setBlogSubtitle(?string $blogSubtitle): self
     {
-        $this->setVisited('description');
-        $this->description = $description;
+        $this->setVisited('blogSubtitle');
+        $this->blogSubtitle = $blogSubtitle;
 
         return $this;
     }
 
-    public function getUserId(): UuidInterface
+    public function getAuthor(): UuidInterface
     {
-        return $this->userId;
+        return $this->author;
     }
 
-    public function setUserId(UuidInterface $userId): self
+    /**
+     * @param UuidInterface|string $author
+     */
+    public function setAuthor(UuidInterface|string $author): self
     {
-        $this->setVisited('userId');
-        $this->userId = $userId;
+        $this->setVisited('author');
+        $this->author = $author instanceof UuidInterface ? $author : Uuid::fromString($author);
 
         return $this;
     }
 
-    public function getGender(): string
+    public function getLogo(): ?string
     {
-        return $this->gender;
+        return $this->logo;
     }
 
-    public function setGender(string $gender): self
+    public function setLogo(?string $logo): self
     {
-        $this->setVisited('gender');
-        $this->gender = $gender;
+        $this->setVisited('logo');
+        $this->logo = $logo;
 
         return $this;
     }
 
-    public function getPhoto(): UuidInterface
+    /**
+     * @return array<int, mixed>|null
+     */
+    public function getTeams(): ?array
     {
-        return $this->photo;
+        return $this->teams;
     }
 
-    public function setPhoto(UuidInterface $photo): self
+    /**
+     * @param array<int, mixed>|null $teams
+     */
+    public function setTeams(?array $teams): self
     {
-        $this->setVisited('photo');
-        $this->photo = $photo;
+        $this->setVisited('teams');
+        $this->teams = $teams;
 
         return $this;
     }
 
-    public function getBirthday(): ?DateTimeInterface
+    public function getVisible(): ?bool
     {
-        return $this->birthday;
+        return $this->visible;
     }
 
-    public function setBirthday(?DateTimeInterface $birthday): self
+    public function setVisible(bool|string|null $visible): self
     {
-        $this->setVisited('birthday');
-        $this->birthday = $birthday;
+        $this->setVisited('visible');
+        if ($visible === null) {
+            $this->visible = null;
+        } else {
+            $this->visible = is_bool($visible)
+                ? $visible
+                : filter_var($visible, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool)$visible;
+        }
 
         return $this;
     }
 
-    public function getGoogleId(): ?string
+    public function getSlug(): ?string
     {
-        return $this->googleId;
+        return $this->slug;
     }
 
-    public function setGoogleId(?string $googleId): self
+    public function setSlug(?string $slug): self
     {
-        $this->setVisited('googleId');
-        $this->googleId = $googleId;
+        $this->setVisited('slug');
+        $this->slug = $slug;
 
         return $this;
     }
 
-    public function getGithubId(): ?string
+    public function getColor(): ?string
     {
-        return $this->githubId;
+        return $this->color;
     }
 
-    public function setGithubId(?string $githubId): self
+    public function setColor(?string $color): self
     {
-        $this->setVisited('githubId');
-        $this->githubId = $githubId;
-
-        return $this;
-    }
-
-    public function getGithubUrl(): ?string
-    {
-        return $this->githubUrl;
-    }
-
-    public function setGithubUrl(?string $githubUrl): self
-    {
-        $this->setVisited('githubUrl');
-        $this->githubUrl = $githubUrl;
-
-        return $this;
-    }
-
-    public function getInstagramUrl(): ?string
-    {
-        return $this->instagramUrl;
-    }
-
-    public function setInstagramUrl(?string $instagramUrl): self
-    {
-        $this->setVisited('instagramUrl');
-        $this->instagramUrl = $instagramUrl;
-
-        return $this;
-    }
-
-    public function getLinkedInId(): ?string
-    {
-        return $this->linkedInId;
-    }
-
-    public function setLinkedInId(?string $linkedInId): self
-    {
-        $this->setVisited('linkedInId');
-        $this->linkedInId = $linkedInId;
-
-        return $this;
-    }
-
-    public function getLinkedInUrl(): ?string
-    {
-        return $this->linkedInUrl;
-    }
-
-    public function setLinkedInUrl(?string $linkedInUrl): self
-    {
-        $this->setVisited('linkedInUrl');
-        $this->linkedInUrl = $linkedInUrl;
-
-        return $this;
-    }
-
-    public function getTwitterUrl(): ?string
-    {
-        return $this->twitterUrl;
-    }
-
-    public function setTwitterUrl(?string $twitterUrl): self
-    {
-        $this->setVisited('twitterUrl');
-        $this->twitterUrl = $twitterUrl;
-
-        return $this;
-    }
-
-    public function getFacebookUrl(): ?string
-    {
-        return $this->facebookUrl;
-    }
-
-    public function setFacebookUrl(?string $facebookUrl): self
-    {
-        $this->setVisited('facebookUrl');
-        $this->facebookUrl = $facebookUrl;
-
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(?string $phone): self
-    {
-        $this->setVisited('phone');
-        $this->phone = $phone;
+        $this->setVisited('color');
+        $this->color = $color;
 
         return $this;
     }
@@ -269,20 +183,13 @@ class Blog extends RestDto
         if ($entity instanceof Entity) {
             $this->id = $entity->getId();
             $this->title = $entity->getTitle();
-            $this->description = $entity->getDescription();
-            $this->userId = $entity->getUserId();
-            $this->photo = $entity->getPhoto();
-            $this->birthday = $entity->getBirthday();
-            $this->gender = $entity->getGender();
-            $this->googleId = $entity->getGoogleId();
-            $this->githubId = $entity->getGithubId();
-            $this->githubUrl = $entity->getGithubUrl();
-            $this->instagramUrl = $entity->getInstagramUrl();
-            $this->linkedInId = $entity->getLinkedInId();
-            $this->linkedInUrl = $entity->getLinkedInUrl();
-            $this->twitterUrl = $entity->getTwitterUrl();
-            $this->facebookUrl = $entity->getFacebookUrl();
-            $this->phone = $entity->getPhone();
+            $this->blogSubtitle = $entity->getBlogSubtitle();
+            $this->author = $entity->getAuthor();
+            $this->logo = $entity->getLogo();
+            $this->teams = $entity->getTeams();
+            $this->visible = $entity->isVisible();
+            $this->slug = $entity->getSlug();
+            $this->color = $entity->getColor();
         }
 
         return $this;
