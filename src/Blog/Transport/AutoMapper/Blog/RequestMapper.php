@@ -16,19 +16,12 @@ class RequestMapper extends RestRequestMapper
      */
     protected static array $properties = [
         'title',
-        'description',
-        'userId',
-        'photo',
-        'birthday',
-        'gender',
-        'googleId',
-        'githubId',
-        'githubUrl',
-        'instagramUrl',
-        'linkedInId',
-        'linkedInUrl',
-        'twitterUrl',
-        'facebookUrl',
-        'phone'
+        'blogSubtitle',
+        'author',
+        'logo',
+        'teams',
+        'visible',
+        'slug',
+        'color',
     ];
 }
