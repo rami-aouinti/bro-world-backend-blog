@@ -8,7 +8,6 @@ use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Domain\Utils\JSON;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
 use JsonException;
@@ -58,17 +57,15 @@ readonly class PostController
     {
         $cacheKey = 'public_post_' . $slug;
         $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $blogs,
-                'json',
-                [
-                    'groups' => 'Post',
-                ]
-            ),
-            true,
+        $json = $this->serializer->serialize(
+            $blogs,
+            'json',
+            [
+                'groups' => 'Post',
+            ]
         );
-        return new JsonResponse($output);
+
+        return JsonResponse::fromJsonString($json);
     }
 
     /**
