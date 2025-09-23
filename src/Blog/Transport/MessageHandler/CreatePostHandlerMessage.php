@@ -16,7 +16,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -35,7 +35,7 @@ readonly class CreatePostHandlerMessage
 {
     public function __construct(
         private PostService $postService,
-        private CacheInterface $cache,
+        private TagAwareCacheInterface $cache,
         private PostRepositoryInterface $postRepository,
         private UserProxy $userProxy
     )
@@ -63,7 +63,11 @@ readonly class CreatePostHandlerMessage
     private function handleMessage(CreatePostMessenger $message): void
     {
         $this->postService->savePost($message->getPost(), $message->getMediasIds());
+
+        $this->cache->invalidateTags(['posts']);
+
         $cacheKey = 'all_posts_' . 1 . '_' . 10;
+        $this->cache->delete($cacheKey);
         $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure(10, 1)($item));
     }
 
@@ -77,6 +81,7 @@ readonly class CreatePostHandlerMessage
     private function getClosure($limit, $offset): Closure
     {
         return function (ItemInterface $item) use($limit, $offset): array {
+            $item->tag(['posts']);
             $item->expiresAfter(31536000);
 
             return $this->getFormattedPosts($limit, $offset);
