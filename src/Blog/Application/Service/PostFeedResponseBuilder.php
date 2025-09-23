@@ -11,19 +11,44 @@ use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
 use Doctrine\Common\Collections\Collection;
 
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
 use function array_map;
 use function array_slice;
 use function array_unique;
 use function count;
 
-class PostFeedResponseBuilder
+/**
+ * Class PostFeedResponseBuilder
+ *
+ * @package App\Blog\Application\Service
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
+readonly class PostFeedResponseBuilder
 {
-    public function __construct(private readonly UserProxy $userProxy)
+    public function __construct(private UserProxy $userProxy)
     {
     }
 
     /**
      * @param array<int, Post> $posts
+     * @param int              $page
+     * @param int              $limit
+     * @param int              $total
+     * @param string|null      $currentUserId
+     *
+     * @throws InvalidArgumentException
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
      */
     public function build(array $posts, int $page, int $limit, int $total, ?string $currentUserId = null): array
     {
@@ -57,7 +82,8 @@ class PostFeedResponseBuilder
                 $userIds[] = $reaction->getUser()->toString();
             }
 
-            if ($sharedFrom = $post->getSharedFrom()) {
+            $sharedFrom = $post->getSharedFrom();
+            if ($sharedFrom) {
                 $userIds[] = $sharedFrom->getAuthor()->toString();
 
                 foreach ($this->collectionToArray($sharedFrom->getReactions()) as $reaction) {

@@ -6,9 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\CommentResponseHelper;
-use App\Blog\Domain\Entity\Media;
 use App\Blog\Application\Service\PostFeedResponseBuilder;
-use App\Blog\Application\Post\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
@@ -32,8 +30,6 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-use function array_slice;
-
 /**
  * Class LoggedPostsController
  *
@@ -49,7 +45,6 @@ readonly class PostsController
         private CommentRepository $commentRepository,
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
-        private PostFeedResponseBuilder $postFeedResponseBuilder
         private PostFeedResponseBuilder $postFeedResponseBuilder,
     ) {}
 
@@ -76,7 +71,6 @@ readonly class PostsController
             $total = $this->postRepository->countPosts();
 
             return $this->postFeedResponseBuilder->build($posts, $page, $limit, $total);
-            return $this->postFeedResponseBuilder->buildFeedResponse($posts, $page, $limit, $total);
         });
 
         return new JsonResponse($result);

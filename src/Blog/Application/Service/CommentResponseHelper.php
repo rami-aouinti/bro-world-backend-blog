@@ -10,6 +10,13 @@ use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Entity\Reaction;
 use Doctrine\Common\Collections\Collection;
 
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
 use function array_slice;
 use function is_array;
 use function iterator_to_array;
@@ -27,10 +34,18 @@ readonly class CommentResponseHelper
      * Builds a fully formatted comment payload including recursive children mapping.
      *
      * @param Comment     $comment
-     * @param array       $users            Indexed array of user payloads keyed by their identifier
-     * @param string|null $currentUserId    Identifier of the authenticated user, if any
+     * @param array       $users             Indexed array of user payloads keyed by their identifier
+     * @param string|null $currentUserId     Identifier of the authenticated user, if any
      * @param bool        $includeLikesCount Whether to expose the likes count alongside the likes list
-     * @param int         $previewLimit     Maximum number of reactions to expose in the preview list
+     * @param int         $previewLimit      Maximum number of reactions to expose in the preview list
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
      */
     public function buildCommentThread(
         Comment $comment,
@@ -77,6 +92,15 @@ readonly class CommentResponseHelper
 
     /**
      * @param iterable<int, Like> $likes
+     * @param array               $users
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
      */
     public function buildLikeList(iterable $likes, array $users): array
     {
@@ -95,6 +119,15 @@ readonly class CommentResponseHelper
 
     /**
      * @param iterable<int, Reaction> $reactions
+     * @param array                   $users
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return array
      */
     public function buildReactionList(iterable $reactions, array $users): array
     {
@@ -150,6 +183,14 @@ readonly class CommentResponseHelper
         return iterator_to_array($items, false);
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
     private function resolveUser(array $users, ?string $userId): mixed
     {
         if ($userId === null || $userId === '') {
