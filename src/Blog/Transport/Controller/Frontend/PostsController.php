@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Application\Post\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
@@ -45,6 +46,7 @@ readonly class PostsController
         private PostRepository $postRepository,
         private CommentRepository $commentRepository,
         private UserProxy $userProxy,
+        private PostFeedResponseBuilder $postFeedResponseBuilder
         private PostFeedResponseBuilder $postFeedResponseBuilder,
     ) {}
 
@@ -70,6 +72,7 @@ readonly class PostsController
             $posts = $this->postRepository->findWithRelations($limit, $offset);
             $total = $this->postRepository->countPosts();
 
+            return $this->postFeedResponseBuilder->build($posts, $page, $limit, $total);
             return $this->postFeedResponseBuilder->buildFeedResponse($posts, $page, $limit, $total);
         });
 
