@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreateCommentMessenger;
-use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -64,16 +63,14 @@ readonly class CreateCommentController
             )
         );
 
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $comment,
-                'json',
-                [
-                    'groups' => 'Comment',
-                ]
-            ),
-            true,
+        $json = $this->serializer->serialize(
+            $comment,
+            'json',
+            [
+                'groups' => 'Comment',
+            ]
         );
-        return new JsonResponse($output);
+
+        return JsonResponse::fromJsonString($json);
     }
 }

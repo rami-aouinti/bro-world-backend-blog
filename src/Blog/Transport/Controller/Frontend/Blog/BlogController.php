@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Domain\Utils\JSON;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
 use Exception;
@@ -50,17 +49,15 @@ readonly class BlogController
     {
         $cacheKey = 'public_blog';
         $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure()($item));
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $blogs,
-                'json',
-                [
-                    'groups' => 'Blog',
-                ]
-            ),
-            true,
+        $json = $this->serializer->serialize(
+            $blogs,
+            'json',
+            [
+                'groups' => 'Blog',
+            ]
         );
-        return new JsonResponse($output);
+
+        return JsonResponse::fromJsonString($json);
     }
 
     /**

@@ -6,7 +6,6 @@ namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -68,16 +67,14 @@ readonly class UpdateBlogTeamsController
 
         $this->blogRepository->save($blog);
 
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $blog,
-                'json',
-                [
-                    'groups' => 'BlogProfile',
-                ]
-            ),
-            true,
+        $json = $this->serializer->serialize(
+            $blog,
+            'json',
+            [
+                'groups' => 'BlogProfile',
+            ]
         );
-        return new JsonResponse($output);
+
+        return JsonResponse::fromJsonString($json);
     }
 }

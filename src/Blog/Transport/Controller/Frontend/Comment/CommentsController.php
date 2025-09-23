@@ -6,7 +6,6 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Post;
-use App\General\Domain\Utils\JSON;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -66,17 +65,15 @@ readonly class CommentsController
         foreach ($rootComments as $comment) {
             $commentData[] = $this->formatCommentRecursively($comment, $usersById);
         }
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $commentData,
-                'json',
-                [
-                    'groups' => 'Comment',
-                ]
-            ),
-            true,
+        $json = $this->serializer->serialize(
+            $commentData,
+            'json',
+            [
+                'groups' => 'Comment',
+            ]
         );
-        return new JsonResponse($output);
+
+        return JsonResponse::fromJsonString($json);
     }
 
     /**

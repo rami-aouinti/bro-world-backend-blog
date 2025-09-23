@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
@@ -54,17 +53,15 @@ readonly class UserBlogController
     {
         $cacheKey = 'profile_blog_' . $symfonyUser->getUserIdentifier();
         $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($symfonyUser->getUserIdentifier())($item));
-        $output = JSON::decode(
-            $this->serializer->serialize(
-                $blogs,
-                'json',
-                [
-                    'groups' => 'BlogProfile',
-                ]
-            ),
-            true,
+        $json = $this->serializer->serialize(
+            $blogs,
+            'json',
+            [
+                'groups' => 'BlogProfile',
+            ]
         );
-        return new JsonResponse($output);
+
+        return JsonResponse::fromJsonString($json);
     }
 
     /**
