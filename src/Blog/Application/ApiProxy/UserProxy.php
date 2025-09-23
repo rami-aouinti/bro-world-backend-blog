@@ -77,10 +77,19 @@ readonly class UserProxy
 
         $users = $this->getUsers();
         foreach ($users as $user) {
-            $this->userCacheService->save($user['id'], $user); // Ajoute tous les users au cache
+            if (!isset($user['id'])) {
+                continue;
+            }
+
+            $userId = (string) $user['id'];
+            $this->userCacheService->save($userId, $user); // Ajoute tous les users au cache
+
+            if ($userId === $id) {
+                return $user;
+            }
         }
 
-        return $users[$id] ?? null;
+        return null;
     }
 
     /**
