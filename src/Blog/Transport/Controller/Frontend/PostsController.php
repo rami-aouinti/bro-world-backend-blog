@@ -6,6 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\PostFeedResponseBuilder;
+use App\Blog\Application\Post\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
@@ -46,6 +47,7 @@ readonly class PostsController
         private CommentRepository $commentRepository,
         private UserProxy $userProxy,
         private PostFeedResponseBuilder $postFeedResponseBuilder
+        private PostFeedResponseBuilder $postFeedResponseBuilder,
     ) {}
 
     /**
@@ -71,6 +73,7 @@ readonly class PostsController
             $total = $this->postRepository->countPosts();
 
             return $this->postFeedResponseBuilder->build($posts, $page, $limit, $total);
+            return $this->postFeedResponseBuilder->buildFeedResponse($posts, $page, $limit, $total);
         });
 
         return new JsonResponse($result);
