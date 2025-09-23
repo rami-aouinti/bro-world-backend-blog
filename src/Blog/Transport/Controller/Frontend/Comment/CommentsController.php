@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -50,17 +51,22 @@ readonly class CommentsController
     #[Route(path: '/v1/platform/post/{post}/comments', name: 'platform_post_comments', methods: [Request::METHOD_GET])]
     public function __invoke(Post $post): JsonResponse
     {
-        $users = $this->userProxy->getUsers();
-
-        $usersById = [];
-        foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
-        }
         $commentData = [];
         $rootComments = array_filter(
             $post->getComments()->toArray(),
             static fn($comment) => $comment->getParent() === null
         );
+
+        $userIds = [];
+        foreach ($rootComments as $comment) {
+            $this->collectCommentUserIds($comment, $userIds);
+        }
+
+        $usersById = [];
+        if ($userIds !== []) {
+            $users = $this->userProxy->batchSearchUsers(array_values(array_unique($userIds)));
+            $usersById = array_column($users, null, 'id');
+        }
 
         foreach ($rootComments as $comment) {
             $commentData[] = $this->formatCommentRecursively($comment, $usersById);
@@ -82,23 +88,46 @@ readonly class CommentsController
      *
      * @return array
      */
-    private function formatCommentRecursively($comment, array $usersById): array
+    private function formatCommentRecursively(Comment $comment, array $usersById): array
     {
         $authorId = $comment->getAuthor()->toString();
 
         $formatted = [
             'id' => $comment->getId(),
             'content' => $comment->getContent(),
-            'likes' => $comment->getLikes(),
+            'likes' => [],
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
             'user' => $usersById[$authorId] ?? null,
             'children' => [],
         ];
+
+        foreach ($comment->getLikes() as $like) {
+            $likeUserId = $like->getUser()->toString();
+            $formatted['likes'][] = [
+                'id' => $like->getId(),
+                'user' => $usersById[$likeUserId] ?? null,
+            ];
+        }
 
         foreach ($comment->getChildren() as $child) {
             $formatted['children'][] = $this->formatCommentRecursively($child, $usersById);
         }
 
         return $formatted;
+    }
+
+    private function collectCommentUserIds(Comment $comment, array &$userIds): void
+    {
+        $userIds[] = $comment->getAuthor()->toString();
+
+        foreach ($comment->getLikes() as $like) {
+            $userIds[] = $like->getUser()->toString();
+        }
+
+        foreach ($comment->getChildren() as $child) {
+            if ($child instanceof Comment) {
+                $this->collectCommentUserIds($child, $userIds);
+            }
+        }
     }
 }
