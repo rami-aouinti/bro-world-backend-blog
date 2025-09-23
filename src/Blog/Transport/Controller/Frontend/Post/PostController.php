@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
@@ -101,6 +102,25 @@ readonly class PostController
         $postData = [];
         if($post) {
             $authorId = $post->getAuthor()->toString();
+            $userIds = [$authorId];
+            $comments = $post->getComments()->toArray();
+            $rootComments = array_filter(
+                $comments,
+                static fn(Comment $comment) => $comment->getParent() === null
+            );
+
+            foreach ($post->getLikes() as $like) {
+                $userIds[] = $like->getUser()->toString();
+            }
+
+            foreach ($rootComments as $comment) {
+                $userIds = array_merge($userIds, $this->collectCommentUserIds($comment));
+            }
+
+            $users = $userIds !== []
+                ? $this->userProxy->batchSearchUsers(array_unique($userIds))
+                : [];
+
             $postData = [
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
@@ -118,22 +138,18 @@ readonly class PostController
                     'title' => $post->getBlog()?->getTitle(),
                     'blogSubtitle' => $post->getBlog()?->getBlogSubtitle(),
                 ],
-                'user' => $this->userProxy->searchUser($authorId),
+                'user' => $users[$authorId] ?? null,
                 'comments' => [],
             ];
 
             foreach ($post->getLikes() as $key => $like) {
                 $postData['likes'][$key]['id'] = $like->getId();
-                $postData['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
+                $userId = $like->getUser()->toString();
+                $postData['likes'][$key]['user']  = $users[$userId] ?? null;
             }
 
-            $rootComments = array_filter(
-                $post->getComments()->toArray(),
-                static fn($comment) => $comment->getParent() === null
-            );
-
             foreach ($rootComments as $comment) {
-                $postData['comments'][] = $this->formatCommentRecursively($comment);
+                $postData['comments'][] = $this->formatCommentRecursively($comment, $users);
             }
         }
 
@@ -141,17 +157,9 @@ readonly class PostController
     }
 
     /**
-     * @param       $comment
-     *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws InvalidArgumentException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     * @return array
+     * @param array<string, array> $users
      */
-    private function formatCommentRecursively($comment): array
+    private function formatCommentRecursively(Comment $comment, array $users): array
     {
         $authorId = $comment->getAuthor()->toString();
 
@@ -160,18 +168,37 @@ readonly class PostController
             'content' => $comment->getContent(),
             'likes' => [],
             'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
-            'user' => $this->userProxy->searchUser($authorId),
+            'user' => $users[$authorId] ?? null,
             'children' => [],
         ];
         foreach ($comment->getLikes() as $key => $like) {
             $formatted['likes'][$key]['id'] = $like->getId();
-            $formatted['likes'][$key]['user']  = $this->userProxy->searchUser($like->getUser()->toString());
+            $userId = $like->getUser()->toString();
+            $formatted['likes'][$key]['user']  = $users[$userId] ?? null;
         }
         foreach ($comment->getChildren() as $child) {
-            $formatted['children'][] = $this->formatCommentRecursively($child);
+            $formatted['children'][] = $this->formatCommentRecursively($child, $users);
         }
 
         return $formatted;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function collectCommentUserIds(Comment $comment): array
+    {
+        $userIds = [$comment->getAuthor()->toString()];
+
+        foreach ($comment->getLikes() as $like) {
+            $userIds[] = $like->getUser()->toString();
+        }
+
+        foreach ($comment->getChildren() as $child) {
+            $userIds = array_merge($userIds, $this->collectCommentUserIds($child));
+        }
+
+        return $userIds;
     }
 
     /**
