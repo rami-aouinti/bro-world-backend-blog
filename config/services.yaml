@@ -134,20 +134,24 @@ services:
             $encoders:
                 - '@app.serializer.encoder.json.external_message'
                 -
+    # Shared infrastructure services
     App\General\Infrastructure\Service\ApiProxyService:
         arguments:
             $apiMediaBaseUrl: '%api_media_base_url%'
             $apiNotificationBaseUrl: '%api_notification_base_url%'
 
-    App\Blog\Application\Service\BlogService:
+    # Blog domain services
+    App\Blog\Application\Service\Blog\BlogService:
         arguments:
             $logoDirectory: '%logo_directory%'
 
-    App\Blog\Application\Service\PostService:
+    # Post domain services
+    App\Blog\Application\Service\Post\PostService:
         arguments:
             $postDirectory: '%post_directory%'
 
-    App\Blog\Application\Service\ContentModerationService:
+    # Moderation domain services
+    App\Blog\Application\Service\Moderation\ContentModerationService:
         arguments:
             $bannedWords: '%app.moderation.banned_words%'
 

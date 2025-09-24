@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Application\Service\PostService;
+use App\Blog\Application\Service\Post\PostService;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Infrastructure\Repository\PostRepository;

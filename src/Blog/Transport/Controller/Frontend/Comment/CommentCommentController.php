@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
-use App\Blog\Application\Service\NotificationService;
+use App\Blog\Application\Service\Notification\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\General\Domain\Utils\JSON;
@@ -66,7 +66,7 @@ readonly class CommentCommentController
         $newComment->setContent($data['content']);
         $newComment->setParent($comment);
 
-        $this->notificationService->createNotification(
+        $this->notificationService->executeCreateNotificationCommand(
             $request->headers->get('Authorization'),
             'PUSH',
             $symfonyUser->getUserIdentifier(),

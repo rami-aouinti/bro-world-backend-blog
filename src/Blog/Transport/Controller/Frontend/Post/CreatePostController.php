@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
-use App\Blog\Application\Service\PostService;
+use App\Blog\Application\Service\Post\PostService;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -35,7 +35,7 @@ readonly class CreatePostController
     #[Route(path: '/v1/platform/post', name: 'post_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
-        $response = $this->postService->createPost($symfonyUser, $request);
+        $response = $this->postService->executeCreatePostCommand($symfonyUser, $request);
 
         return new JsonResponse($response);
     }

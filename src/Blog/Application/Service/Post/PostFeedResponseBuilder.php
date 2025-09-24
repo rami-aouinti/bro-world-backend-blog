@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Comment;

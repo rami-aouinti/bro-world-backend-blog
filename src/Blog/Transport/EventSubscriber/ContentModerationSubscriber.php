@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\EventSubscriber;
 
-use App\Blog\Application\Service\ContentModerationService;
-use App\Blog\Application\Service\ModerationWarningService;
+use App\Blog\Application\Service\Moderation\ContentModerationService;
+use App\Blog\Application\Service\Moderation\ModerationWarningService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;

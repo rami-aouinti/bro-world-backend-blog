@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\ApiProxy;
 
-use App\Blog\Application\Service\UserCacheService;
+use App\Blog\Application\Service\User\UserCacheService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;

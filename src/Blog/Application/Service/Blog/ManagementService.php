@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Blog;
 
+use App\Blog\Application\Service\Comment\CommentService;
 use App\General\Domain\Service\Interfaces\ElasticsearchServiceInterface;
 
 /**

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Comment;
 
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
@@ -29,7 +29,7 @@ readonly class CommentService
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    public function saveComment(Comment $comment, ?string $postId, ?string $userId, ?array $data): Comment
+    public function executeSaveCommentCommand(Comment $comment, ?string $postId, ?string $userId, ?array $data): Comment
     {
         $post = $this->postRepository->find($postId);
         $comment->setPost($post);

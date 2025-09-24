@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Application\Service\CommentCacheService;
-use App\Blog\Application\Service\CommentResponseHelper;
+use App\Blog\Application\Service\Comment\CommentCacheService;
+use App\Blog\Application\Service\Comment\CommentResponseHelper;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Infrastructure\Repository\CommentRepository;
