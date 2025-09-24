@@ -1,0 +1,7 @@
+framework:
+    cache:
+        app: cache.adapter.array
+        pools:
+            cache.app.taggable:
+                adapter: cache.adapter.tag_aware
+                provider: cache.adapter.array
