@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend\Comment;
 
+use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
 use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
@@ -37,7 +38,8 @@ readonly class CommentCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private CommentRepositoryInterface $commentRepository,
-        private NotificationService $notificationService
+        private NotificationService $notificationService,
+        private CommentNotificationMailerInterface $commentNotificationMailer
     ) {
     }
 
@@ -74,6 +76,12 @@ readonly class CommentCommentController
         );
 
         $this->commentRepository->save($newComment);
+
+        $this->commentNotificationMailer->sendCommentReplyNotificationEmail(
+            $comment->getAuthor()->toString(),
+            $symfonyUser->getUserIdentifier(),
+            $newComment
+        );
 
         $output = JSON::decode(
             $this->serializer->serialize(
