@@ -210,11 +210,6 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         return $titles;
     }
 
-    private function getRandomText(): string
-    {
-        return $this->faker->text(255);
-    }
-
     /**
      * @throws Exception
      */
