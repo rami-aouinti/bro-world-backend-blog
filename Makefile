@@ -347,9 +347,8 @@ migrate: ## Runs all migrations for main/test databases
 	@make exec cmd="php bin/console doctrine:migrations:migrate --no-interaction --env=test"
 
 migrate-cron-jobs: ## Creates cron job tasks (cleanup logs, failed old messenger messages)
-        @make exec cmd="php bin/console scheduler:cleanup-logs"
-        @make exec cmd="php bin/console scheduler:cleanup-messenger-messages"
-        @make exec cmd="php bin/console doctrine:migrations:execute DoctrineMigrations\\Version20240901000000 --no-interaction --up"
+	@make exec cmd="php bin/console scheduler:cleanup-logs"
+	@make exec cmd="php bin/console scheduler:cleanup-messenger-messages"
 
 fixtures: ## Runs all fixtures for test database without --append option (tables will be dropped and recreated)
 	@make exec cmd="php bin/console doctrine:fixtures:load --env=test"
