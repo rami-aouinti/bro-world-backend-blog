@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
 use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
@@ -44,7 +43,7 @@ readonly class DislikeCommentController
      * @throws OptimisticLockException
      */
     #[Route(path: '/v1/platform/comment/{like}/dislike', name: 'dislike_comment', methods: [Request::METHOD_POST])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request, Like $like): JsonResponse
+    public function __invoke(Like $like): JsonResponse
     {
         $this->likeRepository->remove($like);
 
