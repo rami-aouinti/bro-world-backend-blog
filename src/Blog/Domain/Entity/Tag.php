@@ -63,7 +63,8 @@ class Tag implements EntityInterface, Stringable, JsonSerializable
     public function __construct(string $name)
     {
         $this->id = $this->createUuid();
-        $this->name = $name;
+        $this->setName($name);
+        $this->setDescription($name);
     }
 
     public function __toString(): string
