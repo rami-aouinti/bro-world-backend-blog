@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Frontend\Post;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
@@ -41,7 +40,7 @@ readonly class DeletePostController
      * @throws OptimisticLockException
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'delete_post', methods: [Request::METHOD_DELETE])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
+    public function __invoke(Post $post): JsonResponse
     {
         $this->postRepository->remove($post);
         $output = JSON::decode(
