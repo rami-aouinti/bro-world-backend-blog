@@ -52,7 +52,7 @@ class Like implements EntityInterface, Stringable
     #[ORM\Column(type: 'uuid')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     #[Groups([
-        'Post'
+        'Post',
     ])]
     private UuidInterface $user;
 

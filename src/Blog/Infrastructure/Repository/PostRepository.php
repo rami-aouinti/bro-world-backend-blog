@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Infrastructure\Repository;
 
+use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post as Entity;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
@@ -12,12 +13,9 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-
 use Ramsey\Uuid\Uuid;
-use function count;
+
 use function sprintf;
-use function Symfony\Component\String\u;
-use App\Blog\Domain\Entity\Comment;
 
 /**
  * @package App\Blog
@@ -86,13 +84,11 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         return $qb->getQuery()->getResult();
     }
 
-    /** Compte les posts (optionnellement par auteur)
-     *
-     * @param string|null $authorId
+    /**
+     * Counts posts, optionally filtered by author.
      *
      * @throws NoResultException
      * @throws NonUniqueResultException
-     * @return int
      */
     public function countPosts(?string $authorId = null): int
     {
@@ -104,7 +100,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
                 ->setParameter('author', Uuid::fromString($authorId));
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function getRootComments(string $postId, int $limit, int $offset): array
@@ -117,7 +113,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
             ->join('c.post', 'p')
             ->where('p.id = :postId')
             ->andWhere('c.parent IS NULL')
-            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // ✅ conversion
+            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // Converts the ID to the UUID binary format.
             ->orderBy('c.publishedAt', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -126,28 +122,24 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     }
 
     /**
-     * @param string $postId
-     *
      * @throws NoResultException
      * @throws NonUniqueResultException
-     * @return int
      */
     public function countComments(string $postId): int
     {
-        return (int) $this->getEntityManager()->createQueryBuilder()
+        return (int)$this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(c.id)')
             ->from(Comment::class, 'c')
             ->join('c.post', 'p')
             ->where('p.id = :postId')
             ->andWhere('c.parent IS NULL')
-            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // ✅ conversion UUID
+            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // Converts the ID to the UUID binary format.
             ->getQuery()
             ->getSingleScalarResult();
     }
 
     /**
      * @throws Exception
-     * @return array
      */
     public function countPostsByMonth(): array
     {
@@ -162,7 +154,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         $counts = [];
         foreach ($result as $row) {
             $key = sprintf('%04d-%02d', $row['year'], $row['month']);
-            $counts[$key] = (int) $row['count'];
+            $counts[$key] = (int)$row['count'];
         }
 
         $firstKey = array_key_first($counts) ?? (new DateTimeImmutable('now'))->format('Y-m');
@@ -179,26 +171,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     }
 
     /**
-     * Transforms the search string into an array of search terms.
-     *
-     * @return string[]
-     */
-    private function extractSearchTerms(string $searchQuery): array
-    {
-        $terms = array_unique(u($searchQuery)->replaceMatches('/[[:space:]]+/', ' ')->trim()->split(' '));
-
-        // ignore the search terms that are too short
-        return array_filter($terms, static function ($term) {
-            return 2 <= $term->length();
-        });
-    }
-
-    /**
-     * @param string $start
-     * @param string $end
-     *
      * @throws Exception
-     * @return array
      */
     private function generateMonthRange(string $start, string $end): array
     {

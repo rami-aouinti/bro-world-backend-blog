@@ -16,8 +16,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use function in_array;
 
 /**
- * Class UserProxy
- *
  * @package App\Blog\Application\ApiProxy
  * @author  Rami Aouinti
  */
@@ -26,10 +24,11 @@ readonly class UserProxy
     public function __construct(
         private HttpClientInterface $httpClient,
         private UserCacheService $userCacheService
-    ) {}
+    ) {
+    }
 
     /**
-     * Récupère tous les utilisateurs depuis l'API externe.
+     * Retrieves all users from the external API.
      *
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
@@ -39,7 +38,7 @@ readonly class UserProxy
      */
     public function getUsers(): array
     {
-        $response = $this->httpClient->request('GET', "https://bro-world.org/api/v1/user", [
+        $response = $this->httpClient->request('GET', 'https://bro-world.org/api/v1/user', [
             'headers' => [
                 'Authorization' => 'ApiKey agYybuBZFsjXaCKBfjFWa2qFYMUshXZWFcz575KT',
             ],
@@ -49,7 +48,7 @@ readonly class UserProxy
     }
 
     /**
-     * Recherche des utilisateurs depuis le cache avec un mot-clé.
+     * Searches cached users with a keyword.
      *
      * @throws InvalidArgumentException
      */
@@ -59,7 +58,7 @@ readonly class UserProxy
     }
 
     /**
-     * Recherche un utilisateur spécifique par son ID.
+     * Looks up a specific user by ID.
      *
      * @throws InvalidArgumentException
      * @throws ClientExceptionInterface
@@ -77,25 +76,23 @@ readonly class UserProxy
 
         $users = $this->getUsers();
         foreach ($users as $user) {
-            $this->userCacheService->save($user['id'], $user); // Ajoute tous les users au cache
+            if (!isset($user['id'])) {
+                continue;
+            }
+
+            $userId = (string)$user['id'];
+            $this->userCacheService->save($userId, $user); // Adds every user to the cache.
+
+            if ($userId === $id) {
+                return $user;
+            }
         }
 
-        return $users[$id] ?? null;
+        return null;
     }
 
     /**
-     * Recherche des médias (fallback méthode, potentiellement inutile ici).
-     *
-     * @throws InvalidArgumentException
-     */
-    public function searchMedias(string $query): array
-    {
-        return $this->userCacheService->search($query);
-    }
-
-    /**
-     * Récupère plusieurs utilisateurs à partir d'une liste d'IDs.
-     * Mise en cache avec tag 'users' pour chaque nouvel utilisateur.
+     * Retrieves several users by ID list and caches them with the "users" tag.
      *
      * @param string[] $ids
      * @return array<string, array> [userId => userData]
@@ -118,7 +115,7 @@ readonly class UserProxy
             foreach ($allUsers as $user) {
                 if (in_array($user['id'], $missing, true)) {
                     $usersData[$user['id']] = $user;
-                    // ✅ stockage avec tag 'users'
+                    // Stores the user with the "users" tag.
                     $this->userCacheService->save($user['id'], $user);
                 }
             }
@@ -128,7 +125,7 @@ readonly class UserProxy
     }
 
     /**
-     * Récupère les informations d’un média via son ID.
+     * Retrieves media details by its ID.
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface

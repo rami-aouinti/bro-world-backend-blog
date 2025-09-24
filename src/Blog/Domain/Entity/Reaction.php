@@ -7,7 +7,6 @@ namespace App\Blog\Domain\Entity;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
@@ -17,6 +16,10 @@ use Throwable;
 
 use function sprintf;
 
+/**
+ * @package App\Blog\Domain\Entity
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'blog_reactions')]
 #[ORM\UniqueConstraint(name: 'uniq_user_post', columns: ['user', 'post_id'])]

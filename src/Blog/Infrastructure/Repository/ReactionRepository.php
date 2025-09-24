@@ -9,7 +9,6 @@ use App\Blog\Domain\Repository\Interfaces\ReactionRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
-
 use Exception;
 
 use function sprintf;
@@ -48,7 +47,6 @@ class ReactionRepository extends BaseRepository implements ReactionRepositoryInt
 
     /**
      * @throws Exception
-     * @return array
      */
     public function countLikesByMonth(): array
     {
@@ -63,7 +61,7 @@ class ReactionRepository extends BaseRepository implements ReactionRepositoryInt
         $counts = [];
         foreach ($result as $row) {
             $key = sprintf('%04d-%02d', $row['year'], $row['month']);
-            $counts[$key] = (int) $row['count'];
+            $counts[$key] = (int)$row['count'];
         }
 
         $firstKey = array_key_first($counts) ?? (new DateTimeImmutable('now'))->format('Y-m');
@@ -80,11 +78,7 @@ class ReactionRepository extends BaseRepository implements ReactionRepositoryInt
     }
 
     /**
-     * @param string $start
-     * @param string $end
-     *
      * @throws Exception
-     * @return array
      */
     private function generateMonthRange(string $start, string $end): array
     {

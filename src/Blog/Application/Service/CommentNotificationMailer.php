@@ -6,6 +6,7 @@ namespace App\Blog\Application\Service;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
+use App\Blog\Domain\Entity\Comment;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -29,20 +30,15 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
     private Environment $twig;
 
     public function __construct(
-        private UserProxy $userProxy,
+        private readonly UserProxy $userProxy,
         MailerInterface $mailer,
         Environment $twig
-    )
-    {
+    ) {
         $this->mailer = $mailer;
         $this->twig = $twig;
     }
 
     /**
-     * @param string $userId
-     * @param string $commentAuthorId
-     * @param string $slug
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws LoaderError
@@ -55,15 +51,13 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
      */
     public function sendCommentNotificationEmail(string $userId, string $commentAuthorId, string $slug): void
     {
-        $users = $this->userProxy->getUsers();
-        $usersById = [];
+        $usersById = $this->getUsersById();
+        $user = $usersById[$userId] ?? null;
+        $commentAuthor = $usersById[$commentAuthorId] ?? null;
 
-        foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
+        if ($user === null || $commentAuthor === null) {
+            return;
         }
-        $user = $usersById[$userId];
-        $commentAuthor = $usersById[$commentAuthorId];
-
 
         $email = (new Email())
             ->from('admin@bro-world.de')
@@ -73,10 +67,97 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
                 $this->twig->render('Emails/comment.html.twig', [
                     'user' => $user['firstName'],
                     'commentAuthor' => $commentAuthor['firstName'],
-                    'slug' => $slug
+                    'slug' => $slug,
                 ])
             );
 
         $this->mailer->send($email);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws LoaderError
+     * @throws RedirectionExceptionInterface
+     * @throws RuntimeError
+     * @throws ServerExceptionInterface
+     * @throws SyntaxError
+     * @throws TransportExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function sendCommentReplyNotificationEmail(
+        string $commentOwnerId,
+        string $replyAuthorId,
+        Comment $reply
+    ): void {
+        $slug = $this->resolveSlug($reply);
+        if ($slug === null) {
+            return;
+        }
+
+        $usersById = $this->getUsersById();
+        $commentOwner = $usersById[$commentOwnerId] ?? null;
+        $replyAuthor = $usersById[$replyAuthorId] ?? null;
+
+        if ($commentOwner === null || $replyAuthor === null) {
+            return;
+        }
+
+        $email = (new Email())
+            ->from('admin@bro-world.de')
+            ->to($commentOwner['email'])
+            ->subject('New reply to your comment')
+            ->html(
+                $this->twig->render(
+                    'Emails/comment_reply.html.twig',
+                    [
+                        'user' => $commentOwner['firstName'],
+                        'commentAuthor' => $replyAuthor['firstName'],
+                        'slug' => $slug,
+                        'comment' => $reply->getContent(),
+                    ]
+                )
+            );
+
+        $this->mailer->send($email);
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     *
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    private function getUsersById(): array
+    {
+        $users = $this->userProxy->getUsers();
+        $usersById = [];
+
+        foreach ($users as $user) {
+            if (isset($user['id'])) {
+                $usersById[$user['id']] = $user;
+            }
+        }
+
+        return $usersById;
+    }
+
+    private function resolveSlug(Comment $comment): ?string
+    {
+        $current = $comment;
+
+        while ($current !== null) {
+            $post = $current->getPost();
+            if ($post !== null && $post->getSlug() !== null) {
+                return $post->getSlug();
+            }
+
+            $current = $current->getParent();
+        }
+
+        return null;
     }
 }

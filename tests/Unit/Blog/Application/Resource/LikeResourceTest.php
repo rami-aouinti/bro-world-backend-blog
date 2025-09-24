@@ -41,7 +41,10 @@ final class LikeResourceTest extends TestCase
                 ?bool $flush = null,
                 ?bool $skipValidation = null,
                 ?string $entityManagerName = null
-            ) use (&$storage, &$repository): LikeRepository {
+            ) use (
+                &$storage,
+                &$repository
+            ): LikeRepository {
                 $storage[$entity->getId()] = $entity;
 
                 return $repository;

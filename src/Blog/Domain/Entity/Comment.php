@@ -133,7 +133,7 @@ class Comment implements EntityInterface
 
     public function __toString(): string
     {
-        return $this->getContent();
+        return $this->content ?? '';
     }
 
     public function getId(): string
@@ -144,6 +144,10 @@ class Comment implements EntityInterface
     #[Assert\IsTrue(message: 'comment.is_spam')]
     public function isLegitComment(): bool
     {
+        if ($this->content === null || $this->content === '') {
+            return true;
+        }
+
         $containsInvalidCharacters = u($this->content)->indexOf('@') !== null;
 
         return !$containsInvalidCharacters;
@@ -188,10 +192,8 @@ class Comment implements EntityInterface
 
     public function removeChildren(self $child): self
     {
-        if ($this->children->removeElement($child)) {
-            if ($child->getParent() === $this) {
-                $child->setParent(null);
-            }
+        if ($this->children->removeElement($child) && $child->getParent() === $this) {
+            $child->setParent(null);
         }
 
         return $this;

@@ -10,12 +10,12 @@ use Cocur\Slugify\SlugifyInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 
-/**
- *
- */
 readonly class SlugListener
 {
-    public function __construct(private SlugifyInterface $slugify) {}
+    public function __construct(
+        private SlugifyInterface $slugify
+    ) {
+    }
 
     public function prePersist(LifecycleEventArgs $args): void
     {
@@ -39,4 +39,3 @@ readonly class SlugListener
         }
     }
 }
-

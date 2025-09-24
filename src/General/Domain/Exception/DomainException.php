@@ -7,8 +7,6 @@ namespace App\General\Domain\Exception;
 use DomainException as CoreDomainException;
 
 /**
- * Class DomainException
- *
  * @package App\General\Domain\Exception
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

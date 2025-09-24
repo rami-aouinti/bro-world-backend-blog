@@ -32,12 +32,14 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
+use Traversable;
 
+use function iterator_to_array;
+use function sprintf;
 use function strlen;
+use function trim;
 
 /**
- * Class PostService
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -53,7 +55,8 @@ readonly class PostService
         private MessageBusInterface $bus,
         private string $postDirectory,
         private SluggerInterface $slugger,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws InvalidArgumentException
@@ -65,7 +68,6 @@ readonly class PostService
      */
     public function createPost(SymfonyUser $user, Request $request): array
     {
-
         $post = $this->generatePostAttributes(
             $this->blogService->getBlog($request, $user),
             $user,
@@ -81,7 +83,7 @@ readonly class PostService
             $post->toArray(),
             [
                 'medias' => $post->getMediaEntities()->map(
-                    fn(Media $media) => $media->toArray()
+                    fn (Media $media) => $media->toArray()
                 )->toArray(),
                 'user' => $this->userProxy->searchUser($user->getUserIdentifier()),
             ]
@@ -89,9 +91,6 @@ readonly class PostService
     }
 
     /**
-     * @param Post       $post
-     * @param array|null $mediaIds
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -104,21 +103,19 @@ readonly class PostService
     }
 
     /**
-     * @param array|null $mediaIds
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
      */
     public function getMedia(?array $mediaIds): array
     {
-        $medias  = [];
+        $medias = [];
         foreach ($mediaIds as $id) {
             $medias[] = $this->userProxy->getMedia($id);
         }
+
         return $medias;
     }
 
@@ -140,10 +137,23 @@ readonly class PostService
         $post->setSummary($data['summary'] ?? '');
 
         foreach ($data['tags'] ?? [] as $tagName) {
-            $tag = $this->tagRepository->findOneBy(['name' => $tagName]) ?? new Tag($tagName);
-            if (!$tag->getId()) {
-                $this->entityManager->persist($tag);
+            $tagName = trim((string)$tagName);
+            if ($tagName === '') {
+                continue;
             }
+
+            $tag = $this->tagRepository->findOneBy([
+                'name' => $tagName,
+            ]);
+
+            if ($tag === null) {
+                $tag = new Tag($tagName);
+                $tag->setDescription($this->buildTagDescription($tagName));
+                $this->entityManager->persist($tag);
+            } elseif (trim($tag->getDescription()) === '') {
+                $tag->setDescription($this->buildTagDescription($tagName));
+            }
+
             $post->addTag($tag);
         }
 
@@ -151,35 +161,27 @@ readonly class PostService
     }
 
     /**
-     * @throws RandomException
-     */
-    private function generateRandomString(int $length): string {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[random_int(0, $charactersLength - 1)];
-        }
-
-        return $randomString;
-    }
-
-    /**
-     * @param Request $request
-     * @param Post    $post
-     *
      * @return JsonResponse|array
      */
     public function uploadFiles(Request $request, Post $post): JsonResponse|Post
     {
         $files = $request->files->get('files');
 
+        if ($files instanceof Traversable) {
+            $files = iterator_to_array($files, false);
+        }
+
+        if (!is_array($files) || $files === []) {
+            return new JsonResponse([
+                'error' => 'No files uploaded.',
+            ], 400);
+        }
+
         foreach ($files as $file) {
             $type = $file->getMimeType();
             $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeFilename = $this->slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid('', true).'.'.$file->guessExtension();
+            $newFilename = $safeFilename . '-' . uniqid('', true) . '.' . $file->guessExtension();
 
             try {
                 $file->move(
@@ -187,7 +189,9 @@ readonly class PostService
                     $newFilename
                 );
             } catch (FileException $e) {
-                return new JsonResponse(['error' => $e->getMessage()], 500);
+                return new JsonResponse([
+                    'error' => $e->getMessage(),
+                ], 500);
             }
             $baseUrl = $request->getSchemeAndHttpHost();
             $relativePath = '/uploads/post/' . $newFilename;
@@ -199,5 +203,26 @@ readonly class PostService
         }
 
         return $post;
+    }
+
+    private function buildTagDescription(string $tagName): string
+    {
+        return sprintf('Posts tagged with %s', $tagName);
+    }
+
+    /**
+     * @throws RandomException
+     */
+    private function generateRandomString(int $length): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 }

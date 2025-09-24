@@ -10,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -43,7 +44,9 @@ final class BlogControllerTest extends WebTestCase
 
         /** @var ManagerRegistry $registry */
         $registry = static::getContainer()->get('doctrine');
-        $blog = $registry->getRepository(Blog::class)->findOneBy(['title' => $payload['title']]);
+        $blog = $registry->getRepository(Blog::class)->findOneBy([
+            'title' => $payload['title'],
+        ]);
 
         self::assertInstanceOf(Blog::class, $blog);
         self::assertSame($payload['blogSubtitle'], $blog->getBlogSubtitle());
@@ -62,7 +65,9 @@ final class BlogControllerTest extends WebTestCase
         /** @var ManagerRegistry $registry */
         $registry = static::getContainer()->get('doctrine');
         $repository = $registry->getRepository(Blog::class);
-        $existing = $repository->findOneBy(['title' => 'public']);
+        $existing = $repository->findOneBy([
+            'title' => 'public',
+        ]);
 
         self::assertInstanceOf(Blog::class, $existing);
 
@@ -88,5 +93,58 @@ final class BlogControllerTest extends WebTestCase
         self::assertSame($payload['logo'], $updated->getLogo());
         self::assertSame($payload['teams'], $updated->getTeams());
         self::assertSame($payload['visible'], $updated->isVisible());
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function testBlogCanBeDeletedThroughApi(): void
+    {
+        $client = $this->getTestClient('john-root', 'password-root');
+        $payload = [
+            'title' => 'Delete Test Blog ' . uniqid('', true),
+            'blogSubtitle' => 'Subtitle for delete test blog',
+            'author' => Uuid::uuid1()->toString(),
+            'logo' => 'https://example.com/delete-logo.png',
+            'teams' => ['omega'],
+            'visible' => true,
+            'color' => '#abcdef',
+        ];
+
+        $client->jsonRequest('POST', '/api/v1/blog', $payload);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $data = json_decode($client->getResponse()->getContent() ?: '', true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($data);
+        self::assertArrayHasKey('id', $data);
+
+        $blogId = $data['id'];
+
+        $client->request('DELETE', '/api/v1/blog/' . $blogId);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        /** @var ManagerRegistry $registry */
+        $registry = static::getContainer()->get('doctrine');
+        $repository = $registry->getRepository(Blog::class);
+        $registry->getManager()->clear();
+
+        $deleted = $repository->find(Uuid::fromString($blogId));
+
+        self::assertNull($deleted);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function testDeletingNonExistingBlogReturnsNotFound(): void
+    {
+        $client = $this->getTestClient('john-root', 'password-root');
+        $nonExistingId = Uuid::uuid1()->toString();
+
+        $client->request('DELETE', '/api/v1/blog/' . $nonExistingId);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 }

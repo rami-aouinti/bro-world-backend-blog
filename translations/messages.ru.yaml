@@ -1,0 +1,2 @@
+notification.comment_created: 'Новый комментарий к вашей записи'
+notification.comment_created.description: 'К вашей записи «%title%» оставили новый комментарий. <a href="%link%">Просмотреть комментарий</a>.'

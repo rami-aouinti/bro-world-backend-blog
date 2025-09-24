@@ -17,9 +17,8 @@ use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
 use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Throwable;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Throwable;
 
 /**
  * @package App\Media\Domain\Entity
@@ -53,8 +52,6 @@ class Tag implements EntityInterface, Stringable, JsonSerializable
         'default' => true,
     ])]
     #[Assert\NotNull]
-    #[Serializer\Expose]
-    #[Serializer\Groups(['Default'])]
     private bool $visible = true;
 
     /**
@@ -63,7 +60,8 @@ class Tag implements EntityInterface, Stringable, JsonSerializable
     public function __construct(string $name)
     {
         $this->id = $this->createUuid();
-        $this->name = $name;
+        $this->setName($name);
+        $this->setDescription($name);
     }
 
     public function __toString(): string
@@ -97,6 +95,6 @@ class Tag implements EntityInterface, Stringable, JsonSerializable
 
     public function getColorSafe(): string
     {
-        return $this->getColor() ?? "";
+        return $this->getColor() ?? '';
     }
 }

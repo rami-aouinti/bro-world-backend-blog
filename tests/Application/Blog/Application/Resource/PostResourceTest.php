@@ -18,6 +18,10 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use function sprintf;
 use function str_repeat;
 
+/**
+ * @package App\Tests\Application\Blog\Application\Resource
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
 class PostResourceTest extends KernelTestCase
 {
     private PostResource $postResource;

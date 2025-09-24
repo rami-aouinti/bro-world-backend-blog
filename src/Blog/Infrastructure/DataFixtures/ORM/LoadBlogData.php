@@ -6,10 +6,10 @@ namespace App\Blog\Infrastructure\DataFixtures\ORM;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Comment;
-use App\Blog\Domain\Entity\Post;
-use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Entity\Like;
+use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
+use App\Blog\Domain\Entity\Tag;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
@@ -27,8 +27,6 @@ use function array_slice;
 use function in_array;
 
 /**
- * Class LoadBlogData
- *
  * @package App\Blog\Infrastructure\DataFixtures\ORM
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -47,8 +45,9 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
 
     private array $reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
 
-    public function __construct(private readonly SluggerInterface $slugger)
-    {
+    public function __construct(
+        private readonly SluggerInterface $slugger
+    ) {
         $this->faker = Factory::create();
     }
 
@@ -108,7 +107,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
             $post->addTag(...$tags);
             $post->setBlog($blogGeneral);
 
-            // ✅ Ajout des commentaires
+            // Adds comments.
             foreach (range(1, random_int(1, 8)) as $i) {
                 $comment = new Comment();
                 $comment->setAuthor(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
@@ -117,7 +116,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
                 $post->addComment($comment);
                 $manager->persist($comment);
 
-                // ✅ Ajout de likes sur les commentaires
+                // Adds likes to comments.
                 foreach (range(1, random_int(1, 4)) as $_) {
                     $like = new Like();
                     $like->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
@@ -125,11 +124,11 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
                     $manager->persist($like);
                 }
 
-                // ✅ Ajout de réactions sur les commentaires
+                // Adds reactions to comments.
                 $this->addRandomReactions($manager, null, $comment);
             }
 
-            // ✅ Ajout de likes sur les posts
+            // Adds likes to posts.
             foreach (range(1, random_int(1, 6)) as $_) {
                 $like = new Like();
                 $like->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
@@ -137,7 +136,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
                 $manager->persist($like);
             }
 
-            // ✅ Ajout de réactions sur les posts
+            // Adds reactions to posts.
             $this->addRandomReactions($manager, $post, null);
 
             $manager->persist($post);
@@ -164,7 +163,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
     {
         $posts = [];
 
-        // ✅ Ajout de titres faker en plus
+        // Adds additional Faker-generated titles.
         $titles = array_merge($this->getPhrases(), $this->generateFakerTitles(290));
 
         foreach ($titles as $i => $title) {
@@ -207,12 +206,8 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         foreach (range(1, $count) as $_) {
             $titles[] = $this->faker->sentence(random_int(4, 8));
         }
-        return $titles;
-    }
 
-    private function getRandomText(): string
-    {
-        return $this->faker->text(255);
+        return $titles;
     }
 
     /**
@@ -224,25 +219,21 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         shuffle($tagNames);
         $selectedTags = array_slice($tagNames, 0, random_int(2, 4));
 
-        return array_map(fn($tagName) => $this->getReference('tag-' . $tagName, Tag::class), $selectedTags);
+        return array_map(fn ($tagName) => $this->getReference('tag-' . $tagName, Tag::class), $selectedTags);
     }
 
     /**
-     * ✅ Ajoute des réactions aléatoires pour un post ou un commentaire
-     *
-     * @param ObjectManager $manager
-     * @param Post|null     $post
-     * @param Comment|null  $comment
+     * Adds random reactions for a post or a comment.
      *
      * @throws RandomException
      */
     private function addRandomReactions(ObjectManager $manager, ?Post $post = null, ?Comment $comment = null): void
     {
-        $usedUsers = []; // ✅ pour éviter les doublons user+post/comment
+        $usedUsers = []; // Prevent duplicate user-to-post or user-to-comment combinations.
         $maxReactions = random_int(1, 6);
 
         foreach (range(1, $maxReactions) as $_) {
-            // Générer un user unique pour ce post/comment
+            // Generate a unique user for this post or comment.
             do {
                 $userUuid = '20000000-0000-1000-8000-00000000000' . random_int(1, 6);
             } while (in_array($userUuid, $usedUsers, true));

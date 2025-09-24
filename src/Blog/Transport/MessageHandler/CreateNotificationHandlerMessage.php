@@ -19,8 +19,6 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * Class CreatePostHandlerMessage
- *
  * @package App\Post\Transport\MessageHandler
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -29,13 +27,10 @@ readonly class CreateNotificationHandlerMessage
 {
     public function __construct(
         private NotificationService $notificationService
-    )
-    {
+    ) {
     }
 
     /**
-     * @param CreateNotificationMessenger $message
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -46,7 +41,6 @@ readonly class CreateNotificationHandlerMessage
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return void
      */
     public function __invoke(CreateNotificationMessenger $message): void
     {
@@ -54,8 +48,6 @@ readonly class CreateNotificationHandlerMessage
     }
 
     /**
-     * @param CreateNotificationMessenger $message
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException

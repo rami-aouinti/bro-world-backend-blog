@@ -1,0 +1,2 @@
+notification.comment_created: 'New comment on your post'
+notification.comment_created.description: 'A new comment was added to your post "%title%". <a href="%link%">View comment</a>.'

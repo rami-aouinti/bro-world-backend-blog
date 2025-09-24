@@ -13,10 +13,11 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-use const FILTER_NULL_ON_FAILURE;
-use const FILTER_VALIDATE_BOOLEAN;
 use function filter_var;
 use function is_bool;
+
+use const FILTER_NULL_ON_FAILURE;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * @package App\Blog
@@ -84,9 +85,6 @@ class Blog extends RestDto
         return $this->author;
     }
 
-    /**
-     * @param UuidInterface|string $author
-     */
     public function setAuthor(UuidInterface|string $author): self
     {
         $this->setVisited('author');

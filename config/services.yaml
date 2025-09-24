@@ -127,13 +127,16 @@ services:
                 - '@app.serializer.denormalizer.array.external_message'
             $encoders:
                 - '@app.serializer.encoder.json.external_message'
+                -
     App\General\Infrastructure\Service\ApiProxyService:
         arguments:
             $apiMediaBaseUrl: '%api_media_base_url%'
             $apiNotificationBaseUrl: '%api_notification_base_url%'
+
     App\Blog\Application\Service\BlogService:
         arguments:
             $logoDirectory: '%logo_directory%'
+
     App\Blog\Application\Service\PostService:
         arguments:
             $postDirectory: '%post_directory%'

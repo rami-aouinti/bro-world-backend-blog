@@ -9,5 +9,4 @@ namespace App\Blog\Domain\Repository\Interfaces;
  */
 interface ReactionRepositoryInterface
 {
-
 }

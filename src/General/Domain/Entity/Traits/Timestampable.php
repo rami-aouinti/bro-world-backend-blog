@@ -28,7 +28,7 @@ trait Timestampable
         'Role.createdAt',
         'User.createdAt',
         'UserGroup.createdAt',
-        'BlogProfile'
+        'BlogProfile',
     ])]
     protected ?DateTimeImmutable $createdAt = null;
 
@@ -45,7 +45,7 @@ trait Timestampable
         'Role.updatedAt',
         'User.updatedAt',
         'UserGroup.updatedAt',
-        'BlogProfile'
+        'BlogProfile',
     ])]
     protected ?DateTimeImmutable $updatedAt = null;
 

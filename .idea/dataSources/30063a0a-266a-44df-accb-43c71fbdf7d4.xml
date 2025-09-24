@@ -1086,7 +1086,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </schema>
     <schema id="293" parent="1" name="symfony">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-08-04.01:31:11</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-09-24.00:40:00</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <user id="294" parent="1" name="root">
@@ -1241,8 +1241,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Position>5</Position>
     </column>
     <column id="327" parent="300" name="medias">
-      <Comment>(DC2Type:uuid)</Comment>
-      <DasType>char(36)|0s</DasType>
+      <DasType>json|0s</DasType>
       <Position>6</Position>
     </column>
     <column id="328" parent="300" name="published_at">
@@ -1416,385 +1415,407 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <DasType>binary(16)|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="362" parent="303" name="title">
-      <DasType>varchar(250)|0s</DasType>
+    <column id="362" parent="303" name="shared_from_id">
+      <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
+      <DasType>binary(16)|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="363" parent="303" name="url">
+    <column id="363" parent="303" name="title">
       <DasType>varchar(250)|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="364" parent="303" name="author">
+    <column id="364" parent="303" name="url">
+      <DasType>varchar(250)|0s</DasType>
+      <Position>5</Position>
+    </column>
+    <column id="365" parent="303" name="author">
       <Comment>(DC2Type:uuid)</Comment>
       <DasType>char(36)|0s</DasType>
       <NotNull>1</NotNull>
-      <Position>5</Position>
-    </column>
-    <column id="365" parent="303" name="summary">
-      <DasType>varchar(255)|0s</DasType>
-      <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="366" parent="303" name="content">
-      <DasType>longtext|0s</DasType>
-      <NotNull>1</NotNull>
+    <column id="366" parent="303" name="summary">
+      <DasType>varchar(255)|0s</DasType>
       <Position>7</Position>
     </column>
-    <column id="367" parent="303" name="published_at">
-      <Comment>(DC2Type:datetime_immutable)</Comment>
-      <DasType>datetime|0s</DasType>
-      <NotNull>1</NotNull>
+    <column id="367" parent="303" name="content">
+      <DasType>longtext|0s</DasType>
       <Position>8</Position>
     </column>
-    <column id="368" parent="303" name="visible">
-      <DasType>tinyint(1)|0s</DasType>
+    <column id="368" parent="303" name="published_at">
+      <Comment>(DC2Type:datetime_immutable)</Comment>
+      <DasType>datetime|0s</DasType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="369" parent="303" name="slug">
-      <DasType>varchar(255)|0s</DasType>
+    <column id="369" parent="303" name="visible">
+      <DasType>tinyint(1)|0s</DasType>
+      <NotNull>1</NotNull>
       <Position>10</Position>
     </column>
-    <column id="370" parent="303" name="created_at">
-      <Comment>(DC2Type:datetime_immutable)</Comment>
-      <DasType>datetime|0s</DasType>
+    <column id="370" parent="303" name="slug">
+      <DasType>varchar(255)|0s</DasType>
       <Position>11</Position>
     </column>
-    <column id="371" parent="303" name="updated_at">
+    <column id="371" parent="303" name="created_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <Position>12</Position>
     </column>
-    <foreign-key id="372" parent="303" name="FK_BA5AE01DDAE07E97">
+    <column id="372" parent="303" name="updated_at">
+      <Comment>(DC2Type:datetime_immutable)</Comment>
+      <DasType>datetime|0s</DasType>
+      <Position>13</Position>
+    </column>
+    <foreign-key id="373" parent="303" name="FK_BA5AE01DDAE07E97">
       <ColNames>blog_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>blog</RefTableName>
     </foreign-key>
-    <index id="373" parent="303" name="PRIMARY">
+    <foreign-key id="374" parent="303" name="FK_BA5AE01D5919D5BC">
+      <ColNames>shared_from_id</ColNames>
+      <OnDelete>set-null</OnDelete>
+      <RefColNames>id</RefColNames>
+      <RefTableName>blog_post</RefTableName>
+    </foreign-key>
+    <index id="375" parent="303" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="374" parent="303" name="IDX_BA5AE01DDAE07E97">
+    <index id="376" parent="303" name="IDX_BA5AE01DDAE07E97">
       <ColNames>blog_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="375" parent="303" name="PRIMARY">
+    <index id="377" parent="303" name="IDX_BA5AE01D5919D5BC">
+      <ColNames>shared_from_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="378" parent="303" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="376" parent="304" name="post_id">
+    <column id="379" parent="304" name="post_id">
       <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
       <DasType>binary(16)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="377" parent="304" name="tag_id">
+    <column id="380" parent="304" name="tag_id">
       <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
       <DasType>binary(16)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <foreign-key id="378" parent="304" name="FK_2E931ED74B89032C">
+    <foreign-key id="381" parent="304" name="FK_2E931ED74B89032C">
       <ColNames>post_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>blog_post</RefTableName>
     </foreign-key>
-    <foreign-key id="379" parent="304" name="FK_2E931ED7BAD26311">
+    <foreign-key id="382" parent="304" name="FK_2E931ED7BAD26311">
       <ColNames>tag_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>blog_tag</RefTableName>
     </foreign-key>
-    <index id="380" parent="304" name="PRIMARY">
+    <index id="383" parent="304" name="PRIMARY">
       <ColNames>post_id
 tag_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="381" parent="304" name="IDX_2E931ED74B89032C">
+    <index id="384" parent="304" name="IDX_2E931ED74B89032C">
       <ColNames>post_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="382" parent="304" name="IDX_2E931ED7BAD26311">
+    <index id="385" parent="304" name="IDX_2E931ED7BAD26311">
       <ColNames>tag_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="383" parent="304" name="PRIMARY">
+    <key id="386" parent="304" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="384" parent="305" name="id">
+    <column id="387" parent="305" name="id">
       <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
       <DasType>binary(16)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="385" parent="305" name="post_id">
+    <column id="388" parent="305" name="post_id">
       <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
       <DasType>binary(16)|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="386" parent="305" name="comment_id">
+    <column id="389" parent="305" name="comment_id">
       <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
       <DasType>binary(16)|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="387" parent="305" name="user">
+    <column id="390" parent="305" name="user">
       <Comment>(DC2Type:uuid)</Comment>
       <DasType>char(36)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="388" parent="305" name="type">
+    <column id="391" parent="305" name="type">
       <DasType>varchar(20)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="389" parent="305" name="created_at">
+    <column id="392" parent="305" name="created_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="390" parent="305" name="updated_at">
+    <column id="393" parent="305" name="updated_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <Position>7</Position>
     </column>
-    <foreign-key id="391" parent="305" name="FK_9D0D97FC4B89032C">
+    <foreign-key id="394" parent="305" name="FK_9D0D97FC4B89032C">
       <ColNames>post_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>blog_post</RefTableName>
     </foreign-key>
-    <foreign-key id="392" parent="305" name="FK_9D0D97FCF8697D13">
+    <foreign-key id="395" parent="305" name="FK_9D0D97FCF8697D13">
       <ColNames>comment_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>blog_comment</RefTableName>
     </foreign-key>
-    <index id="393" parent="305" name="PRIMARY">
+    <index id="396" parent="305" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="394" parent="305" name="IDX_9D0D97FC4B89032C">
+    <index id="397" parent="305" name="uniq_user_post">
+      <ColNames>user
+post_id</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="398" parent="305" name="IDX_9D0D97FC4B89032C">
       <ColNames>post_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="395" parent="305" name="IDX_9D0D97FCF8697D13">
+    <index id="399" parent="305" name="IDX_9D0D97FCF8697D13">
       <ColNames>comment_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="396" parent="305" name="PRIMARY">
+    <key id="400" parent="305" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="397" parent="306" name="id">
+    <key id="401" parent="305" name="uniq_user_post">
+      <UnderlyingIndexName>uniq_user_post</UnderlyingIndexName>
+    </key>
+    <column id="402" parent="306" name="id">
       <Comment>(DC2Type:uuid_binary_ordered_time)</Comment>
       <DasType>binary(16)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="398" parent="306" name="visible">
+    <column id="403" parent="306" name="visible">
       <DasType>tinyint(1)|0s</DasType>
       <DefaultExpression>1</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="399" parent="306" name="color">
+    <column id="404" parent="306" name="color">
       <DasType>varchar(36)|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="400" parent="306" name="name">
+    <column id="405" parent="306" name="name">
       <DasType>varchar(255)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="401" parent="306" name="description">
+    <column id="406" parent="306" name="description">
       <DasType>varchar(255)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="402" parent="306" name="created_at">
+    <column id="407" parent="306" name="created_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="403" parent="306" name="updated_at">
+    <column id="408" parent="306" name="updated_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <Position>7</Position>
     </column>
-    <index id="404" parent="306" name="PRIMARY">
+    <index id="409" parent="306" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="405" parent="306" name="PRIMARY">
+    <key id="410" parent="306" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="406" parent="307" name="id">
+    <column id="411" parent="307" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="407" parent="307" name="body">
+    <column id="412" parent="307" name="body">
       <DasType>longtext|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="408" parent="307" name="headers">
+    <column id="413" parent="307" name="headers">
       <DasType>longtext|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="409" parent="307" name="queue_name">
+    <column id="414" parent="307" name="queue_name">
       <DasType>varchar(190)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="410" parent="307" name="created_at">
+    <column id="415" parent="307" name="created_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="411" parent="307" name="available_at">
+    <column id="416" parent="307" name="available_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="412" parent="307" name="delivered_at">
+    <column id="417" parent="307" name="delivered_at">
       <Comment>(DC2Type:datetime_immutable)</Comment>
       <DasType>datetime|0s</DasType>
       <Position>7</Position>
     </column>
-    <index id="413" parent="307" name="PRIMARY">
+    <index id="418" parent="307" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="414" parent="307" name="IDX_75EA56E0FB7336F0">
+    <index id="419" parent="307" name="IDX_75EA56E0FB7336F0">
       <ColNames>queue_name</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="415" parent="307" name="IDX_75EA56E0E3BD61CE">
+    <index id="420" parent="307" name="IDX_75EA56E0E3BD61CE">
       <ColNames>available_at</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="416" parent="307" name="IDX_75EA56E016BA31DB">
+    <index id="421" parent="307" name="IDX_75EA56E016BA31DB">
       <ColNames>delivered_at</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="417" parent="307" name="PRIMARY">
+    <key id="422" parent="307" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="418" parent="308" name="id">
+    <column id="423" parent="308" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="419" parent="308" name="version">
+    <column id="424" parent="308" name="version">
       <DasType>int|0s</DasType>
       <DefaultExpression>1</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="420" parent="308" name="created_at">
+    <column id="425" parent="308" name="created_at">
       <DasType>datetime|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="421" parent="308" name="name">
+    <column id="426" parent="308" name="name">
       <DasType>varchar(150)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="422" parent="308" name="command">
+    <column id="427" parent="308" name="command">
       <DasType>varchar(200)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="423" parent="308" name="arguments">
+    <column id="428" parent="308" name="arguments">
       <DasType>longtext|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="424" parent="308" name="cron_expression">
+    <column id="429" parent="308" name="cron_expression">
       <DasType>varchar(200)|0s</DasType>
       <Position>7</Position>
     </column>
-    <column id="425" parent="308" name="last_execution">
+    <column id="430" parent="308" name="last_execution">
       <DasType>datetime|0s</DasType>
       <Position>8</Position>
     </column>
-    <column id="426" parent="308" name="last_return_code">
+    <column id="431" parent="308" name="last_return_code">
       <DasType>int|0s</DasType>
       <Position>9</Position>
     </column>
-    <column id="427" parent="308" name="log_file">
+    <column id="432" parent="308" name="log_file">
       <DasType>varchar(150)|0s</DasType>
       <Position>10</Position>
     </column>
-    <column id="428" parent="308" name="priority">
+    <column id="433" parent="308" name="priority">
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>11</Position>
     </column>
-    <column id="429" parent="308" name="execute_immediately">
+    <column id="434" parent="308" name="execute_immediately">
       <DasType>tinyint(1)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>12</Position>
     </column>
-    <column id="430" parent="308" name="disabled">
+    <column id="435" parent="308" name="disabled">
       <DasType>tinyint(1)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>13</Position>
     </column>
-    <column id="431" parent="308" name="locked">
+    <column id="436" parent="308" name="locked">
       <DasType>tinyint(1)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>14</Position>
     </column>
-    <column id="432" parent="308" name="ping_back_url">
+    <column id="437" parent="308" name="ping_back_url">
       <DasType>varchar(255)|0s</DasType>
       <Position>15</Position>
     </column>
-    <column id="433" parent="308" name="ping_back_failed_url">
+    <column id="438" parent="308" name="ping_back_failed_url">
       <DasType>varchar(255)|0s</DasType>
       <Position>16</Position>
     </column>
-    <column id="434" parent="308" name="notes">
+    <column id="439" parent="308" name="notes">
       <DasType>longtext|0s</DasType>
       <NotNull>1</NotNull>
       <Position>17</Position>
     </column>
-    <index id="435" parent="308" name="PRIMARY">
+    <index id="440" parent="308" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="436" parent="308" name="UNIQ_EA0DBC905E237E06">
+    <index id="441" parent="308" name="UNIQ_EA0DBC905E237E06">
       <ColNames>name</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="437" parent="308" name="PRIMARY">
+    <key id="442" parent="308" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="438" parent="308" name="UNIQ_EA0DBC905E237E06">
+    <key id="443" parent="308" name="UNIQ_EA0DBC905E237E06">
       <UnderlyingIndexName>UNIQ_EA0DBC905E237E06</UnderlyingIndexName>
     </key>
   </database-model>

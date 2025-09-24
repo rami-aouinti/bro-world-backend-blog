@@ -19,8 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
- * Class PostService
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -31,7 +29,8 @@ readonly class BlogService
         private BlogRepositoryInterface $blogRepository,
         private SluggerInterface $slugger,
         private string $logoDirectory
-    ) {}
+    ) {
+    }
 
     /**
      * @throws OptimisticLockException
@@ -39,18 +38,18 @@ readonly class BlogService
      * @throws TransactionRequiredException
      * @throws NotSupported
      */
-    public function getBlog(Request $request,SymfonyUser $symfonyUser): Blog
+    public function getBlog(Request $request, SymfonyUser $symfonyUser): Blog
     {
         $response = $request->request->all();
 
-        if(isset($response['blog'])) {
+        if (isset($response['blog'])) {
             $blogObject = $this->blogRepository->find($response['blog']);
         } else {
             $blogObject = $this->blogRepository->findOneBy([
                 'title' => 'public',
             ]);
 
-            if(!$blogObject) {
+            if (!$blogObject) {
                 $blogObject = new Blog();
                 $blogObject->setTitle('public');
                 $blogObject->setBlogSubtitle('General posts');
@@ -65,22 +64,19 @@ readonly class BlogService
         return $blogObject;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string|JsonResponse
-     */
     public function uploadLogo(Request $request): string|JsonResponse
     {
         $files = $request->files->get('files');
         $file = $files[0];
         if (!$file) {
-            return new JsonResponse(['error' => 'No file uploaded.'], 400);
+            return new JsonResponse([
+                'error' => 'No file uploaded.',
+            ], 400);
         }
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
-        $newFilename = $safeFilename.'-'.uniqid('', true).'.'.$file->guessExtension();
+        $newFilename = $safeFilename . '-' . uniqid('', true) . '.' . $file->guessExtension();
 
         try {
             $file->move(
@@ -88,7 +84,9 @@ readonly class BlogService
                 $newFilename
             );
         } catch (FileException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
+            return new JsonResponse([
+                'error' => $e->getMessage(),
+            ], 500);
         }
         $baseUrl = $request->getSchemeAndHttpHost();
         $relativePath = '/uploads/logo/' . $newFilename;

@@ -13,8 +13,6 @@ use Doctrine\ORM\TransactionRequiredException;
 use Ramsey\Uuid\Uuid;
 
 /**
- * Class CommentService
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -23,14 +21,10 @@ readonly class CommentService
     public function __construct(
         private CommentRepositoryInterface $commentRepository,
         private PostRepositoryInterface $postRepository
-    ) {}
+    ) {
+    }
 
     /**
-     * @param Comment     $comment
-     * @param string|null $postId
-     * @param string|null $userId
-     * @param array|null  $data
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
@@ -44,14 +38,8 @@ readonly class CommentService
         $this->commentRepository->save($comment);
     }
 
-
-    /**
-     * @param $comment
-     * @param $usersById
-     *
-     * @return array
-     */
-    public function commentToArray($comment, $usersById): array {
+    public function commentToArray($comment, $usersById): array
+    {
         return [
             'id' => $comment->getId(),
             'content' => $comment->getContent(),

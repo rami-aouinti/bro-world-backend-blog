@@ -9,8 +9,5 @@ namespace App\Blog\Domain\Repository\Interfaces;
  */
 interface BlogRepositoryInterface
 {
-    /**
-     * @return array
-     */
     public function countBlogsByMonth(): array;
 }

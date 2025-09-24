@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\General\Transport\Rest\Traits\Actions\User;
 
 use App\General\Transport\Rest\Traits\Methods\IdsMethod;
-
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Throwable;
 
 /**

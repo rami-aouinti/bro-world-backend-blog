@@ -38,7 +38,6 @@ readonly class StatisticsController
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users
      *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/statistics', name: 'blog_statistics', methods: [Request::METHOD_GET])]
     #[Cache(smaxage: 60)]

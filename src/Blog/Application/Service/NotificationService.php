@@ -21,11 +21,8 @@ use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Throwable;
 
 /**
- * Class MediaService
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -39,16 +36,10 @@ readonly class NotificationService
         private PostRepositoryInterface $postRepository,
         private CommentRepositoryInterface $commentRepository,
         private UserProxy $userProxy
-    ) {}
+    ) {
+    }
 
     /**
-     * @param string|null $token
-     * @param string|null $channel
-     * @param string|null $symfonyUserId
-     * @param string|null $userId
-     * @param string|null $postId
-     * @param string|null $title
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws JsonException
@@ -59,7 +50,6 @@ readonly class NotificationService
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
      * @throws InvalidArgumentException
-     * @return void
      */
     public function createNotification(
         ?string $token,
@@ -68,25 +58,35 @@ readonly class NotificationService
         ?string $userId,
         ?string $postId,
         ?string $title
-    ): void
-    {
-        if($symfonyUserId !== $userId) {
-            $post = [];
-            $sender['firstName'] = '';
-            $sender['lastName'] = '';
-            if($postId) {
+    ): void {
+        if ($symfonyUserId !== $userId) {
+            $post = null;
+            if ($postId) {
                 $post = $this->getOriginPost($postId);
             }
 
-            $sender = $this->userProxy->searchUser($symfonyUserId);
+            $senderData = $this->userProxy->searchUser($symfonyUserId) ?? [];
+
+            $firstName = is_array($senderData) ? (string)($senderData['firstName'] ?? '') : '';
+            $lastName = is_array($senderData) ? (string)($senderData['lastName'] ?? '') : '';
+            $photo = is_array($senderData) ? (string)($senderData['photo'] ?? '') : '';
+
+            $titleParts = array_filter([
+                $firstName,
+                $lastName,
+                (string)($title ?? ''),
+            ], static fn (string $part) => $part !== '');
+            $pushTitle = trim(implode(' ', $titleParts));
+
+            $slug = $post instanceof Post ? $post->getSlug() : '';
 
             $notification = [
                 'channel' => $channel,
                 'scope' => 'INDIVIDUAL',
                 'topic' => '/notifications/' . $userId,
-                'pushTitle' => $sender['firstName'] . ' ' . $sender['lastName'] . ' ' .  $title,
-                'pushSubtitle' => $sender['photo'],
-                'pushContent' => 'https://bro-world-space.com/post/' . $post?->getSlug(),
+                'pushTitle' => $pushTitle,
+                'pushSubtitle' => $photo,
+                'pushContent' => 'https://bro-world-space.com/post/' . $slug,
                 'scopeTarget' => '["' . $userId . '"]',
             ];
 
@@ -94,10 +94,51 @@ readonly class NotificationService
         }
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws JsonException
+     */
+    public function createPush(
+        ?string $token,
+        array $data
+    ): void {
+        $this->proxyService->request(
+            Request::METHOD_POST,
+            self::PATH,
+            $token,
+            $data,
+            self::CREATE_NOTIFICATION_PATH
+        );
+    }
 
     /**
-     * @param $postId
-     *
+     * @throws JsonException
+     * @throws TransportExceptionInterface
+     */
+    public function createEmail(
+        ?string $token,
+        array $data,
+        SymfonyUser $user
+    ): void {
+        $this->proxyService->request(
+            Request::METHOD_POST,
+            self::PATH,
+            $token,
+            [
+                'channel' => 'EMAIL',
+                'templateId' => $data['templateId'],
+                'emailSenderName' => $data['emailSenderName'],
+                'emailSenderEmail' => $data['emailSenderEmail'],
+                'emailSubject' => $data['emailSubject'],
+                'recipients' => $data['recipients'],
+                'scope' => 'INDIVIDUAL',
+                'scopeTarget' => [$user->getUserIdentifier()],
+            ],
+            self::CREATE_NOTIFICATION_PATH
+        );
+    }
+
+    /**
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
@@ -112,64 +153,12 @@ readonly class NotificationService
 
         $comment = $this->commentRepository->find($postId);
 
-        if($comment) {
-            if($comment->getPost()) {
+        if ($comment) {
+            if ($comment->getPost()) {
                 return $comment->getPost();
             }
+
             return $this->getOriginPost($comment->getParent()?->getId());
         }
-    }
-
-    /**
-     * @param string|null $token
-     * @param array       $data
-     *
-     * @throws TransportExceptionInterface
-     * @throws JsonException
-     */
-    public function createPush(
-        ?string $token,
-        array $data
-    ): void
-    {
-        $this->proxyService->request(
-            Request::METHOD_POST,
-            self::PATH,
-            $token,
-            $data,
-            self::CREATE_NOTIFICATION_PATH
-        );
-    }
-
-    /**
-     * @param string|null $token
-     * @param array       $data
-     * @param SymfonyUser $user
-     *
-     * @throws JsonException
-     * @throws TransportExceptionInterface
-     * @return void
-     */
-    public function createEmail(
-        ?string $token,
-        array $data,
-        SymfonyUser $user): void
-    {
-       $this->proxyService->request(
-            Request::METHOD_POST,
-            self::PATH,
-           $token,
-            [
-                'channel' => 'EMAIL',
-                'templateId' => $data['templateId'],
-                'emailSenderName' => $data['emailSenderName'],
-                'emailSenderEmail' => $data['emailSenderEmail'],
-                'emailSubject' => $data['emailSubject'],
-                'recipients' => $data['recipients'],
-                'scope' => 'INDIVIDUAL',
-                'scopeTarget' => [$user->getUserIdentifier()],
-            ],
-            self::CREATE_NOTIFICATION_PATH
-        );
     }
 }

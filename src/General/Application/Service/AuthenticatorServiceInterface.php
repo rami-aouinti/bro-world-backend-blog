@@ -7,9 +7,6 @@ namespace App\General\Application\Service;
 use App\General\Domain\ValueObject\UserId;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 
-/**
- * AuthenticatorServiceInterface
- */
 interface AuthenticatorServiceInterface
 {
     public function getUserId(): ?UserId;
