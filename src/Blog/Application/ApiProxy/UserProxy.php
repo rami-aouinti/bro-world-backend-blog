@@ -92,16 +92,6 @@ readonly class UserProxy
     }
 
     /**
-     * Searches media as a fallback method (likely unnecessary here).
-     *
-     * @throws InvalidArgumentException
-     */
-    public function searchMedias(string $query): array
-    {
-        return $this->userCacheService->search($query);
-    }
-
-    /**
      * Retrieves several users by ID list and caches them with the "users" tag.
      *
      * @param string[] $ids
