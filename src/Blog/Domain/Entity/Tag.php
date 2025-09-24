@@ -11,7 +11,6 @@ use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\General\Domain\Entity\Traits\VisibleTrait;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
 use Override;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -53,8 +52,6 @@ class Tag implements EntityInterface, Stringable, JsonSerializable
         'default' => true,
     ])]
     #[Assert\NotNull]
-    #[Serializer\Expose]
-    #[Serializer\Groups(['Default'])]
     private bool $visible = true;
 
     /**

@@ -16,6 +16,12 @@ use Throwable;
 
 use function sprintf;
 
+/**
+ * Class Reaction
+ *
+ * @package App\Blog\Domain\Entity
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'blog_reactions')]
 #[ORM\UniqueConstraint(name: 'uniq_user_post', columns: ['user', 'post_id'])]
