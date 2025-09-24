@@ -106,4 +106,12 @@ class PostTest extends TestCase
         self::assertIsArray($payload['likes']);
         self::assertIsArray($payload['reactions']);
     }
+
+    #[TestDox('It casts to an empty string when no title is set')]
+    public function testToStringWithNullTitle(): void
+    {
+        $post = new Post();
+
+        self::assertSame('', (string)$post);
+    }
 }
