@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\Blog\Transport\Controller;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Application\Service\PostFeedCacheService;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Infrastructure\Repository\BlogRepository;
@@ -19,7 +20,6 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 use function array_column;
 use function array_reduce;
@@ -39,7 +39,7 @@ class PostsControllerCacheTest extends WebTestCase
 {
     private KernelBrowser $client;
 
-    private TagAwareCacheInterface $cache;
+    private PostFeedCacheService $postFeedCacheService;
 
     private CreatePostHandlerMessage $handler;
 
@@ -57,7 +57,7 @@ class PostsControllerCacheTest extends WebTestCase
         $container = static::getContainer();
         $this->overrideUserProxy($container);
 
-        $this->cache = $container->get(TagAwareCacheInterface::class);
+        $this->postFeedCacheService = $container->get(PostFeedCacheService::class);
         $this->handler = $container->get(CreatePostHandlerMessage::class);
         $this->blogRepository = $container->get(BlogRepository::class);
     }
@@ -66,14 +66,19 @@ class PostsControllerCacheTest extends WebTestCase
     public function testCreatePostInvalidatesPostsCache(): void
     {
         $limit = 10;
-        $cacheKey = 'all_posts_' . 1 . '_' . 10;
+        $page = 1;
 
-        $this->cache->invalidateTags(['posts']);
-        $this->cache->delete($cacheKey);
+        $this->postFeedCacheService->invalidateTags();
+        $this->postFeedCacheService->delete($page, $limit);
 
         $initialPayload = $this->requestPosts($limit);
         self::assertArrayHasKey('data', $initialPayload);
         self::assertNotEmpty($initialPayload['data']);
+        self::assertArrayHasKey('page', $initialPayload);
+        self::assertArrayHasKey('limit', $initialPayload);
+        self::assertArrayHasKey('count', $initialPayload);
+        self::assertSame($page, $initialPayload['page']);
+        self::assertSame($limit, $initialPayload['limit']);
 
         $newSlug = sprintf('cache-invalidation-%s', Uuid::uuid4()->toString());
         self::assertNotContains($newSlug, array_column($initialPayload['data'], 'slug'));
@@ -86,6 +91,13 @@ class PostsControllerCacheTest extends WebTestCase
 
         $slugs = array_column($updatedPayload['data'], 'slug');
         self::assertContains($newSlug, $slugs);
+
+        self::assertArrayHasKey('page', $updatedPayload);
+        self::assertArrayHasKey('limit', $updatedPayload);
+        self::assertArrayHasKey('count', $updatedPayload);
+        self::assertSame($page, $updatedPayload['page']);
+        self::assertSame($limit, $updatedPayload['limit']);
+        self::assertGreaterThanOrEqual($initialPayload['count'], $updatedPayload['count']);
 
         $newIndex = array_search($newSlug, $slugs, true);
         self::assertIsInt($newIndex);
