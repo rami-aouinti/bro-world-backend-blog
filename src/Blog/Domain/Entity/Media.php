@@ -102,7 +102,7 @@ class Media
         return [
             'id' => $this->getId(),
             'type' => $this->getType(),
-            'path' => $this->getUrl()
+            'path' => $this->getUrl(),
         ];
     }
 }

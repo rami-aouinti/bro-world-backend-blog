@@ -7,8 +7,6 @@ namespace App\Blog\Domain\Message;
 use App\General\Domain\Message\Interfaces\MessageHighInterface;
 
 /**
- * Class CreatePostMessenger
- *
  * @package App\Post\Domain\Message
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -21,8 +19,7 @@ readonly class CreateNotificationMessenger implements MessageHighInterface
         private ?string $userId,
         private ?string $postId,
         private ?string $message
-    )
-    {
+    ) {
     }
 
     public function getToken(): ?string

@@ -8,6 +8,12 @@ use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 use function array_unique;
 use function array_values;
@@ -15,14 +21,26 @@ use function count;
 use function is_array;
 use function iterator_to_array;
 
-final class PostFeedResponseBuilder
+/**
+ * @package App\Blog\Application\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
+final readonly class PostFeedResponseBuilder
 {
-    public function __construct(private readonly UserProxy $userProxy)
-    {
+    public function __construct(
+        private UserProxy $userProxy
+    ) {
     }
 
     /**
      * @param iterable<Post> $posts
+     *
+     * @throws InvalidArgumentException
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public function buildFeedResponse(iterable $posts, int $page, int $limit, int $total): array
     {
@@ -203,7 +221,6 @@ final class PostFeedResponseBuilder
     }
 
     /**
-     * @param iterable $reactions
      * @param array<string, mixed> $users
      */
     private function buildReactionsPreview(iterable $reactions, array $users, int $limit = 2): array

@@ -11,7 +11,6 @@ use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\Rest\RestResource;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 
-
 /**
  * @package App\Like
  *

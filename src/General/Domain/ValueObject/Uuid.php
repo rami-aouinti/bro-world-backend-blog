@@ -9,15 +9,14 @@ use App\General\Domain\Exception\InvalidArgumentException;
 use Stringable;
 
 /**
- * Class Uuid
- *
  * @package App\General\Domain\ValueObject
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class Uuid implements Stringable, Equatable
 {
-    public function __construct(public readonly string $value)
-    {
+    public function __construct(
+        public readonly string $value
+    ) {
         $this->ensureIsValidUuid($this->value);
     }
 

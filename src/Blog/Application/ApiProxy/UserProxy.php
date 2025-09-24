@@ -16,8 +16,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use function in_array;
 
 /**
- * Class UserProxy
- *
  * @package App\Blog\Application\ApiProxy
  * @author  Rami Aouinti
  */
@@ -26,7 +24,8 @@ readonly class UserProxy
     public function __construct(
         private HttpClientInterface $httpClient,
         private UserCacheService $userCacheService
-    ) {}
+    ) {
+    }
 
     /**
      * Retrieves all users from the external API.
@@ -39,7 +38,7 @@ readonly class UserProxy
      */
     public function getUsers(): array
     {
-        $response = $this->httpClient->request('GET', "https://bro-world.org/api/v1/user", [
+        $response = $this->httpClient->request('GET', 'https://bro-world.org/api/v1/user', [
             'headers' => [
                 'Authorization' => 'ApiKey agYybuBZFsjXaCKBfjFWa2qFYMUshXZWFcz575KT',
             ],
@@ -81,7 +80,7 @@ readonly class UserProxy
                 continue;
             }
 
-            $userId = (string) $user['id'];
+            $userId = (string)$user['id'];
             $this->userCacheService->save($userId, $user); // Adds every user to the cache.
 
             if ($userId === $id) {

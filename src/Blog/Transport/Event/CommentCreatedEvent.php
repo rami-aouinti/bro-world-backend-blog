@@ -17,8 +17,6 @@ use App\Blog\Domain\Entity\Comment;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Class CommentCreatedEvent
- *
  * @package App\Blog\Transport\Event
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

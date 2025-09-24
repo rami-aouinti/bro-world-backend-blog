@@ -41,7 +41,6 @@ readonly class BlogController
      * @throws InvalidArgumentException
      * @throws JsonException
      * @throws ExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/public/blog', name: 'public_blog_index', methods: [Request::METHOD_GET])]
     #[Cache(smaxage: 10)]
@@ -60,10 +59,6 @@ readonly class BlogController
         return JsonResponse::fromJsonString($json);
     }
 
-    /**
-     *
-     * @return Closure
-     */
     private function getClosure(): Closure
     {
         return function (ItemInterface $item): array {
@@ -83,7 +78,6 @@ readonly class BlogController
 
     /**
      * @throws NotSupported
-     * @return array
      */
     private function getBlogs(): array
     {

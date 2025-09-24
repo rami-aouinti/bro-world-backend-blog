@@ -12,6 +12,7 @@ use App\General\Domain\Entity\Traits\SlugTrait;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\General\Domain\Entity\Traits\VisibleTrait;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
@@ -19,7 +20,6 @@ use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Throwable;
-use Doctrine\Common\Collections\Collection;
 
 /**
  * @package App\Feature\Blog\Domain\Entity
@@ -35,6 +35,37 @@ class Blog implements EntityInterface, Stringable
     use Timestampable;
     use Uuid;
 
+    #[Assert\NotBlank]
+    #[ORM\Column(name: 'title', type: 'text', nullable: false)]
+    #[Groups([
+        'Blog',
+        'Post',
+        'BlogProfile',
+    ])]
+    protected string $title;
+
+    #[ORM\Column(name: 'blog_subtitle', type: 'string', length: 250, nullable: true)]
+    #[Groups([
+        'Blog',
+        'Post',
+        'BlogProfile',
+    ])]
+    protected ?string $blogSubtitle = null;
+
+    #[ORM\Column(type: 'uuid')]
+    #[Groups([
+        'Blog',
+        'BlogProfile',
+    ])]
+    protected UuidInterface $author;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups([
+        'Blog',
+        'BlogProfile',
+    ])]
+    protected ?array $teams = null;
+
     #[ORM\Id]
     #[ORM\Column(
         name: 'id',
@@ -45,54 +76,22 @@ class Blog implements EntityInterface, Stringable
     #[Groups([
         'Blog',
         'Blog.id',
-        'BlogProfile'
+        'BlogProfile',
     ])]
     private UuidInterface $id;
-
-    #[Assert\NotBlank]
-    #[ORM\Column(name: 'title', type: 'text', nullable: false)]
-    #[Groups([
-        'Blog',
-        'Post',
-        'BlogProfile'
-    ])]
-    protected string $title;
-
-    #[ORM\Column(name: 'blog_subtitle', type: 'string', length: 250, nullable: true)]
-    #[Groups([
-        'Blog',
-        'Post',
-        'BlogProfile'
-    ])]
-    protected ?string $blogSubtitle = null;
-
-    #[ORM\Column(type: 'uuid')]
-    #[Groups([
-        'Blog',
-        'BlogProfile'
-    ])]
-    protected UuidInterface $author;
-
 
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups([
         'Blog',
-        'BlogProfile'
+        'BlogProfile',
     ])]
     private ?string $logo = null;
 
     #[ORM\OneToMany(mappedBy: 'blog', targetEntity: Post::class)]
     #[Groups([
-        'BlogProfile'
+        'BlogProfile',
     ])]
     private Collection $posts;
-
-    #[ORM\Column(type: 'json', nullable: true)]
-    #[Groups([
-        'Blog',
-        'BlogProfile'
-    ])]
-    protected ?array $teams = null;
 
     /**
      * @throws Throwable
@@ -102,14 +101,14 @@ class Blog implements EntityInterface, Stringable
         $this->id = $this->createUuid();
     }
 
-    public function getId(): string
-    {
-        return $this->id->toString();
-    }
-
     public function __toString(): string
     {
         return $this->getTitle();
+    }
+
+    public function getId(): string
+    {
+        return $this->id->toString();
     }
 
     public function getTitle(): string

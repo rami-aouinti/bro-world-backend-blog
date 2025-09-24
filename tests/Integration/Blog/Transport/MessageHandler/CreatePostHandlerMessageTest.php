@@ -33,7 +33,7 @@ final class CreatePostHandlerMessageTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
 
-        $userSearchStub = new class implements UserElasticsearchServiceInterface {
+        $userSearchStub = new class () implements UserElasticsearchServiceInterface {
             public function searchUsers(string $query): array
             {
                 return [];
@@ -59,10 +59,13 @@ final class CreatePostHandlerMessageTest extends WebTestCase
         $cache->clear();
 
         $cacheKey = 'posts_page_1_limit_5';
-        $client->request('GET', '/public/post', ['page' => 1, 'limit' => 5]);
+        $client->request('GET', '/public/post', [
+            'page' => 1,
+            'limit' => 5,
+        ]);
         $this->assertResponseIsSuccessful();
 
-        $initialResponse = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $initialResponse = json_decode((string)$client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $initialTitles = array_column($initialResponse['data'], 'title');
 
         $this->assertTrue($cache->hasItem($cacheKey));
@@ -93,10 +96,13 @@ final class CreatePostHandlerMessageTest extends WebTestCase
 
         $this->assertFalse($cache->hasItem($cacheKey));
 
-        $client->request('GET', '/public/post', ['page' => 1, 'limit' => 5]);
+        $client->request('GET', '/public/post', [
+            'page' => 1,
+            'limit' => 5,
+        ]);
         $this->assertResponseIsSuccessful();
 
-        $updatedResponse = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $updatedResponse = json_decode((string)$client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $updatedTitles = array_column($updatedResponse['data'], 'title');
 
         $this->assertContains($newTitle, $updatedTitles);

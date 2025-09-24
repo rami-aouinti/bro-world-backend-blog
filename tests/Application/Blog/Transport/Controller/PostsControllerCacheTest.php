@@ -88,7 +88,9 @@ class PostsControllerCacheTest extends WebTestCase
 
     private function requestPosts(int $limit): array
     {
-        $this->client->request('GET', '/public/post', ['limit' => $limit]);
+        $this->client->request('GET', '/public/post', [
+            'limit' => $limit,
+        ]);
 
         $response = $this->client->getResponse();
         self::assertInstanceOf(Response::class, $response);
@@ -96,7 +98,7 @@ class PostsControllerCacheTest extends WebTestCase
 
         try {
             /** @var array{data: array<int, array<string, mixed>>} $payload */
-            $payload = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+            $payload = json_decode((string)$response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             self::fail('Failed to decode posts response: ' . $exception->getMessage());
         }
@@ -132,14 +134,14 @@ class PostsControllerCacheTest extends WebTestCase
         $userProxy = $this->createMock(UserProxy::class);
 
         $userProxy->method('searchUser')->willReturnCallback(
-            static fn(string $id): array => [
+            static fn (string $id): array => [
                 'id' => $id,
                 'username' => 'user_' . $id,
             ],
         );
 
         $userProxy->method('batchSearchUsers')->willReturnCallback(
-            static fn(array $ids): array => array_reduce(
+            static fn (array $ids): array => array_reduce(
                 $ids,
                 static function (array $carry, string $id): array {
                     $carry[$id] = [
@@ -154,7 +156,7 @@ class PostsControllerCacheTest extends WebTestCase
         );
 
         $userProxy->method('getMedia')->willReturnCallback(
-            static fn(string $id): array => [
+            static fn (string $id): array => [
                 'id' => $id,
                 'url' => 'https://media.example/' . $id,
             ],
@@ -164,4 +166,3 @@ class PostsControllerCacheTest extends WebTestCase
         $container->set('App\\Blog\\Application\\ApiProxy\\UserProxy', $userProxy);
     }
 }
-

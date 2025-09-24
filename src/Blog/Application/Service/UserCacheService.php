@@ -34,6 +34,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
                 $results[$id] = $user;
             }
         }
+
         return $results;
     }
 
@@ -60,6 +61,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
 
         return $this->userCache->get($cacheKey, function (ItemInterface $item) use ($id) {
             $item->expiresAfter(31536000);
+
             return $this->userElasticsearchService->searchUser($id);
         });
     }
@@ -67,9 +69,6 @@ readonly class UserCacheService implements UserCacheServiceInterface
     /**
      * Manually stores a user in cache and tags it with "users".
      *
-     * @param string $id
-     * @param array $user
-     * @param int $ttl
      * @throws InvalidArgumentException
      */
     public function save(string $id, array $user, int $ttl = 31536000): void

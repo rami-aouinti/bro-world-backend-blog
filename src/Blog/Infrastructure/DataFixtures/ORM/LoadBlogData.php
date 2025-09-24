@@ -6,10 +6,10 @@ namespace App\Blog\Infrastructure\DataFixtures\ORM;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Comment;
-use App\Blog\Domain\Entity\Post;
-use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Entity\Like;
+use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
+use App\Blog\Domain\Entity\Tag;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
@@ -27,8 +27,6 @@ use function array_slice;
 use function in_array;
 
 /**
- * Class LoadBlogData
- *
  * @package App\Blog\Infrastructure\DataFixtures\ORM
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -47,8 +45,9 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
 
     private array $reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
 
-    public function __construct(private readonly SluggerInterface $slugger)
-    {
+    public function __construct(
+        private readonly SluggerInterface $slugger
+    ) {
         $this->faker = Factory::create();
     }
 
@@ -207,6 +206,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         foreach (range(1, $count) as $_) {
             $titles[] = $this->faker->sentence(random_int(4, 8));
         }
+
         return $titles;
     }
 
@@ -224,15 +224,11 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
         shuffle($tagNames);
         $selectedTags = array_slice($tagNames, 0, random_int(2, 4));
 
-        return array_map(fn($tagName) => $this->getReference('tag-' . $tagName, Tag::class), $selectedTags);
+        return array_map(fn ($tagName) => $this->getReference('tag-' . $tagName, Tag::class), $selectedTags);
     }
 
     /**
      * Adds random reactions for a post or a comment.
-     *
-     * @param ObjectManager $manager
-     * @param Post|null     $post
-     * @param Comment|null  $comment
      *
      * @throws RandomException
      */

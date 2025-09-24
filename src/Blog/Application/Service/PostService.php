@@ -36,8 +36,6 @@ use Throwable;
 use function strlen;
 
 /**
- * Class PostService
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -53,7 +51,8 @@ readonly class PostService
         private MessageBusInterface $bus,
         private string $postDirectory,
         private SluggerInterface $slugger,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws InvalidArgumentException
@@ -65,7 +64,6 @@ readonly class PostService
      */
     public function createPost(SymfonyUser $user, Request $request): array
     {
-
         $post = $this->generatePostAttributes(
             $this->blogService->getBlog($request, $user),
             $user,
@@ -81,7 +79,7 @@ readonly class PostService
             $post->toArray(),
             [
                 'medias' => $post->getMediaEntities()->map(
-                    fn(Media $media) => $media->toArray()
+                    fn (Media $media) => $media->toArray()
                 )->toArray(),
                 'user' => $this->userProxy->searchUser($user->getUserIdentifier()),
             ]
@@ -89,9 +87,6 @@ readonly class PostService
     }
 
     /**
-     * @param Post       $post
-     * @param array|null $mediaIds
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -104,21 +99,19 @@ readonly class PostService
     }
 
     /**
-     * @param array|null $mediaIds
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
      */
     public function getMedia(?array $mediaIds): array
     {
-        $medias  = [];
+        $medias = [];
         foreach ($mediaIds as $id) {
             $medias[] = $this->userProxy->getMedia($id);
         }
+
         return $medias;
     }
 
@@ -140,7 +133,9 @@ readonly class PostService
         $post->setSummary($data['summary'] ?? '');
 
         foreach ($data['tags'] ?? [] as $tagName) {
-            $tag = $this->tagRepository->findOneBy(['name' => $tagName]) ?? new Tag($tagName);
+            $tag = $this->tagRepository->findOneBy([
+                'name' => $tagName,
+            ]) ?? new Tag($tagName);
             if (!$tag->getId()) {
                 $this->entityManager->persist($tag);
             }
@@ -151,24 +146,6 @@ readonly class PostService
     }
 
     /**
-     * @throws RandomException
-     */
-    private function generateRandomString(int $length): string {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[random_int(0, $charactersLength - 1)];
-        }
-
-        return $randomString;
-    }
-
-    /**
-     * @param Request $request
-     * @param Post    $post
-     *
      * @return JsonResponse|array
      */
     public function uploadFiles(Request $request, Post $post): JsonResponse|Post
@@ -179,7 +156,7 @@ readonly class PostService
             $type = $file->getMimeType();
             $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeFilename = $this->slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid('', true).'.'.$file->guessExtension();
+            $newFilename = $safeFilename . '-' . uniqid('', true) . '.' . $file->guessExtension();
 
             try {
                 $file->move(
@@ -187,7 +164,9 @@ readonly class PostService
                     $newFilename
                 );
             } catch (FileException $e) {
-                return new JsonResponse(['error' => $e->getMessage()], 500);
+                return new JsonResponse([
+                    'error' => $e->getMessage(),
+                ], 500);
             }
             $baseUrl = $request->getSchemeAndHttpHost();
             $relativePath = '/uploads/post/' . $newFilename;
@@ -199,5 +178,21 @@ readonly class PostService
         }
 
         return $post;
+    }
+
+    /**
+     * @throws RandomException
+     */
+    private function generateRandomString(int $length): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 }

@@ -76,10 +76,18 @@ class PostFeedResponseBuilderTest extends TestCase
                 return true;
             }))
             ->willReturn([
-                'post-author' => ['id' => 'post-author'],
-                'comment-author' => ['id' => 'comment-author'],
-                'current-user' => ['id' => 'current-user'],
-                'other-user' => ['id' => 'other-user'],
+                'post-author' => [
+                    'id' => 'post-author',
+                ],
+                'comment-author' => [
+                    'id' => 'comment-author',
+                ],
+                'current-user' => [
+                    'id' => 'current-user',
+                ],
+                'other-user' => [
+                    'id' => 'other-user',
+                ],
             ]);
 
         $result = $builder->build([$post], 1, 10, 1, $currentUserId);
@@ -117,8 +125,12 @@ class PostFeedResponseBuilderTest extends TestCase
             ->method('batchSearchUsers')
             ->with(['post-author', 'other-user'])
             ->willReturn([
-                'post-author' => ['id' => 'post-author'],
-                'other-user' => ['id' => 'other-user'],
+                'post-author' => [
+                    'id' => 'post-author',
+                ],
+                'other-user' => [
+                    'id' => 'other-user',
+                ],
             ]);
 
         $result = $builder->build([$post], 1, 10, 1, null);

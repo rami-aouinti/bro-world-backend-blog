@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace App\Blog\Application\Service;
 
 use App\General\Infrastructure\Service\ApiProxyService;
-use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 /**
- * Class MediaService
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -22,13 +19,10 @@ readonly class MediaService
 
     public function __construct(
         private ApiProxyService $proxyService
-    ) {}
+    ) {
+    }
     /**
-     * @param Request $request
-     * @param string  $context
-     *
      * @throws Throwable
-     * @return array
      */
     public function createMedia(Request $request, string $context): array
     {
@@ -38,13 +32,13 @@ readonly class MediaService
             self::PATH,
             $request,
             [
-                'context' => $context
+                'context' => $context,
             ],
             self::CREATE_MEDIA_PATH
         );
 
         foreach ($medias as $media) {
-            if($media) {
+            if ($media) {
                 $mediasArray[] = $media['id'];
             }
         }

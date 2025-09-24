@@ -9,8 +9,5 @@ namespace App\Blog\Domain\Repository\Interfaces;
  */
 interface LikeRepositoryInterface
 {
-    /**
-     * @return array
-     */
     public function countLikesByMonth(): array;
 }

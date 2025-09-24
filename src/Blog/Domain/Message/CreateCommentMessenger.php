@@ -8,8 +8,6 @@ use App\Blog\Domain\Entity\Comment;
 use App\General\Domain\Message\Interfaces\MessageHighInterface;
 
 /**
- * Class CreatePostMessenger
- *
  * @package App\Post\Domain\Message
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -22,8 +20,7 @@ readonly class CreateCommentMessenger implements MessageHighInterface
         private ?string $senderId,
         private ?string $userId,
         private ?array $data
-    )
-    {
+    ) {
     }
 
     public function getToken(): ?string

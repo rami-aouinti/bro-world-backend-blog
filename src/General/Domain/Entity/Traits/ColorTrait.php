@@ -9,9 +9,6 @@ use App\General\Application\Validator\Constraints\HexColor;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
-/**
- *
- */
 trait ColorTrait
 {
     public const string DEFAULT_COLOR = '#d2d6de';

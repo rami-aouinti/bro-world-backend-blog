@@ -34,25 +34,17 @@ readonly class GetBlogController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users
      *
-     * @param string $slug
-     *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/blog/{slug}', name: 'public_blog_slug', methods: [Request::METHOD_GET])]
     public function __invoke(string $slug): JsonResponse
     {
         $cacheKey = 'private_blog_' . $slug;
         $blog = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
+
         return new JsonResponse($blog);
     }
 
-    /**
-     *
-     * @param string $slug
-     *
-     * @return Closure
-     */
     private function getClosure(string $slug): Closure
     {
         return function (ItemInterface $item) use ($slug): array {
@@ -79,15 +71,12 @@ readonly class GetBlogController
     }
 
     /**
-     * @param $slug
-     *
      * @throws NotSupported
-     * @return Blog
      */
     private function getBlog($slug): Blog
     {
         return $this->blogRepository->findOneBy([
-            'slug' => $slug
+            'slug' => $slug,
         ]);
     }
 }

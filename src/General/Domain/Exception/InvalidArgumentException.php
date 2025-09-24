@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\General\Domain\Exception;
 
 /**
- * Class InvalidArgumentException
- *
  * @package App\General\Domain\Exception
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

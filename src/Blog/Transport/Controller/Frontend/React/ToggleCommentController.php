@@ -40,16 +40,11 @@ readonly class ToggleCommentController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Comment     $comment
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/like', name: 'like_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
@@ -81,6 +76,7 @@ readonly class ToggleCommentController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }

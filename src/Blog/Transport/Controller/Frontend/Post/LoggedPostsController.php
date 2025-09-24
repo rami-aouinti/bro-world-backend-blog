@@ -32,8 +32,6 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * Class LoggedPostsController
- *
  * @package App\Blog\Transport\Controller\Frontend
  */
 #[AsController]
@@ -47,21 +45,17 @@ readonly class LoggedPostsController
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
         private PostFeedResponseBuilder $postFeedResponseBuilder
-    ) {}
+    ) {
+    }
 
     /**
-     *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route('/v1/private/post', name: 'private_post_index', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
-        $page   = max(1, (int) $request->query->get('page', 1));
-        $limit  = (int) $request->query->get('limit', 10);
+        $page = max(1, (int)$request->query->get('page', 1));
+        $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
         $cacheKey = "posts_page_{$page}_limit_{$limit}_user_{$symfonyUser->getUserIdentifier()}";
 
@@ -87,10 +81,6 @@ readonly class LoggedPostsController
     /**
      * Lazy-load endpoint for comments (includes `isLiked` and `reactions_count`).
      *
-     * @param string      $id
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -99,17 +89,16 @@ readonly class LoggedPostsController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/private/post/{id}/comments', name: 'private_post_comments', methods: ['GET'])]
     public function comments(string $id, SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
-        $page   = max(1, (int) $request->query->get('page', 1));
-        $limit  = (int) $request->query->get('limit', 10);
+        $page = max(1, (int)$request->query->get('page', 1));
+        $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
 
         $comments = $this->postRepository->getRootComments($id, $limit, $offset);
-        $total    = $this->postRepository->countComments($id);
+        $total = $this->postRepository->countComments($id);
 
         $userIds = [];
         foreach ($comments as $comment) {
@@ -125,20 +114,23 @@ readonly class LoggedPostsController
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
         $data = array_map(
-            fn(Comment $comment) => $this->commentResponseHelper->buildCommentThread(
+            fn (Comment $comment) => $this->commentResponseHelper->buildCommentThread(
                 $comment,
                 $users,
                 $symfonyUser->getUserIdentifier(),
             ),
             $comments,
         );
-        return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
+
+        return new JsonResponse([
+            'comments' => $data,
+            'total' => $total,
+            'page' => $page,
+        ]);
     }
 
     /**
      * Lazy-load endpoint for a post's likes.
-     *
-     * @param string $id
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -149,7 +141,6 @@ readonly class LoggedPostsController
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/private/post/{id}/likes', name: 'private_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
@@ -160,8 +151,8 @@ readonly class LoggedPostsController
         $reactions = $post?->getReactions()?->toArray() ?? [];
 
         $userIds = array_merge(
-            array_map(static fn($like) => $like->getUser()->toString(), $likes),
-            array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions),
+            array_map(static fn ($like) => $like->getUser()->toString(), $likes),
+            array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
         );
 
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
@@ -180,8 +171,6 @@ readonly class LoggedPostsController
     /**
      * Lazy-load endpoint for a comment's likes.
      *
-     * @param string $id
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -191,7 +180,6 @@ readonly class LoggedPostsController
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/private/comment/{id}/likes', name: 'private_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
@@ -202,8 +190,8 @@ readonly class LoggedPostsController
         $reactions = $comment?->getReactions()?->toArray() ?? [];
 
         $userIds = array_merge(
-            array_map(static fn($like) => $like->getUser()->toString(), $likes),
-            array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions),
+            array_map(static fn ($like) => $like->getUser()->toString(), $likes),
+            array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
         );
 
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
@@ -222,8 +210,6 @@ readonly class LoggedPostsController
     /**
      * Lazy-load endpoint for a post's reactions.
      *
-     * @param string $id
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -233,7 +219,6 @@ readonly class LoggedPostsController
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/private/post/{id}/reactions', name: 'private_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
@@ -241,7 +226,7 @@ readonly class LoggedPostsController
         $post = $this->postRepository->find($id);
 
         $reactions = $post?->getReactions()?->toArray() ?? [];
-        $userIds = array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions);
+        $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
         $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
@@ -255,8 +240,6 @@ readonly class LoggedPostsController
     /**
      * Lazy-load endpoint for a comment's reactions.
      *
-     * @param string $id
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -264,7 +247,6 @@ readonly class LoggedPostsController
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @throws NotSupported
-     * @return JsonResponse
      */
     #[Route('/private/comment/{id}/reactions', name: 'private_comment_reactions', methods: ['GET'])]
     public function commentReactions(string $id): JsonResponse
@@ -272,11 +254,13 @@ readonly class LoggedPostsController
         /** @var Comment|null $comment */
         $comment = $this->commentRepository->find($id);
         if (!$comment) {
-            return new JsonResponse(['error' => 'Comment not found'], 404);
+            return new JsonResponse([
+                'error' => 'Comment not found',
+            ], 404);
         }
 
         $reactions = $comment->getReactions()->toArray();
-        $userIds = array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions);
+        $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
         $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);

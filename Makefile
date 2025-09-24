@@ -371,6 +371,10 @@ report-code-coverage: ## Updates code coverage on coveralls.io. Note: COVERALLS_
 phpcs: ## Runs PHP CodeSniffer
 	@make exec-bash cmd="./vendor/bin/phpcs --version && ./vendor/bin/phpcs --standard=PSR12 --colors -p src tests"
 
+phpcbf: ## Runs PHP CodeSniffer
+	@make exec-bash cmd="./vendor/bin/phpcbf --version && ./vendor/bin/phpcbf --standard=PSR12 --colors -p src tests"
+
+
 ecs: ## Runs Easy Coding Standard tool
 	@make exec-bash cmd="./vendor/bin/ecs --version && ./vendor/bin/ecs --clear-cache check src tests"
 

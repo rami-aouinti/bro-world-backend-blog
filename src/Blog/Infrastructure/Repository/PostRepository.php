@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Infrastructure\Repository;
 
+use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post as Entity;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
@@ -12,12 +13,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-
 use Ramsey\Uuid\Uuid;
-use function count;
+
 use function sprintf;
 use function Symfony\Component\String\u;
-use App\Blog\Domain\Entity\Comment;
 
 /**
  * @package App\Blog
@@ -89,11 +88,8 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     /**
      * Counts posts, optionally filtered by author.
      *
-     * @param string|null $authorId
-     *
      * @throws NoResultException
      * @throws NonUniqueResultException
-     * @return int
      */
     public function countPosts(?string $authorId = null): int
     {
@@ -105,7 +101,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
                 ->setParameter('author', Uuid::fromString($authorId));
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function getRootComments(string $postId, int $limit, int $offset): array
@@ -127,15 +123,12 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     }
 
     /**
-     * @param string $postId
-     *
      * @throws NoResultException
      * @throws NonUniqueResultException
-     * @return int
      */
     public function countComments(string $postId): int
     {
-        return (int) $this->getEntityManager()->createQueryBuilder()
+        return (int)$this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(c.id)')
             ->from(Comment::class, 'c')
             ->join('c.post', 'p')
@@ -148,7 +141,6 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
 
     /**
      * @throws Exception
-     * @return array
      */
     public function countPostsByMonth(): array
     {
@@ -163,7 +155,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         $counts = [];
         foreach ($result as $row) {
             $key = sprintf('%04d-%02d', $row['year'], $row['month']);
-            $counts[$key] = (int) $row['count'];
+            $counts[$key] = (int)$row['count'];
         }
 
         $firstKey = array_key_first($counts) ?? (new DateTimeImmutable('now'))->format('Y-m');
@@ -190,16 +182,12 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
 
         // ignore the search terms that are too short
         return array_filter($terms, static function ($term) {
-            return 2 <= $term->length();
+            return $term->length() >= 2;
         });
     }
 
     /**
-     * @param string $start
-     * @param string $end
-     *
      * @throws Exception
-     * @return array
      */
     private function generateMonthRange(string $start, string $end): array
     {

@@ -44,10 +44,6 @@ readonly class EditPostController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Post        $post
-     *
      * @throws InvalidArgumentException
      * @throws RandomException
      * @throws ExceptionInterface
@@ -57,21 +53,20 @@ readonly class EditPostController
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @throws Throwable
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'edit_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
     {
         $data = $request->request->all();
 
-        if(isset($data['title'])) {
+        if (isset($data['title'])) {
             $post->setTitle($data['title']);
             $post->setSlug($data['title'] ?? $this->generateRandomString(20));
         }
-        if(isset($data['content'])) {
+        if (isset($data['content'])) {
             $post->setContent($data['content']);
         }
-        if(isset($data['url'])) {
+        if (isset($data['url'])) {
             $post->setUrl($data['url']);
         }
 
@@ -82,7 +77,7 @@ readonly class EditPostController
             $data->toArray(),
             [
                 'medias' => $post->getMediaEntities()->map(
-                    fn(Media $media) => $media->toArray()
+                    fn (Media $media) => $media->toArray()
                 )->toArray(),
                 'user' => $this->userProxy->searchUser($symfonyUser->getUserIdentifier()),
             ]
@@ -94,7 +89,8 @@ readonly class EditPostController
     /**
      * @throws RandomException
      */
-    private function generateRandomString(int $length): string {
+    private function generateRandomString(int $length): string
+    {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';

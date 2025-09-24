@@ -10,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -43,7 +44,9 @@ final class BlogControllerTest extends WebTestCase
 
         /** @var ManagerRegistry $registry */
         $registry = static::getContainer()->get('doctrine');
-        $blog = $registry->getRepository(Blog::class)->findOneBy(['title' => $payload['title']]);
+        $blog = $registry->getRepository(Blog::class)->findOneBy([
+            'title' => $payload['title'],
+        ]);
 
         self::assertInstanceOf(Blog::class, $blog);
         self::assertSame($payload['blogSubtitle'], $blog->getBlogSubtitle());
@@ -62,7 +65,9 @@ final class BlogControllerTest extends WebTestCase
         /** @var ManagerRegistry $registry */
         $registry = static::getContainer()->get('doctrine');
         $repository = $registry->getRepository(Blog::class);
-        $existing = $repository->findOneBy(['title' => 'public']);
+        $existing = $repository->findOneBy([
+            'title' => 'public',
+        ]);
 
         self::assertInstanceOf(Blog::class, $existing);
 

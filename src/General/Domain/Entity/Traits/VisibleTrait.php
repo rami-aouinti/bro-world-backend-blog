@@ -19,7 +19,7 @@ trait VisibleTrait
         'Blog',
         'Blog.slug',
         'Post_Show',
-        'BlogProfile'
+        'BlogProfile',
     ])]
     private bool $visible = true;
 

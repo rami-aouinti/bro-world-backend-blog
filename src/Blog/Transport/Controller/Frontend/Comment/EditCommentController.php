@@ -35,15 +35,10 @@ readonly class EditCommentController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Comment     $comment
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}', name: 'edit_comment', methods: [Request::METHOD_PUT])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
@@ -62,6 +57,7 @@ readonly class EditCommentController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }

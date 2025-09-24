@@ -51,7 +51,9 @@ final class DeleteBlogControllerTest extends WebTestCase
         self::assertIsString($slug);
 
         /** @var Blog|null $blog */
-        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy(['slug' => $slug]);
+        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy([
+            'slug' => $slug,
+        ]);
         self::assertNotNull($blog);
 
         $client->request('DELETE', self::BASE_PATH . '/' . $blog->getId());
@@ -86,7 +88,9 @@ final class DeleteBlogControllerTest extends WebTestCase
         self::assertIsString($slug);
 
         /** @var Blog|null $blog */
-        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy(['slug' => $slug]);
+        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy([
+            'slug' => $slug,
+        ]);
         self::assertNotNull($blog);
 
         $attackerClient = $this->getTestClient('john-user', 'password-user');

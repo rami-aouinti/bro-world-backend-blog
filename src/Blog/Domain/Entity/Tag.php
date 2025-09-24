@@ -11,15 +11,15 @@ use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\General\Domain\Entity\Traits\VisibleTrait;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
 use Override;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
 use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Throwable;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Throwable;
 
 /**
  * @package App\Media\Domain\Entity
@@ -97,6 +97,6 @@ class Tag implements EntityInterface, Stringable, JsonSerializable
 
     public function getColorSafe(): string
     {
-        return $this->getColor() ?? "";
+        return $this->getColor() ?? '';
     }
 }

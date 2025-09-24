@@ -14,8 +14,6 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Class ApiProxyService
- *
  * @package App\General\Infrastructure\Service
  */
 readonly class ApiProxyService implements ApiProxyServiceInterface
@@ -28,19 +26,12 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
         string $apiNotificationBaseUrl,
     ) {
         $this->baseUrls = [
-            'media'         => $apiMediaBaseUrl,
-            'notification'         => $apiNotificationBaseUrl,
+            'media' => $apiMediaBaseUrl,
+            'notification' => $apiNotificationBaseUrl,
         ];
     }
 
     /**
-     *
-     * @param string      $method
-     * @param string      $type
-     * @param string|null $token
-     * @param array       $body
-     * @param string      $path
-     *
      * @throws TransportExceptionInterface
      * @throws JsonException
      */
@@ -80,12 +71,12 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
         }
 
         $formData = new FormDataPart([
-            'contextKey'  => $body['context'],
-            'contextId'   => 'af356024-2a00-1ef9-9b6d-1f8defb25086',
+            'contextKey' => $body['context'],
+            'contextId' => 'af356024-2a00-1ef9-9b6d-1f8defb25086',
             'workplaceId' => '20000000-0000-1000-8000-000000000006',
-            'private'     => "1",
+            'private' => '1',
             'mediaFolder' => $body['context'],
-            'files'       => $filesArray,
+            'files' => $filesArray,
         ]);
 
         $headers = $formData->getPreparedHeaders()->toArray();
@@ -93,7 +84,7 @@ readonly class ApiProxyService implements ApiProxyServiceInterface
 
         $options = [
             'headers' => $headers,
-            'body'    => $formData->bodyToString(),
+            'body' => $formData->bodyToString(),
         ];
 
         $response = $this->httpClient->request($method, $this->baseUrls[$type] . $path, $options);

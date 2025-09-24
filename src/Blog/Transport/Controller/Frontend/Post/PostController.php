@@ -46,12 +46,9 @@ readonly class PostController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users
      *
-     * @param string $slug
-     *
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
      * @throws JsonException
-     * @return JsonResponse
      */
     #[Route(path: '/public/post/{slug}', name: 'public_post_slug', methods: [Request::METHOD_GET])]
     public function __invoke(string $slug): JsonResponse
@@ -69,12 +66,6 @@ readonly class PostController
         return JsonResponse::fromJsonString($json);
     }
 
-    /**
-     *
-     * @param string $slug
-     *
-     * @return Closure
-     */
     private function getClosure(string $slug): Closure
     {
         return function (ItemInterface $item) use ($slug): array {
@@ -85,8 +76,6 @@ readonly class PostController
     }
 
     /**
-     * @param string $slug
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws NotSupported
@@ -94,19 +83,18 @@ readonly class PostController
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @throws InvalidArgumentException
-     * @return array
      */
     private function getFormattedPost(string $slug): array
     {
         $post = $this->getPost($slug);
         $postData = [];
-        if($post) {
+        if ($post) {
             $authorId = $post->getAuthor()->toString();
             $userIds = [$authorId];
             $comments = $post->getComments()->toArray();
             $rootComments = array_filter(
                 $comments,
-                static fn(Comment $comment) => $comment->getParent() === null
+                static fn (Comment $comment) => $comment->getParent() === null
             );
 
             foreach ($post->getLikes() as $like) {
@@ -129,8 +117,8 @@ readonly class PostController
                 'content' => $post->getContent(),
                 'slug' => $post->getSlug(),
                 'tags' => $post->getTags(),
-                'medias' =>  $post->getMediaEntities()->map(
-                    fn(Media $media) => $media->toArray()
+                'medias' => $post->getMediaEntities()->map(
+                    fn (Media $media) => $media->toArray()
                 )->toArray(),
                 'likes' => [],
                 'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
@@ -145,7 +133,7 @@ readonly class PostController
             foreach ($post->getLikes() as $key => $like) {
                 $postData['likes'][$key]['id'] = $like->getId();
                 $userId = $like->getUser()->toString();
-                $postData['likes'][$key]['user']  = $users[$userId] ?? null;
+                $postData['likes'][$key]['user'] = $users[$userId] ?? null;
             }
 
             foreach ($rootComments as $comment) {
@@ -174,7 +162,7 @@ readonly class PostController
         foreach ($comment->getLikes() as $key => $like) {
             $formatted['likes'][$key]['id'] = $like->getId();
             $userId = $like->getUser()->toString();
-            $formatted['likes'][$key]['user']  = $users[$userId] ?? null;
+            $formatted['likes'][$key]['user'] = $users[$userId] ?? null;
         }
         foreach ($comment->getChildren() as $child) {
             $formatted['children'][] = $this->formatCommentRecursively($child, $users);
@@ -202,34 +190,29 @@ readonly class PostController
     }
 
     /**
-     * @param array|null $mediaIds
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
      */
     private function getMedia(?array $mediaIds): array
     {
-        $medias  = [];
+        $medias = [];
         foreach ($mediaIds as $id) {
             $medias[] = $this->userProxy->getMedia($id);
         }
+
         return $medias;
     }
 
     /**
-     * @param $slug
-     *
      * @throws NotSupported
-     * @return Post|null
      */
     private function getPost($slug): Post|null
     {
         return $this->postRepository->findOneBy([
-            'slug' => $slug
+            'slug' => $slug,
         ]);
     }
 }

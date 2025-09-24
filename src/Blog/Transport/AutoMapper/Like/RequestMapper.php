@@ -37,8 +37,9 @@ class RequestMapper extends RestRequestMapper
         'comment' => 'commentId',
     ];
 
-    public function __construct(private readonly ManagerRegistry $managerRegistry)
-    {
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry
+    ) {
     }
 
     #[Override]
@@ -73,7 +74,7 @@ class RequestMapper extends RestRequestMapper
             return null;
         }
 
-        return Uuid::fromString((string) $value);
+        return Uuid::fromString((string)$value);
     }
 
     private function transformPost(mixed $value): ?Post
@@ -96,7 +97,7 @@ class RequestMapper extends RestRequestMapper
             return null;
         }
 
-        $uuid = $value instanceof UuidInterface ? $value : Uuid::fromString((string) $value);
+        $uuid = $value instanceof UuidInterface ? $value : Uuid::fromString((string)$value);
         $manager = $this->managerRegistry->getManagerForClass($class);
 
         return $manager?->getReference($class, $uuid);

@@ -7,7 +7,6 @@ namespace App\Blog\Domain\Entity;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;

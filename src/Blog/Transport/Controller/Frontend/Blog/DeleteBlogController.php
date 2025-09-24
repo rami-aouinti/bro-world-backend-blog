@@ -40,7 +40,9 @@ readonly class DeleteBlogController
     public function __invoke(SymfonyUser $symfonyUser, Blog $blog): JsonResponse
     {
         if ($blog->getAuthor()->toString() !== $symfonyUser->getUserIdentifier()) {
-            return new JsonResponse(['error' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse([
+                'error' => 'Access denied.',
+            ], Response::HTTP_FORBIDDEN);
         }
 
         $authorId = $symfonyUser->getUserIdentifier();

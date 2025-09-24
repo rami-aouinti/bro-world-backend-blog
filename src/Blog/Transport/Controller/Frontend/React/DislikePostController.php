@@ -35,15 +35,10 @@ readonly class DislikePostController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Like        $like
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{like}/dislike', name: 'dislike_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Like $like): JsonResponse
@@ -60,6 +55,7 @@ readonly class DislikePostController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }

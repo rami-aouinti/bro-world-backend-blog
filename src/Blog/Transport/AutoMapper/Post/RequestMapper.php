@@ -56,24 +56,6 @@ class RequestMapper extends RestRequestMapper
         return parent::mapToObject($source, $destination, $context);
     }
 
-    private function normalizeAliases(Request $request): void
-    {
-        if ($request->request->has('authorId')) {
-            $request->request->set('author', $request->request->get('authorId'));
-        }
-
-        if ($request->request->has('blogId')) {
-            $request->request->set('blog', $request->request->get('blogId'));
-        }
-
-        if ($request->request->has('tagIds')) {
-            $request->request->set('tags', $request->request->all('tagIds'));
-        }
-    }
-
-    /**
-     * @param mixed $value
-     */
     protected function transformBlog(mixed $value): ?Blog
     {
         if ($value === null || $value === '') {
@@ -88,8 +70,6 @@ class RequestMapper extends RestRequestMapper
     }
 
     /**
-     * @param mixed $value
-     *
      * @return array<int, Tag>
      */
     protected function transformTags(mixed $value): array
@@ -115,9 +95,6 @@ class RequestMapper extends RestRequestMapper
         return $tags;
     }
 
-    /**
-     * @param mixed $value
-     */
     protected function transformPublishedAt(mixed $value): ?DateTimeImmutable
     {
         if ($value === null || $value === '') {
@@ -129,5 +106,20 @@ class RequestMapper extends RestRequestMapper
         }
 
         return new DateTimeImmutable((string)$value);
+    }
+
+    private function normalizeAliases(Request $request): void
+    {
+        if ($request->request->has('authorId')) {
+            $request->request->set('author', $request->request->get('authorId'));
+        }
+
+        if ($request->request->has('blogId')) {
+            $request->request->set('blog', $request->request->get('blogId'));
+        }
+
+        if ($request->request->has('tagIds')) {
+            $request->request->set('tags', $request->request->all('tagIds'));
+        }
     }
 }

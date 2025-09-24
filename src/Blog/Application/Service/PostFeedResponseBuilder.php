@@ -10,7 +10,6 @@ use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
 use Doctrine\Common\Collections\Collection;
-
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -24,23 +23,18 @@ use function array_unique;
 use function count;
 
 /**
- * Class PostFeedResponseBuilder
- *
  * @package App\Blog\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class PostFeedResponseBuilder
 {
-    public function __construct(private UserProxy $userProxy)
-    {
+    public function __construct(
+        private UserProxy $userProxy
+    ) {
     }
 
     /**
      * @param array<int, Post> $posts
-     * @param int              $page
-     * @param int              $limit
-     * @param int              $total
-     * @param string|null      $currentUserId
      *
      * @throws InvalidArgumentException
      * @throws ClientExceptionInterface
@@ -48,14 +42,13 @@ readonly class PostFeedResponseBuilder
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return array
      */
     public function build(array $posts, int $page, int $limit, int $total, ?string $currentUserId = null): array
     {
         $users = $this->userProxy->batchSearchUsers($this->collectUserIds($posts));
 
         return [
-            'data' => array_map(fn(Post $post) => $this->formatPost($post, $users, $currentUserId), $posts),
+            'data' => array_map(fn (Post $post) => $this->formatPost($post, $users, $currentUserId), $posts),
             'page' => $page,
             'limit' => $limit,
             'count' => $total,
@@ -124,7 +117,7 @@ readonly class PostFeedResponseBuilder
             'content' => $post->getContent(),
             'url' => $post->getUrl(),
             'slug' => $post->getSlug(),
-            'medias' => $post->getMediaEntities()->map(fn(Media $media) => $media->toArray())->toArray(),
+            'medias' => $post->getMediaEntities()->map(fn (Media $media) => $media->toArray())->toArray(),
             'isReacted' => $this->userHasReacted($this->collectionToArray($post->getReactions()), $currentUserId),
             'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
             'sharedFrom' => $this->formatSharedPost($post, $users, $currentUserId),
@@ -151,7 +144,7 @@ readonly class PostFeedResponseBuilder
             'content' => $sharedFrom->getContent(),
             'url' => $sharedFrom->getUrl(),
             'slug' => $sharedFrom->getSlug(),
-            'medias' => $sharedFrom->getMediaEntities()->map(fn(Media $media) => $media->toArray())->toArray(),
+            'medias' => $sharedFrom->getMediaEntities()->map(fn (Media $media) => $media->toArray())->toArray(),
             'isReacted' => $this->userHasReacted($this->collectionToArray($sharedFrom->getReactions()), $currentUserId),
             'reactions_count' => count($sharedFrom->getReactions()),
             'totalComments' => count($sharedFrom->getComments()),

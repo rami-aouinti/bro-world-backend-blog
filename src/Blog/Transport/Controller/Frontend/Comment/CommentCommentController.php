@@ -44,10 +44,6 @@ readonly class CommentCommentController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Comment     $comment
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
@@ -58,7 +54,6 @@ readonly class CommentCommentController
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}/comment', name: 'comment_comment', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
@@ -90,6 +85,7 @@ readonly class CommentCommentController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }

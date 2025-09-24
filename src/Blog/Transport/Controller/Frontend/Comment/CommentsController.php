@@ -37,8 +37,6 @@ readonly class CommentsController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users
      *
-     * @param Post $post
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws ExceptionInterface
@@ -46,7 +44,6 @@ readonly class CommentsController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/comments', name: 'platform_post_comments', methods: [Request::METHOD_GET])]
     public function __invoke(Post $post): JsonResponse
@@ -54,7 +51,7 @@ readonly class CommentsController
         $commentData = [];
         $rootComments = array_filter(
             $post->getComments()->toArray(),
-            static fn($comment) => $comment->getParent() === null
+            static fn ($comment) => $comment->getParent() === null
         );
 
         $userIds = [];
@@ -82,12 +79,6 @@ readonly class CommentsController
         return JsonResponse::fromJsonString($json);
     }
 
-    /**
-     * @param       $comment
-     * @param array $usersById
-     *
-     * @return array
-     */
     private function formatCommentRecursively(Comment $comment, array $usersById): array
     {
         $authorId = $comment->getAuthor()->toString();

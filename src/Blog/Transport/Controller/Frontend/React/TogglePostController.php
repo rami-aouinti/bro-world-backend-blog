@@ -40,16 +40,11 @@ readonly class TogglePostController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Post        $post
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}/like', name: 'like_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
@@ -81,6 +76,7 @@ readonly class TogglePostController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }

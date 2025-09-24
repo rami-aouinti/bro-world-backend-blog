@@ -54,7 +54,9 @@ readonly class EditBlogController
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Blog $blog): JsonResponse
     {
         if ($blog->getAuthor()->toString() !== $symfonyUser->getUserIdentifier()) {
-            return new JsonResponse(['error' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse([
+                'error' => 'Access denied.',
+            ], Response::HTTP_FORBIDDEN);
         }
 
         $payload = $this->extractPayload($request);

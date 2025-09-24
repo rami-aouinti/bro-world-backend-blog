@@ -15,8 +15,14 @@ class UserProxyTest extends TestCase
     public function testSearchUserHandlesNumericallyIndexedPayload(): void
     {
         $users = [
-            ['id' => '10', 'name' => 'Alice'],
-            ['id' => '20', 'name' => 'Bob'],
+            [
+                'id' => '10',
+                'name' => 'Alice',
+            ],
+            [
+                'id' => '20',
+                'name' => 'Bob',
+            ],
         ];
 
         $httpClient = new MockHttpClient(new MockResponse(json_encode($users)));

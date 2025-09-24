@@ -52,7 +52,9 @@ final class EditBlogControllerTest extends WebTestCase
         self::assertIsString($slug);
 
         /** @var Blog|null $blog */
-        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy(['slug' => $slug]);
+        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy([
+            'slug' => $slug,
+        ]);
         self::assertNotNull($blog, 'Blog was not created successfully.');
 
         $client->request(
@@ -74,7 +76,9 @@ final class EditBlogControllerTest extends WebTestCase
         self::assertSame('Updated Subtitle', $payload['description']);
 
         /** @var Blog|null $updatedBlog */
-        $updatedBlog = $this->entityManager->getRepository(Blog::class)->findOneBy(['slug' => $payload['slug']]);
+        $updatedBlog = $this->entityManager->getRepository(Blog::class)->findOneBy([
+            'slug' => $payload['slug'],
+        ]);
         self::assertNotNull($updatedBlog);
         self::assertSame('Updated Title', $updatedBlog->getTitle());
         self::assertSame('Updated Subtitle', $updatedBlog->getBlogSubtitle());
@@ -102,7 +106,9 @@ final class EditBlogControllerTest extends WebTestCase
         self::assertIsString($slug);
 
         /** @var Blog|null $blog */
-        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy(['slug' => $slug]);
+        $blog = $this->entityManager->getRepository(Blog::class)->findOneBy([
+            'slug' => $slug,
+        ]);
         self::assertNotNull($blog);
 
         $attackerClient = $this->getTestClient('john-user', 'password-user');

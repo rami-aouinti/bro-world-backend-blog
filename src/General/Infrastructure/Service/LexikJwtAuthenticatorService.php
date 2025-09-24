@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\General\Infrastructure\Service;
 
+use App\General\Application\Service\AuthenticatorServiceInterface;
+use App\General\Domain\Exception\AuthenticationException;
+use App\General\Domain\ValueObject\UserId;
+use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
@@ -12,16 +16,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use App\General\Application\Service\AuthenticatorServiceInterface;
-use App\General\Domain\Exception\AuthenticationException;
-use App\General\Domain\ValueObject\UserId;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 
 use function sprintf;
 
 /**
- * Class LexikJwtAuthenticatorService
- *
  * @package App\General\Infrastructure\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -95,7 +93,7 @@ final class LexikJwtAuthenticatorService implements AuthenticatorServiceInterfac
 
             return $payload;
         } catch (JWTDecodeFailureException $e) {
-            if (JWTDecodeFailureException::EXPIRED_TOKEN === $e->getReason()) {
+            if ($e->getReason() === JWTDecodeFailureException::EXPIRED_TOKEN) {
                 throw new AuthenticationException('Expired token');
             }
 
@@ -115,7 +113,7 @@ final class LexikJwtAuthenticatorService implements AuthenticatorServiceInterfac
 
     private function configurePathRegexp(): void
     {
-        $this->pathRegexp = '/'.str_replace('/', '\/', $this->path).'/';
+        $this->pathRegexp = '/' . str_replace('/', '\/', $this->path) . '/';
         if (@preg_match($this->pathRegexp, '') === false) {
             throw new LogicException(sprintf('Invalid path regexp "%s"', $this->path));
         }

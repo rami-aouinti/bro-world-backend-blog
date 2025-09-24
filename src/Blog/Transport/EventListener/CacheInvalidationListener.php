@@ -14,8 +14,6 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
- * Class CacheInvalidationListener
- *
  * @package App\Blog\Transport\EventListener
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -23,7 +21,8 @@ final readonly class CacheInvalidationListener
 {
     public function __construct(
         private TagAwareCacheInterface $cache
-    ) {}
+    ) {
+    }
 
     /**
      * @throws InvalidArgumentException

@@ -32,17 +32,12 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
         private UserProxy $userProxy,
         MailerInterface $mailer,
         Environment $twig
-    )
-    {
+    ) {
         $this->mailer = $mailer;
         $this->twig = $twig;
     }
 
     /**
-     * @param string $userId
-     * @param string $commentAuthorId
-     * @param string $slug
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws LoaderError
@@ -64,7 +59,6 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
         $user = $usersById[$userId];
         $commentAuthor = $usersById[$commentAuthorId];
 
-
         $email = (new Email())
             ->from('admin@bro-world.de')
             ->to($user['email'])
@@ -73,7 +67,7 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
                 $this->twig->render('Emails/comment.html.twig', [
                     'user' => $user['firstName'],
                     'commentAuthor' => $commentAuthor['firstName'],
-                    'slug' => $slug
+                    'slug' => $slug,
                 ])
             );
 

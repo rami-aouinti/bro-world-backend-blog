@@ -9,7 +9,6 @@ use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
-
 use Exception;
 
 use function sprintf;
@@ -48,7 +47,6 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
 
     /**
      * @throws Exception
-     * @return array
      */
     public function countBlogsByMonth(): array
     {
@@ -63,7 +61,7 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
         $counts = [];
         foreach ($result as $row) {
             $key = sprintf('%04d-%02d', $row['year'], $row['month']);
-            $counts[$key] = (int) $row['count'];
+            $counts[$key] = (int)$row['count'];
         }
 
         $firstKey = array_key_first($counts) ?? (new DateTimeImmutable('now'))->format('Y-m');
@@ -80,11 +78,7 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
     }
 
     /**
-     * @param string $start
-     * @param string $end
-     *
      * @throws Exception
-     * @return array
      */
     private function generateMonthRange(string $start, string $end): array
     {

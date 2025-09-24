@@ -31,8 +31,6 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * Class LoggedPostsController
- *
  * @package App\Blog\Transport\Controller\Frontend
  */
 #[AsController]
@@ -46,20 +44,17 @@ readonly class PostsController
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
         private PostFeedResponseBuilder $postFeedResponseBuilder,
-    ) {}
+    ) {
+    }
 
     /**
-     *
-     * @param Request     $request
-     *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route('/public/post', name: 'public_post_index', methods: [Request::METHOD_GET])]
     public function __invoke(Request $request): JsonResponse
     {
-        $page   = max(1, (int) $request->query->get('page', 1));
-        $limit  = (int) $request->query->get('limit', 10);
+        $page = max(1, (int)$request->query->get('page', 1));
+        $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
         $cacheKey = "posts_page_{$page}_limit_{$limit}";
 
@@ -79,9 +74,6 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for comments (includes `isLiked` and `reactions_count`).
      *
-     * @param string      $id
-     * @param Request     $request
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -90,17 +82,16 @@ readonly class PostsController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/public/post/{id}/comments', name: 'public_post_comments', methods: ['GET'])]
     public function comments(string $id, Request $request): JsonResponse
     {
-        $page   = max(1, (int) $request->query->get('page', 1));
-        $limit  = (int) $request->query->get('limit', 10);
+        $page = max(1, (int)$request->query->get('page', 1));
+        $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
 
         $comments = $this->postRepository->getRootComments($id, $limit, $offset);
-        $total    = $this->postRepository->countComments($id);
+        $total = $this->postRepository->countComments($id);
 
         $userIds = [];
         foreach ($comments as $comment) {
@@ -116,7 +107,7 @@ readonly class PostsController
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
         $data = array_map(
-            fn(Comment $comment) => $this->commentResponseHelper->buildCommentThread(
+            fn (Comment $comment) => $this->commentResponseHelper->buildCommentThread(
                 $comment,
                 $users,
                 includeLikesCount: true,
@@ -124,13 +115,15 @@ readonly class PostsController
             $comments,
         );
 
-        return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
+        return new JsonResponse([
+            'comments' => $data,
+            'total' => $total,
+            'page' => $page,
+        ]);
     }
 
     /**
      * Lazy-load endpoint for a post's likes.
-     *
-     * @param string $id
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -141,7 +134,6 @@ readonly class PostsController
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
@@ -152,8 +144,8 @@ readonly class PostsController
         $reactions = $post?->getReactions()?->toArray() ?? [];
 
         $userIds = array_merge(
-            array_map(static fn($like) => $like->getUser()->toString(), $likes),
-            array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions),
+            array_map(static fn ($like) => $like->getUser()->toString(), $likes),
+            array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
         );
 
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
@@ -172,8 +164,6 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a comment's likes.
      *
-     * @param string $id
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -183,7 +173,6 @@ readonly class PostsController
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/public/comment/{id}/likes', name: 'public_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
@@ -194,8 +183,8 @@ readonly class PostsController
         $reactions = $comment?->getReactions()?->toArray() ?? [];
 
         $userIds = array_merge(
-            array_map(static fn($like) => $like->getUser()->toString(), $likes),
-            array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions),
+            array_map(static fn ($like) => $like->getUser()->toString(), $likes),
+            array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
         );
 
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
@@ -214,8 +203,6 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a post's reactions.
      *
-     * @param string $id
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -225,7 +212,6 @@ readonly class PostsController
      * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
      * @throws TransportExceptionInterface
-     * @return JsonResponse
      */
     #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
@@ -233,7 +219,7 @@ readonly class PostsController
         $post = $this->postRepository->find($id);
 
         $reactions = $post?->getReactions()?->toArray() ?? [];
-        $userIds = array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions);
+        $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
         $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
@@ -247,8 +233,6 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a comment's reactions.
      *
-     * @param string $id
-     *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws InvalidArgumentException
@@ -256,7 +240,6 @@ readonly class PostsController
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @throws NotSupported
-     * @return JsonResponse
      */
     #[Route('/public/comment/{id}/reactions', name: 'public_comment_reactions', methods: ['GET'])]
     public function commentReactions(string $id): JsonResponse
@@ -264,11 +247,13 @@ readonly class PostsController
         /** @var Comment|null $comment */
         $comment = $this->commentRepository->find($id);
         if (!$comment) {
-            return new JsonResponse(['error' => 'Comment not found'], 404);
+            return new JsonResponse([
+                'error' => 'Comment not found',
+            ], 404);
         }
 
         $reactions = $comment->getReactions()->toArray();
-        $userIds = array_map(static fn($reaction) => $reaction->getUser()->toString(), $reactions);
+        $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
         $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
         $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);

@@ -11,7 +11,6 @@ use Lexik\Bundle\JWTAuthenticationBundle\Exception\MissingTokenException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Throwable;
 
 /**
@@ -44,7 +43,6 @@ class LoggedInUserValueResolver implements ValueResolverInterface
         $output = false;
 
         if ($argument->getName() === 'symfonyUser' && $argument->getType() === SymfonyUser::class) {
-
             $user = $this->lexikJwtAuthenticatorService->getUserId();
 
             if ($user === null && $argument->isNullable() === false) {

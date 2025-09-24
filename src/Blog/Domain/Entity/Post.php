@@ -34,24 +34,6 @@ class Post implements EntityInterface, Stringable
     use Timestampable;
     use Uuid;
 
-    /**
-     * Unique User ID
-     */
-    #[ORM\Id]
-    #[ORM\Column(
-        name: 'id',
-        type: UuidBinaryOrderedTimeType::NAME,
-        unique: true,
-        nullable: false,
-    )]
-    #[Groups([
-        'Post',
-        'Post.id',
-        'Post_Show',
-        self::SET_BLOG_INDEX,
-    ])]
-    private UuidInterface $id;
-
     final public const string SET_BLOG_INDEX = 'set.BlogIndex';
 
     #[ORM\Column(name: 'title', type: 'string', length: 250, nullable: true)]
@@ -86,6 +68,24 @@ class Post implements EntityInterface, Stringable
         self::SET_BLOG_INDEX,
     ])]
     protected ?Blog $blog = null;
+
+    /**
+     * Unique User ID
+     */
+    #[ORM\Id]
+    #[ORM\Column(
+        name: 'id',
+        type: UuidBinaryOrderedTimeType::NAME,
+        unique: true,
+        nullable: false,
+    )]
+    #[Groups([
+        'Post',
+        'Post.id',
+        'Post_Show',
+        self::SET_BLOG_INDEX,
+    ])]
+    private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Assert\NotBlank(message: 'post.blank_summary')]
@@ -369,14 +369,15 @@ class Post implements EntityInterface, Stringable
         $this->publishedAt = $publishedAt;
     }
 
-    public function getSharedFrom(): ?Post
+    public function getSharedFrom(): ?self
     {
         return $this->sharedFrom;
     }
 
-    public function setSharedFrom(?Post $post): self
+    public function setSharedFrom(?self $post): self
     {
         $this->sharedFrom = $post;
+
         return $this;
     }
 
@@ -387,7 +388,6 @@ class Post implements EntityInterface, Stringable
     {
         return $this->sharedBy;
     }
-
 
     public function toArray(): array
     {
@@ -401,7 +401,7 @@ class Post implements EntityInterface, Stringable
             'comments' => $this->getComments()->toArray(),
             'tags' => $this->getTags()->toArray(),
             'medias' => $this->getMediaEntities()->map(
-                fn(Media $media) => $media->toArray()
+                fn (Media $media) => $media->toArray()
             )->toArray(),
             'likes' => $this->getLikes()->toArray(),
             'reactions' => $this->getReactions()->toArray(),

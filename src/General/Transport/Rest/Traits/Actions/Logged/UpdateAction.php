@@ -6,7 +6,6 @@ namespace App\General\Transport\Rest\Traits\Actions\Logged;
 
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Transport\Rest\Traits\Methods\UpdateMethod;
-
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
@@ -14,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Throwable;
 
 /**

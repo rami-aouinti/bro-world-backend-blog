@@ -20,8 +20,9 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use function array_map;
 use function array_unique;
 use function json_decode;
-use function substr;
 use function sprintf;
+use function substr;
+
 use const JSON_THROW_ON_ERROR;
 
 final class PostsCacheInvalidationTest extends WebTestCase
@@ -47,15 +48,19 @@ final class PostsCacheInvalidationTest extends WebTestCase
             ]);
         }
 
-        $client->request('GET', '/public/post', ['limit' => 5]);
+        $client->request('GET', '/public/post', [
+            'limit' => 5,
+        ]);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $initialPayload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $initialPayload = json_decode((string)$client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($initialPayload['data']);
 
         /** @var EntityManagerInterface $entityManager */
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $blog = $entityManager->getRepository(Blog::class)->findOneBy(['title' => 'public']);
+        $blog = $entityManager->getRepository(Blog::class)->findOneBy([
+            'title' => 'public',
+        ]);
         self::assertNotNull($blog);
 
         $post = new Post();
@@ -69,10 +74,12 @@ final class PostsCacheInvalidationTest extends WebTestCase
         $entityManager->persist($post);
         $entityManager->flush();
 
-        $client->request('GET', '/public/post', ['limit' => 5]);
+        $client->request('GET', '/public/post', [
+            'limit' => 5,
+        ]);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $afterPostPayload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $afterPostPayload = json_decode((string)$client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertNotEmpty($afterPostPayload['data']);
         $postIds = array_map(static fn (array $row) => $row['id'], $afterPostPayload['data']);
         self::assertContains($post->getId(), $postIds);
@@ -91,10 +98,12 @@ final class PostsCacheInvalidationTest extends WebTestCase
         $entityManager->persist($comment);
         $entityManager->flush();
 
-        $client->request('GET', '/public/post', ['limit' => 5]);
+        $client->request('GET', '/public/post', [
+            'limit' => 5,
+        ]);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $afterCommentPayload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $afterCommentPayload = json_decode((string)$client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertNotEmpty($afterCommentPayload['data']);
         $postDataWithComment = $afterCommentPayload['data'][0];
         self::assertSame($post->getId(), $postDataWithComment['id']);
@@ -108,10 +117,12 @@ final class PostsCacheInvalidationTest extends WebTestCase
         $entityManager->persist($reaction);
         $entityManager->flush();
 
-        $client->request('GET', '/public/post', ['limit' => 5]);
+        $client->request('GET', '/public/post', [
+            'limit' => 5,
+        ]);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $afterReactionPayload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $afterReactionPayload = json_decode((string)$client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertNotEmpty($afterReactionPayload['data']);
         $postDataWithReaction = $afterReactionPayload['data'][0];
         self::assertSame($post->getId(), $postDataWithReaction['id']);

@@ -63,7 +63,7 @@ final readonly class CommentNotificationSubscriber implements EventSubscriberInt
 
         $linkToPost = $this->urlGenerator->generate('blog_post', [
             'slug' => $post->getSlug(),
-            '_fragment' => 'comment_'.$comment->getId(),
+            '_fragment' => 'comment_' . $comment->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $subject = $this->translator->trans('notification.comment_created');

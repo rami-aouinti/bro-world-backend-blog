@@ -29,12 +29,8 @@ readonly class CreatePostController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     *
      * @throws JsonException
      * @throws Throwable
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post', name: 'post_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse

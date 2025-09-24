@@ -35,15 +35,10 @@ readonly class DeleteCommentController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Comment     $comment
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws JsonException
      * @throws ExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/comment/{comment}', name: 'delete_comment', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
@@ -59,6 +54,7 @@ readonly class DeleteCommentController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }

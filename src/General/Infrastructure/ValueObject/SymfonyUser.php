@@ -7,8 +7,6 @@ namespace App\General\Infrastructure\ValueObject;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Class SymfonyUser
- *
  * @package App\General\Infrastructure\ValueObject
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -19,8 +17,7 @@ final readonly class SymfonyUser implements UserInterface
         private ?string $fullName,
         private ?string $avatar,
         private ?array $roles
-    )
-    {
+    ) {
     }
 
     public function getRoles(): array
@@ -46,5 +43,4 @@ final readonly class SymfonyUser implements UserInterface
     {
         return $this->avatar;
     }
-
 }

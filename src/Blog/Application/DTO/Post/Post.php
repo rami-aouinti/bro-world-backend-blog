@@ -221,6 +221,32 @@ class Post extends RestDto
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @param EntityInterface|Entity $entity
+     */
+    #[Override]
+    public function load(EntityInterface $entity): self
+    {
+        if ($entity instanceof Entity) {
+            $this->id = $entity->getId();
+            $this->title = $entity->getTitle();
+            $this->url = $entity->getUrl();
+            $this->summary = $entity->getSummary();
+            $this->content = $entity->getContent();
+            $this->author = $entity->getAuthor();
+            $this->blog = $entity->getBlog();
+            $this->tags = $entity->getTags()->toArray();
+            $this->mediaIds = $entity->getMediaEntities()->map(
+                static fn (Media $media): string => $media->getId()
+            )->toArray();
+            $this->publishedAt = $entity->getPublishedAt();
+        }
+
+        return $this;
+    }
+
     protected function updateTags(Entity $entity, array $tags): void
     {
         $ids = array_map(static fn (Tag $tag): string => $tag->getId(), $tags);
@@ -246,31 +272,5 @@ class Post extends RestDto
                 $entity->removeMedia($media);
             }
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param EntityInterface|Entity $entity
-     */
-    #[Override]
-    public function load(EntityInterface $entity): self
-    {
-        if ($entity instanceof Entity) {
-            $this->id = $entity->getId();
-            $this->title = $entity->getTitle();
-            $this->url = $entity->getUrl();
-            $this->summary = $entity->getSummary();
-            $this->content = $entity->getContent();
-            $this->author = $entity->getAuthor();
-            $this->blog = $entity->getBlog();
-            $this->tags = $entity->getTags()->toArray();
-            $this->mediaIds = $entity->getMediaEntities()->map(
-                static fn (Media $media): string => $media->getId()
-            )->toArray();
-            $this->publishedAt = $entity->getPublishedAt();
-        }
-
-        return $this;
     }
 }

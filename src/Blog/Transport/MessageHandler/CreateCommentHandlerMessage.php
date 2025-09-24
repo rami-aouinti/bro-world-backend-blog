@@ -17,8 +17,6 @@ use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Class CreatePostHandlerMessage
- *
  * @package App\Post\Transport\MessageHandler
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -30,18 +28,14 @@ readonly class CreateCommentHandlerMessage
         private CommentService $commentService,
         private CommentNotificationMailerInterface $commentNotificationMailer,
         private MessageBusInterface $bus
-    )
-    {
+    ) {
     }
 
     /**
-     * @param CreateCommentMessenger $message
-     *
      * @throws ExceptionInterface
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
-     * @return void
      */
     public function __invoke(CreateCommentMessenger $message): void
     {
@@ -51,8 +45,6 @@ readonly class CreateCommentHandlerMessage
     }
 
     /**
-     * @param CreateCommentMessenger $message
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
@@ -83,8 +75,6 @@ readonly class CreateCommentHandlerMessage
     }
 
     /**
-     * @param CreateCommentMessenger $message
-     *
      * @throws ExceptionInterface
      * @throws ORMException
      * @throws OptimisticLockException

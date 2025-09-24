@@ -26,7 +26,7 @@ final class PostsControllerTest extends WebTestCase
 
         static::getContainer()->set(
             UserElasticsearchServiceInterface::class,
-            new class implements UserElasticsearchServiceInterface {
+            new class () implements UserElasticsearchServiceInterface {
                 public function searchUsers(string $query): array
                 {
                     return [];
@@ -34,12 +34,16 @@ final class PostsControllerTest extends WebTestCase
 
                 public function searchUser(string $id): ?array
                 {
-                    return ['id' => $id];
+                    return [
+                        'id' => $id,
+                    ];
                 }
             }
         );
 
-        $client->request('GET', '/public/post', ['limit' => 1]);
+        $client->request('GET', '/public/post', [
+            'limit' => 1,
+        ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -67,7 +71,9 @@ final class PostsControllerTest extends WebTestCase
         $entityManager->flush();
         $entityManager->clear();
 
-        $client->request('GET', '/public/post', ['limit' => 1]);
+        $client->request('GET', '/public/post', [
+            'limit' => 1,
+        ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 

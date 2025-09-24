@@ -36,20 +36,16 @@ readonly class CreateBlogController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/blog', name: 'blog_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
         $this->cache->deleteItem("profile_blog_{$symfonyUser->getUserIdentifier()}");
         $blog = new Blog();
-        if($request->files->get('files')) {
+        if ($request->files->get('files')) {
             $logo = $this->blogService->uploadLogo($request);
             $blog->setLogo($logo);
         }
@@ -65,6 +61,7 @@ readonly class CreateBlogController
         $output['description'] = $blog->getBlogSubtitle();
         $output['slug'] = $blog->getSlug();
         $output['logo'] = $blog->getLogo();
+
         return new JsonResponse(
             $output
         );

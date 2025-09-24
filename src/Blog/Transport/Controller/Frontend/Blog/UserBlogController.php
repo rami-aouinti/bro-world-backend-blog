@@ -40,12 +40,9 @@ readonly class UserBlogController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users
      *
-     * @param SymfonyUser $symfonyUser
-     *
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
      * @throws JsonException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/profile/blog', name: 'public_blog_profile', methods: [Request::METHOD_GET])]
     #[Cache(smaxage: 10)]
@@ -64,15 +61,9 @@ readonly class UserBlogController
         return JsonResponse::fromJsonString($json);
     }
 
-    /**
-     *
-     * @param string $userId
-     *
-     * @return Closure
-     */
     private function getClosure(string $userId): Closure
     {
-        return function (ItemInterface $item) use($userId): array {
+        return function (ItemInterface $item) use ($userId): array {
             $item->expiresAfter(31536000);
 
             return $this->getFormattedBlog($userId);
@@ -88,15 +79,12 @@ readonly class UserBlogController
     }
 
     /**
-     * @param string $userId
-     *
      * @throws NotSupported
-     * @return array
      */
     private function getBlog(string $userId): array
     {
         return $this->blogRepository->findBy([
-            'author' => Uuid::fromString($userId)
+            'author' => Uuid::fromString($userId),
         ]);
     }
 }

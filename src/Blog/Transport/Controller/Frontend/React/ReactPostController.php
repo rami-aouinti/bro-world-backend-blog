@@ -25,8 +25,6 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * Class ReactPostController
- *
  * @package App\Blog\Transport\Controller\Frontend
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -38,15 +36,11 @@ readonly class ReactPostController
         private SerializerInterface $serializer,
         private ReactionRepositoryInterface $reactionRepository,
         private MessageBusInterface $bus
-    ) {}
+    ) {
+    }
 
     /**
      * Handles user reactions on a post (add, update, delete).
-     *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Post        $post
-     * @param string      $type
      *
      * @throws ExceptionInterface
      * @throws JsonException
@@ -54,12 +48,14 @@ readonly class ReactPostController
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
-     * @return JsonResponse
      */
     #[Route(path: '/v1/private/post/{post}/react/{type}', name: 'react_post', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post, string $type): JsonResponse
     {
-        $reaction = $this->reactionRepository->findOneBy(['user' => Uuid::fromString($symfonyUser->getUserIdentifier()), 'post' => $post->getId()]);
+        $reaction = $this->reactionRepository->findOneBy([
+            'user' => Uuid::fromString($symfonyUser->getUserIdentifier()),
+            'post' => $post->getId(),
+        ]);
 
         return $type === 'delete'
             ? $this->handleDeleteReaction($reaction)
@@ -67,19 +63,16 @@ readonly class ReactPostController
     }
 
     /**
-     *
-     * @param Reaction|null $reaction
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @return JsonResponse
      */
     private function handleDeleteReaction(?Reaction $reaction): JsonResponse
     {
         if ($reaction) {
             $this->reactionRepository->remove($reaction);
+
             return $this->jsonResponse('success');
         }
 
@@ -87,18 +80,11 @@ readonly class ReactPostController
     }
 
     /**
-     *
-     * @param Reaction|null $existingReaction
-     * @param Post          $post
-     * @param SymfonyUser   $symfonyUser
-     * @param Request       $request
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
-     * @return JsonResponse
      */
     private function handleAddOrUpdateReaction(?Reaction $existingReaction, Post $post, SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
@@ -126,19 +112,19 @@ readonly class ReactPostController
 
         return $this->jsonResponse([
             'id' => $reaction->getId(),
-            'user' => $symfonyUser
+            'user' => $symfonyUser,
         ]);
     }
 
     /**
-     *
-     * @param mixed $data
-     * @return JsonResponse
      * @throws ExceptionInterface|JsonException
      */
     private function jsonResponse(mixed $data): JsonResponse
     {
-        $json = JSON::decode($this->serializer->serialize($data, 'json', ['groups' => 'Reaction']), true);
+        $json = JSON::decode($this->serializer->serialize($data, 'json', [
+            'groups' => 'Reaction',
+        ]), true);
+
         return new JsonResponse($json);
     }
 }

@@ -35,15 +35,10 @@ readonly class DeletePostController
     /**
      * Get current user blog data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param SymfonyUser $symfonyUser
-     * @param Request     $request
-     * @param Post        $post
-     *
      * @throws ExceptionInterface
      * @throws JsonException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @return JsonResponse
      */
     #[Route(path: '/v1/platform/post/{post}', name: 'delete_post', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post): JsonResponse
@@ -59,6 +54,7 @@ readonly class DeletePostController
             ),
             true,
         );
+
         return new JsonResponse($output);
     }
 }
