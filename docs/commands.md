@@ -76,7 +76,7 @@ make logs-kibana                        # Shows logs from the kibana container. 
 make drop-migrate                       # Drops databases and runs all migrations for the main/test databases
 make migrate                            # Runs all migrations for the main/test databases
 make migrate-no-test                    # Runs all migrations for the main database
-make migrate-cron-jobs                  # Creates cron job tasks (cleanup logs, failed old messenger messages)
+make migrate-cron-jobs                  # Creates cron job tasks (cleanup logs, failed old messenger messages, blog cache refresh)
 
 make fixtures                           # Runs all fixtures for test database without --append option (tables will be dropped and recreated)
 
@@ -149,4 +149,5 @@ After above command you will be inside symfony container and for display list of
 ./bin/console logs:cleanup                          # Command to cleanup logs(log_login, log_request) in the database (runs by cron every day at 00-00)
 ./bin/console messenger:messages-cleanup            # Command to cleanup messenger_messages table (runs by cron every day at 00-00)
 ./bin/console elastic:create-or-update-template     # Command in order to create/update index template in Elastic
+./bin/console blog:cache:refresh                    # Warm up blog related caches (use --scope=posts|comments|reactions|all)
 ```
