@@ -19,7 +19,8 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\Controller\Frontend\React
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

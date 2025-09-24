@@ -35,7 +35,8 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use function array_slice;
 
 /**
- * @package App\Blog\Transport\Controller\Frontend
+ * @package App\Blog\Transport\Controller\Frontend\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

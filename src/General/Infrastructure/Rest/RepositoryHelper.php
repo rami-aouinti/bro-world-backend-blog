@@ -26,7 +26,8 @@ use function strtolower;
 use function syslog;
 
 /**
- * @package App\General
+ * @package App\General\Infrastructure\Rest
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class RepositoryHelper
 {

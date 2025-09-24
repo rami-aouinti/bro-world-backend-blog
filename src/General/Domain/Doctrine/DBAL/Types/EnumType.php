@@ -19,7 +19,8 @@ use function in_array;
 use function is_string;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Doctrine\DBAL\Types
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class EnumType extends Type
 {

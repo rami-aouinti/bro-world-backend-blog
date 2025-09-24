@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * @package App\User\User\Application\Service
+ * @package App\Blog\Application\Service\User
  * @author Rami Aouinti
  */
 readonly class UserCacheService implements UserCacheServiceInterface

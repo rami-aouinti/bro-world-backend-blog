@@ -13,7 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Application\User\Transport\Controller\Api\v1\Profile
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class GroupsControllerTest extends WebTestCase
 {

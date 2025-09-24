@@ -25,7 +25,8 @@ use function in_array;
 use function is_string;
 
 /**
- * @package App\Post
+ * @package App\Blog\Application\DTO\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @method self|RestDtoInterface get(string $id)
  * @method self|RestDtoInterface patch(RestDtoInterface $dto)

@@ -14,7 +14,8 @@ namespace App\General\Application\Exception\Interfaces;
  * 500 on those - so it's _your_ responsibility to get "proper" status code in your exception
  * class.
  *
- * @package App\General
+ * @package App\General\Application\Exception\Interfaces
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 interface ClientErrorInterface
 {

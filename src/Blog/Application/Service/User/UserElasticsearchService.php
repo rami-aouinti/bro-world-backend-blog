@@ -8,7 +8,7 @@ use App\Blog\Application\Service\Interfaces\UserElasticsearchServiceInterface;
 use App\General\Domain\Service\Interfaces\ElasticsearchServiceInterface;
 
 /**
- * @package App\User\Application\Service
+ * @package App\Blog\Application\Service\User
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class UserElasticsearchService implements UserElasticsearchServiceInterface

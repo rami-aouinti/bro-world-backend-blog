@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Post
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class MediaService

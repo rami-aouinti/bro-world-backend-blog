@@ -7,7 +7,8 @@ namespace App\General\Transport\Rest\Traits\Methods;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package App\General
+ * @package App\General\Transport\Rest\Traits\Methods
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait RestMethodProcessCriteria
 {

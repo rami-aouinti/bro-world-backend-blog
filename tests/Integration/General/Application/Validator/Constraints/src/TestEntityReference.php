@@ -10,7 +10,8 @@ use Doctrine\ORM\EntityNotFoundException;
 use Override;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Integration\General\Application\Validator\Constraints\src
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class TestEntityReference implements EntityInterface
 {

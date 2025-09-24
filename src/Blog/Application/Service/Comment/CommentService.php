@@ -13,7 +13,7 @@ use Doctrine\ORM\TransactionRequiredException;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Comment
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class CommentService

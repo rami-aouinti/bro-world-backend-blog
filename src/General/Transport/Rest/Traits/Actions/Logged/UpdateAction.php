@@ -20,7 +20,8 @@ use Throwable;
  *
  * @see \App\General\Transport\Rest\Traits\Methods\UpdateMethod for detailed documents.
  *
- * @package App\General
+ * @package App\General\Transport\Rest\Traits\Actions\Logged
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait UpdateAction
 {

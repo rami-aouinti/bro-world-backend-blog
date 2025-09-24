@@ -17,6 +17,7 @@ use Throwable;
 
 /**
  * @package App\Blog\Domain\Entity
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'blog_media')]

@@ -8,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Entity\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait VisibleTrait
 {

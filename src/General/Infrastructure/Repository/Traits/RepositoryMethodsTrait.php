@@ -25,7 +25,8 @@ use function array_column;
 use function assert;
 
 /**
- * @package App\General
+ * @package App\General\Infrastructure\Repository\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait RepositoryMethodsTrait
 {

@@ -27,7 +27,8 @@ use function json_decode;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\Controller\Frontend\Blog
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

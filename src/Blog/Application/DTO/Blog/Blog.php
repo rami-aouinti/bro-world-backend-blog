@@ -20,7 +20,8 @@ use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_BOOLEAN;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Application\DTO\Blog
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @method self|RestDtoInterface get(string $id)
  * @method self|RestDtoInterface patch(RestDtoInterface $dto)

@@ -11,7 +11,8 @@ use Override;
 use Stringable;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Utils
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class StringableArrayObject extends ArrayObject implements Stringable
 {

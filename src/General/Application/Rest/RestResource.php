@@ -9,7 +9,8 @@ use App\General\Application\Rest\Traits\Methods;
 use App\General\Domain\Repository\Interfaces\BaseRepositoryInterface;
 
 /**
- * @package App\General
+ * @package App\General\Application\Rest
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class RestResource implements RestResourceInterface
 {

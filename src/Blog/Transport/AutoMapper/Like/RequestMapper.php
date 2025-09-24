@@ -14,7 +14,8 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package App\Like
+ * @package App\Blog\Transport\AutoMapper\Like
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class RequestMapper extends RestRequestMapper
 {

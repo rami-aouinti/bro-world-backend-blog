@@ -7,7 +7,8 @@ namespace App\General\Domain\Doctrine\DBAL\Types;
 use App\General\Domain\Enum\Language;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Doctrine\DBAL\Types
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class EnumLanguageType extends EnumType
 {

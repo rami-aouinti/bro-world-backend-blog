@@ -42,7 +42,7 @@ use function strlen;
 use function trim;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Post
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class PostService

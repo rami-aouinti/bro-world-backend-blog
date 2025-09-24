@@ -11,7 +11,8 @@ use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\TokenType;
 
 /**
- * @package App\General
+ * @package App\General\Infrastructure\DQL
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class UuidOTToBin extends FunctionNode
 {

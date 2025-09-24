@@ -24,7 +24,7 @@ use Throwable;
 use function Symfony\Component\String\u;
 
 /**
- * @package App\Feature\Blog\Domain\Entity
+ * @package App\Blog\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[ORM\Table(name: 'blog_comment')]

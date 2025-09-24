@@ -19,7 +19,8 @@ use function array_keys;
 use function sprintf;
 
 /**
- * @package App\General
+ * @package App\General\Application\Rest\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait RestResourceBaseMethods
 {
