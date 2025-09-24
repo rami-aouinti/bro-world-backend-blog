@@ -192,10 +192,8 @@ class Comment implements EntityInterface
 
     public function removeChildren(self $child): self
     {
-        if ($this->children->removeElement($child)) {
-            if ($child->getParent() === $this) {
-                $child->setParent(null);
-            }
+        if ($this->children->removeElement($child) && $child->getParent() === $this) {
+            $child->setParent(null);
         }
 
         return $this;
