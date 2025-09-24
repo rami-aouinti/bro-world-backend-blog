@@ -32,7 +32,9 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
+use Traversable;
 
+use function iterator_to_array;
 use function sprintf;
 use function strlen;
 use function trim;
@@ -169,6 +171,16 @@ readonly class PostService
     public function uploadFiles(Request $request, Post $post): JsonResponse|Post
     {
         $files = $request->files->get('files');
+
+        if ($files instanceof Traversable) {
+            $files = iterator_to_array($files, false);
+        }
+
+        if (!is_array($files) || $files === []) {
+            return new JsonResponse([
+                'error' => 'No files uploaded.',
+            ], 400);
+        }
 
         foreach ($files as $file) {
             $type = $file->getMimeType();
