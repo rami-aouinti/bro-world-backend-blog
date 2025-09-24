@@ -10,10 +10,10 @@ use App\Blog\Domain\Entity\Post;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\TestDox;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Ramsey\Uuid\Uuid;
 
 /**
  * @package App\Tests\Application\Blog\Application\Service

@@ -14,8 +14,8 @@ use App\Blog\Transport\Event\PostCreatedEvent;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package App\Blog\Transport\MessageHandler

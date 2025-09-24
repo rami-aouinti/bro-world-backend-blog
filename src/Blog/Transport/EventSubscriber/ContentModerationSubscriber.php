@@ -16,6 +16,7 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
 use function array_merge;
 use function array_unique;
 use function array_values;

@@ -13,8 +13,9 @@ final readonly class ContentModerationService
     /**
      * @param array<int, string> $bannedWords
      */
-    public function __construct(private array $bannedWords)
-    {
+    public function __construct(
+        private array $bannedWords
+    ) {
     }
 
     /**

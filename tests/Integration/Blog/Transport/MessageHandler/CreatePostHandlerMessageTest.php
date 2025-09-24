@@ -33,7 +33,7 @@ final class CreatePostHandlerMessageTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
 
-        $userSearchStub = new class() implements UserElasticsearchServiceInterface {
+        $userSearchStub = new class () implements UserElasticsearchServiceInterface {
             public function searchUsers(string $query): array
             {
                 return [];

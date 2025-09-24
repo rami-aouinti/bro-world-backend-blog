@@ -51,11 +51,7 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for comments (includes `isLiked` and `reactions_count`).
      *
-     * @param string  $id
-     * @param Request $request
-     *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route('/public/post/{id}/comments', name: 'public_post_comments', methods: ['GET'])]
     public function comments(string $id, Request $request): JsonResponse
@@ -76,10 +72,7 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a post's likes.
      *
-     * @param string $id
-     *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
@@ -95,13 +88,10 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a comment's likes.
      *
-     * @param string $id
-     *
      * @throws InvalidArgumentException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
-     * @return JsonResponse
      */
     #[Route('/public/comment/{id}/likes', name: 'public_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
@@ -119,10 +109,7 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a post's reactions.
      *
-     * @param string $id
-     *
      * @throws InvalidArgumentException
-     * @return JsonResponse
      */
     #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
@@ -138,13 +125,10 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a comment's reactions.
      *
-     * @param string $id
-     *
      * @throws InvalidArgumentException
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
-     * @return JsonResponse
      */
     #[Route('/public/comment/{id}/reactions', name: 'public_comment_reactions', methods: ['GET'])]
     public function commentReactions(string $id): JsonResponse

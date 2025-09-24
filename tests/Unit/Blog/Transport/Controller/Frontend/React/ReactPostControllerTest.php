@@ -22,13 +22,15 @@ use function json_encode;
 
 final class ReactPostControllerTest extends TestCase
 {
-    /** @var SerializerInterface */
+    /**
+     * @var SerializerInterface
+     */
     private $serializer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->serializer = new class() implements SerializerInterface {
+        $this->serializer = new class () implements SerializerInterface {
             public function serialize($data, string $format, array $context = []): string
             {
                 return (string)json_encode($data);
@@ -47,7 +49,7 @@ final class ReactPostControllerTest extends TestCase
         $reactor = Uuid::uuid4();
         $post = $this->createPost($postAuthor, 'my-post-slug');
 
-        $reactionRepository = new class() implements ReactionRepositoryInterface {
+        $reactionRepository = new class () implements ReactionRepositoryInterface {
             public ?Reaction $saved = null;
 
             public function findOneBy(array $criteria, ?array $orderBy = null)
@@ -83,7 +85,11 @@ final class ReactPostControllerTest extends TestCase
         );
 
         $symfonyUser = new SymfonyUser($reactor->toString(), 'Reactor', null, []);
-        $request = new Request([], [], ['type' => 'like'], [], [], ['HTTP_AUTHORIZATION' => 'Bearer token']);
+        $request = new Request([], [], [
+            'type' => 'like',
+        ], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer token',
+        ]);
 
         $controller($symfonyUser, $request, $post, 'like');
 

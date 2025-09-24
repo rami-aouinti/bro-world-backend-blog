@@ -92,7 +92,9 @@ class CommentCommentControllerTest extends TestCase
         $this->serializer
             ->expects(self::once())
             ->method('serialize')
-            ->with(self::isInstanceOf(Comment::class), 'json', ['groups' => 'Comment'])
+            ->with(self::isInstanceOf(Comment::class), 'json', [
+                'groups' => 'Comment',
+            ])
             ->willReturn('{}');
 
         $this->commentNotificationMailer
