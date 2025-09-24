@@ -87,6 +87,21 @@ class BlogControllerSecurityTest extends WebTestCase
     /**
      * @throws Throwable
      */
+    #[TestDox('DELETE /api/v1/blog/{id} returns 403 for non-admin user')]
+    public function testThatNonAdminUsersCannotDeleteBlog(): void
+    {
+        $client = $this->getTestClient('john-user', 'password-user');
+        $blog = $this->resource->find()[0] ?? null;
+        self::assertNotNull($blog, 'Fixture for blog entity is missing');
+
+        $client->request('DELETE', self::BASE_URL . '/' . $blog->getId());
+
+        self::assertSame(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @throws Throwable
+     */
     #[DataProvider('dataProviderRestrictedEndpoints')]
     #[TestDox('`$method $path` returns 403 for non-admin user')]
     public function testThatNonAdminUsersAreForbidden(string $method, string $path): void
