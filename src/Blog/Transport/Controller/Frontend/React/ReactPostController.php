@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend\React;
 
+use App\Blog\Application\Service\Interfaces\ReactionNotificationMailerInterface;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
 use App\Blog\Domain\Message\CreateNotificationMessenger;
@@ -35,7 +36,8 @@ readonly class ReactPostController
     public function __construct(
         private SerializerInterface $serializer,
         private ReactionRepositoryInterface $reactionRepository,
-        private MessageBusInterface $bus
+        private MessageBusInterface $bus,
+        private ReactionNotificationMailerInterface $reactionNotificationMailer
     ) {
     }
 
@@ -106,6 +108,12 @@ readonly class ReactPostController
                 $post->getId(),
                 'reacted to your post.'
             )
+        );
+
+        $this->reactionNotificationMailer->sendPostReactionNotificationEmail(
+            $post->getAuthor()->toString(),
+            $symfonyUser->getUserIdentifier(),
+            $post->getSlug()
         );
 
         $this->reactionRepository->save($reaction);
