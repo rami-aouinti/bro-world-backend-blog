@@ -9,23 +9,15 @@ use App\Blog\Application\Service\PostCachePayloadBuilder;
 use App\Blog\Application\Service\PostFeedCacheService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
-use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\Exception\OptimisticLockException;
-use Doctrine\ORM\Exception\TransactionRequiredException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * @package App\Blog\Transport\Controller\Frontend
@@ -58,14 +50,11 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for comments (includes `isLiked` and `reactions_count`).
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
+     * @param string  $id
+     * @param Request $request
+     *
      * @throws InvalidArgumentException
-     * @throws NoResultException
-     * @throws NonUniqueResultException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
+     * @return JsonResponse
      */
     #[Route('/public/post/{id}/comments', name: 'public_post_comments', methods: ['GET'])]
     public function comments(string $id, Request $request): JsonResponse
@@ -86,15 +75,10 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a post's likes.
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
+     * @param string $id
+     *
      * @throws InvalidArgumentException
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransactionRequiredException
-     * @throws TransportExceptionInterface
+     * @return JsonResponse
      */
     #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
@@ -110,15 +94,13 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a comment's likes.
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
+     * @param string $id
+     *
      * @throws InvalidArgumentException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
      * @throws TransactionRequiredException
-     * @throws TransportExceptionInterface
+     * @return JsonResponse
      */
     #[Route('/public/comment/{id}/likes', name: 'public_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
@@ -136,15 +118,10 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a post's reactions.
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
+     * @param string $id
+     *
      * @throws InvalidArgumentException
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransactionRequiredException
-     * @throws TransportExceptionInterface
+     * @return JsonResponse
      */
     #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
@@ -160,13 +137,13 @@ readonly class PostsController
     /**
      * Lazy-load endpoint for a comment's reactions.
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
+     * @param string $id
+     *
      * @throws InvalidArgumentException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     * @throws NotSupported
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @return JsonResponse
      */
     #[Route('/public/comment/{id}/reactions', name: 'public_comment_reactions', methods: ['GET'])]
     public function commentReactions(string $id): JsonResponse
