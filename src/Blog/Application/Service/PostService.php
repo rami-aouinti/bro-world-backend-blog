@@ -95,12 +95,14 @@ readonly class PostService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function savePost(Post $post, ?array $mediaIds): void
+    public function savePost(Post $post, ?array $mediaIds): Post
     {
         if (!empty($mediaIds)) {
             //$post->setMedias($mediaIds);
         }
         $this->postRepository->save($post);
+
+        return $post;
     }
 
     /**

@@ -2,25 +2,12 @@
 
 declare(strict_types=1);
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace App\Blog\Transport\Event;
 
-use App\Blog\Domain\Entity\Comment;
+use App\Blog\Domain\Entity\Post;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package App\Blog\Transport\Event
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
- */
-final class CommentCreatedEvent extends Event
+final class PostCreatedEvent extends Event
 {
     private bool $blocked = false;
 
@@ -31,13 +18,13 @@ final class CommentCreatedEvent extends Event
     private ?string $reason = null;
 
     public function __construct(
-        private readonly Comment $comment
+        private readonly Post $post
     ) {
     }
 
-    public function getComment(): Comment
+    public function getPost(): Post
     {
-        return $this->comment;
+        return $this->post;
     }
 
     /**
