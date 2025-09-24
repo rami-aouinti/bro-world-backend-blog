@@ -13,6 +13,12 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
+/**
+ * Class BlogControllerSecurityTest
+ *
+ * @package App\Tests\Application\Blog\Transport\Controller\Api
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
 class BlogControllerSecurityTest extends WebTestCase
 {
     private const string BASE_URL = self::API_URL_PREFIX . '/v1/blog';

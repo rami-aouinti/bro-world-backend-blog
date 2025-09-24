@@ -160,11 +160,6 @@ readonly class PostService
         return $post;
     }
 
-    private function buildTagDescription(string $tagName): string
-    {
-        return sprintf('Posts tagged with %s', $tagName);
-    }
-
     /**
      * @return JsonResponse|array
      */
@@ -208,6 +203,11 @@ readonly class PostService
         }
 
         return $post;
+    }
+
+    private function buildTagDescription(string $tagName): string
+    {
+        return sprintf('Posts tagged with %s', $tagName);
     }
 
     /**

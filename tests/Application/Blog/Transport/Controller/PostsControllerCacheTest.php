@@ -29,6 +29,12 @@ use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
+/**
+ * Class PostsControllerCacheTest
+ *
+ * @package App\Tests\Application\Blog\Transport\Controller
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
 class PostsControllerCacheTest extends WebTestCase
 {
     private KernelBrowser $client;
