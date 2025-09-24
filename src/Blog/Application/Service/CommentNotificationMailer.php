@@ -29,7 +29,7 @@ class CommentNotificationMailer implements CommentNotificationMailerInterface
     private Environment $twig;
 
     public function __construct(
-        private UserProxy $userProxy,
+        private readonly UserProxy $userProxy,
         MailerInterface $mailer,
         Environment $twig
     ) {

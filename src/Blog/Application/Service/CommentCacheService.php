@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Service;
 
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -12,10 +13,11 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  */
 readonly class CommentCacheService
 {
-    private const DEFAULT_TTL = 20;
+    private const int DEFAULT_TTL = 20;
 
-    public function __construct(private TagAwareCacheInterface $cache)
-    {
+    public function __construct(
+        private TagAwareCacheInterface $cache
+    ) {
     }
 
     /**
@@ -23,6 +25,7 @@ readonly class CommentCacheService
      *
      * @param callable():T $callback
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     public function getPostComments(string $postId, int $page, int $limit, callable $callback, ?string $context = null): mixed
@@ -30,10 +33,10 @@ readonly class CommentCacheService
         return $this->getCachedPayload(
             prefix: 'post_comments',
             resourceId: $postId,
+            callback: $callback,
+            tags: ['posts', 'comments'],
             page: $page,
             limit: $limit,
-            tags: ['posts', 'comments'],
-            callback: $callback,
             context: $context,
         );
     }
@@ -43,6 +46,7 @@ readonly class CommentCacheService
      *
      * @param callable():T $callback
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     public function getPostLikes(string $postId, callable $callback): mixed
@@ -50,8 +54,8 @@ readonly class CommentCacheService
         return $this->getCachedPayload(
             prefix: 'post_likes',
             resourceId: $postId,
-            tags: ['posts', 'likes'],
             callback: $callback,
+            tags: ['posts', 'likes'],
         );
     }
 
@@ -60,6 +64,7 @@ readonly class CommentCacheService
      *
      * @param callable():T $callback
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     public function getPostReactions(string $postId, callable $callback): mixed
@@ -67,8 +72,8 @@ readonly class CommentCacheService
         return $this->getCachedPayload(
             prefix: 'post_reactions',
             resourceId: $postId,
-            tags: ['posts', 'reactions'],
             callback: $callback,
+            tags: ['posts', 'reactions'],
         );
     }
 
@@ -77,6 +82,7 @@ readonly class CommentCacheService
      *
      * @param callable():T $callback
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     public function getCommentLikes(string $commentId, callable $callback, ?int $page = null, ?int $limit = null): mixed
@@ -84,10 +90,10 @@ readonly class CommentCacheService
         return $this->getCachedPayload(
             prefix: 'comment_likes',
             resourceId: $commentId,
+            callback: $callback,
+            tags: ['comments', 'likes'],
             page: $page,
             limit: $limit,
-            tags: ['comments', 'likes'],
-            callback: $callback,
         );
     }
 
@@ -96,6 +102,7 @@ readonly class CommentCacheService
      *
      * @param callable():T $callback
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     public function getCommentReactions(string $commentId, callable $callback, ?int $page = null, ?int $limit = null): mixed
@@ -103,10 +110,10 @@ readonly class CommentCacheService
         return $this->getCachedPayload(
             prefix: 'comment_reactions',
             resourceId: $commentId,
+            callback: $callback,
+            tags: ['comments', 'reactions'],
             page: $page,
             limit: $limit,
-            tags: ['comments', 'reactions'],
-            callback: $callback,
         );
     }
 
@@ -115,6 +122,7 @@ readonly class CommentCacheService
      *
      * @param callable():T $callback
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     private function getCachedPayload(

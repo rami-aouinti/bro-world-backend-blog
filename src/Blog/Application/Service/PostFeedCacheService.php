@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Service;
 
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 use function sprintf;
 
+/**
+ * @package App\Blog\Application\Service
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ */
 final readonly class PostFeedCacheService
 {
-    private const DEFAULT_TTL = 20;
-    private const CACHE_TAGS = ['posts', 'comments', 'likes', 'reactions'];
+    private const int DEFAULT_TTL = 20;
+    private const array CACHE_TAGS = ['posts', 'comments', 'likes', 'reactions'];
 
-    public function __construct(private TagAwareCacheInterface $cache)
-    {
+    public function __construct(
+        private TagAwareCacheInterface $cache
+    ) {
     }
 
     /**
@@ -23,6 +29,7 @@ final readonly class PostFeedCacheService
      *
      * @param callable():T $warmUp
      *
+     * @throws InvalidArgumentException
      * @return T
      */
     public function get(int $page, int $limit, callable $warmUp): mixed
@@ -35,11 +42,17 @@ final readonly class PostFeedCacheService
         });
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function delete(int $page, int $limit): void
     {
         $this->cache->delete($this->buildCacheKey($page, $limit));
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function invalidateTags(): void
     {
         $this->cache->invalidateTags(self::CACHE_TAGS);

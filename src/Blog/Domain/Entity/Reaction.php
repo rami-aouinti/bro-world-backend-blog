@@ -17,8 +17,6 @@ use Throwable;
 use function sprintf;
 
 /**
- * Class Reaction
- *
  * @package App\Blog\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
