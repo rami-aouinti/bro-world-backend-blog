@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
@@ -41,7 +40,7 @@ readonly class DeleteCommentController
      * @throws ExceptionInterface
      */
     #[Route(path: '/v1/platform/comment/{comment}', name: 'delete_comment', methods: [Request::METHOD_DELETE])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
+    public function __invoke(Comment $comment): JsonResponse
     {
         $this->commentRepository->remove($comment);
         $output = JSON::decode(
