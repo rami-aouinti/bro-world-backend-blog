@@ -34,6 +34,7 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/v1/platform, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/command-scheduler, roles: ROLE_ADMIN }
         - { path: ^/api/public, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 when@test:
