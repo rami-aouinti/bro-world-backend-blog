@@ -9,7 +9,8 @@ use Ramsey\Uuid\UuidInterface;
 use Throwable;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Entity\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait Uuid
 {

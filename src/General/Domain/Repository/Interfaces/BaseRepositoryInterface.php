@@ -20,7 +20,8 @@ use InvalidArgumentException;
 use Throwable;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Repository\Interfaces
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 interface BaseRepositoryInterface
 {

@@ -9,7 +9,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use function call_user_func_array;
 
 /**
- * @package App\General
+ * @package App\General\Transport\Form\Type\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait AddBasicFieldToForm
 {

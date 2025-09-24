@@ -25,7 +25,7 @@ use function array_slice;
 use function array_unique;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Post
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class PostFeedResponseBuilder

@@ -8,7 +8,8 @@ use App\General\Domain\Entity\Interfaces\EntityInterface;
 use Throwable;
 
 /**
- * @package App\General
+ * @package App\General\Application\DTO\Interfaces
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 interface RestDtoInterface
 {

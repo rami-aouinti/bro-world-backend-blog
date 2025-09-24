@@ -33,7 +33,8 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * @package App\Blog\Transport\Controller\Frontend
+ * @package App\Blog\Transport\Controller\Frontend\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

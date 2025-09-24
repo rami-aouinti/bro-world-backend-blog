@@ -7,7 +7,8 @@ namespace App\General\Application\Rest\Traits\Methods;
 use App\General\Application\Rest\Traits\RestResourceCount as CountLifeCycle;
 
 /**
- * @package App\General
+ * @package App\General\Application\Rest\Traits\Methods
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait ResourceCountMethod
 {

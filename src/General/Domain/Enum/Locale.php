@@ -10,7 +10,8 @@ use App\General\Domain\Enum\Traits\GetValues;
 /**
  * Locale
  *
- * @package App\General
+ * @package App\General\Domain\Enum
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 enum Locale: string implements DatabaseEnumInterface
 {

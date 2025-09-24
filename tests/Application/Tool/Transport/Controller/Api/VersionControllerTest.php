@@ -14,7 +14,8 @@ use Throwable;
 use function file_get_contents;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Application\Tool\Transport\Controller\Api
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class VersionControllerTest extends WebTestCase
 {

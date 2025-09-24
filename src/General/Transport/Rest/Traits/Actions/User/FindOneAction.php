@@ -19,7 +19,8 @@ use Throwable;
  *
  * @see \App\General\Transport\Rest\Traits\Methods\FindOneMethod for detailed documents.
  *
- * @package App\General
+ * @package App\General\Transport\Rest\Traits\Actions\User
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait FindOneAction
 {

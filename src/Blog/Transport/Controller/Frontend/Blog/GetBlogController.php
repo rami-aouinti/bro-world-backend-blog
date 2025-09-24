@@ -19,7 +19,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\Controller\Frontend\Blog
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

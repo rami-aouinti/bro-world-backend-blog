@@ -14,7 +14,8 @@ use function gc_collect_cycles;
 use function gc_enable;
 
 /**
- * @package App\Tests
+ * @package App\Tests\TestCase
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class WebTestCase extends BaseWebTestCase
 {

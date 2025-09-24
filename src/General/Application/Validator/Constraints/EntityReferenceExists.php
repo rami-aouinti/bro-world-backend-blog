@@ -16,7 +16,8 @@ use Symfony\Component\Validator\Constraint;
  * @Annotation
  * @Target({"PROPERTY"})
  *
- * @package App\General
+ * @package App\General\Application\Validator\Constraints
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
 class EntityReferenceExists extends Constraint

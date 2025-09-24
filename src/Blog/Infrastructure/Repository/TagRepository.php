@@ -10,7 +10,8 @@ use App\General\Infrastructure\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Infrastructure\Repository
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @psalm-suppress LessSpecificImplementedReturnType
  * @codingStandardsIgnoreStart

@@ -9,7 +9,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Comment
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class CommentCacheService
 {

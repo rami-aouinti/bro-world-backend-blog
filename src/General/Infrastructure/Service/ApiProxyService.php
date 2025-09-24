@@ -15,6 +15,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @package App\General\Infrastructure\Service
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class ApiProxyService implements ApiProxyServiceInterface
 {

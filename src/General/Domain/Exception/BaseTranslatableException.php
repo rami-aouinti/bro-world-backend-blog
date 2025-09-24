@@ -7,7 +7,8 @@ namespace App\General\Domain\Exception;
 use App\General\Domain\Exception\Interfaces\TranslatableExceptionInterface;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Exception
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class BaseTranslatableException extends BaseException implements TranslatableExceptionInterface
 {

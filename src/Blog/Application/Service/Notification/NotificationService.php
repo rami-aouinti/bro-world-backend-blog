@@ -23,7 +23,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Notification
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class NotificationService

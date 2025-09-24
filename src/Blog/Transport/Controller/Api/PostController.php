@@ -18,7 +18,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * @package App\Post
+ * @package App\Blog\Transport\Controller\Api
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @method PostResource getResource()
  * @method ResponseHandler getResponseHandler()

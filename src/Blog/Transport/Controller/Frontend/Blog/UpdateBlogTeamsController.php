@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use function is_array;
 
 /**
- * @package App\Blog\Transport\Controller\Frontend
+ * @package App\Blog\Transport\Controller\Frontend\Blog
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]

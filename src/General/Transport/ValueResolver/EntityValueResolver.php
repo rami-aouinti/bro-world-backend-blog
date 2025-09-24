@@ -36,7 +36,8 @@ use function Symfony\Component\String\u;
  * Only thing that you need check is that parameter in your `path` definition matches with
  * method argument name.
  *
- * @package App\General
+ * @package App\General\Transport\ValueResolver
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class EntityValueResolver implements ValueResolverInterface
 {

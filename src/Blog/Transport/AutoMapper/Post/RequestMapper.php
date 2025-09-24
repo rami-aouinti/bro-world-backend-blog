@@ -10,7 +10,8 @@ use Override;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package App\Post
+ * @package App\Blog\Transport\AutoMapper\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class RequestMapper extends RestRequestMapper
 {

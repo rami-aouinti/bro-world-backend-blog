@@ -23,7 +23,8 @@ use function sha1;
 use function spl_object_hash;
 
 /**
- * @package App\General
+ * @package App\General\Infrastructure\Repository
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AutoconfigureTag('app.rest.repository')]
 #[AutoconfigureTag('app.stopwatch')]

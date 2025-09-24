@@ -18,7 +18,8 @@ use Ramsey\Uuid\Uuid;
 use function sprintf;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Infrastructure\Repository
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @psalm-suppress LessSpecificImplementedReturnType
  * @codingStandardsIgnoreStart

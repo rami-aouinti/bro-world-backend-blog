@@ -15,7 +15,8 @@ use Throwable;
 use function floor;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Unit\DateDimension\Domain\Entity
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class DateDimensionTest extends KernelTestCase
 {

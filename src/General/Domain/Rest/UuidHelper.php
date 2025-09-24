@@ -17,7 +17,8 @@ use Ramsey\Uuid\UuidInterface;
 use function syslog;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Rest
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class UuidHelper
 {

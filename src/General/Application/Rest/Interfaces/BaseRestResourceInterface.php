@@ -11,7 +11,8 @@ use Throwable;
 use UnexpectedValueException;
 
 /**
- * @package App\General
+ * @package App\General\Application\Rest\Interfaces
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 interface BaseRestResourceInterface
 {

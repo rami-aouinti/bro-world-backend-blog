@@ -20,7 +20,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 /**
- * @package App\User\User\Application\Service
+ * @package App\Blog\Application\Service\Comment
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 

@@ -19,7 +19,8 @@ use function sprintf;
 use function ucfirst;
 
 /**
- * @package App\General
+ * @package App\General\Application\DTO
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class RestDto implements RestDtoInterface
 {

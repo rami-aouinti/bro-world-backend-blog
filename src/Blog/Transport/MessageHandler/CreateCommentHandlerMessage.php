@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package App\Post\Transport\MessageHandler
+ * @package App\Blog\Transport\MessageHandler
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsMessageHandler]

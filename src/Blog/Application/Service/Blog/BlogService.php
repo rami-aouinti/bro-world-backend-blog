@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Blog
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class BlogService

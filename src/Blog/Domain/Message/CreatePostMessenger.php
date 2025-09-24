@@ -8,7 +8,7 @@ use App\Blog\Domain\Entity\Post;
 use App\General\Domain\Message\Interfaces\MessageHighInterface;
 
 /**
- * @package App\Post\Domain\Message
+ * @package App\Blog\Domain\Message
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class CreatePostMessenger implements MessageHighInterface

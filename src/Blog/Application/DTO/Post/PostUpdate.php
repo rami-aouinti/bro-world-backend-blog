@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Blog\Application\DTO\Post;
 
 /**
- * @package App\Post
+ * @package App\Blog\Application\DTO\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class PostUpdate extends Post
 {

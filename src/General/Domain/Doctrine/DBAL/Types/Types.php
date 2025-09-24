@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\General\Domain\Doctrine\DBAL\Types;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Doctrine\DBAL\Types
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class Types
 {

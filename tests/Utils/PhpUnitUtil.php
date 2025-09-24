@@ -36,7 +36,8 @@ use function str_contains;
 use function substr_count;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Utils
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class PhpUnitUtil
 {

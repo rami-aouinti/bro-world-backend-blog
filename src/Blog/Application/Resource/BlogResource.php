@@ -12,7 +12,8 @@ use App\General\Application\Rest\RestResource;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Application\Resource
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @psalm-suppress LessSpecificImplementedReturnType
  * @codingStandardsIgnoreStart
