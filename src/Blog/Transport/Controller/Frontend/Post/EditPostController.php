@@ -25,7 +25,9 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
+use function array_key_exists;
 use function strlen;
+use function trim;
 
 /**
  * @package App\Blog
@@ -59,9 +61,15 @@ readonly class EditPostController
     {
         $data = $request->request->all();
 
-        if (isset($data['title'])) {
-            $post->setTitle($data['title']);
-            $post->setSlug($data['title'] ?? $this->generateRandomString(20));
+        if (array_key_exists('title', $data)) {
+            $title = $data['title'];
+            $post->setTitle($title);
+
+            if (array_key_exists('slug', $data)) {
+                $post->setSlug($data['slug']);
+            } elseif (trim((string)$title) !== '') {
+                $post->setSlug(null);
+            }
         }
         if (isset($data['content'])) {
             $post->setContent($data['content']);
