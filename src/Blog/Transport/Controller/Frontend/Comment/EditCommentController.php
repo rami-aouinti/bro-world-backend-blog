@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;
@@ -41,7 +40,7 @@ readonly class EditCommentController
      * @throws OptimisticLockException
      */
     #[Route(path: '/v1/platform/comment/{comment}', name: 'edit_comment', methods: [Request::METHOD_PUT])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
+    public function __invoke(Request $request, Comment $comment): JsonResponse
     {
         $data = $request->request->all();
         $comment->setContent($data['content']);
