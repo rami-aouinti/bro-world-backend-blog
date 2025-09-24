@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Application\Service\CommentCacheService;
 use App\Blog\Application\Service\CommentResponseHelper;
 use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
@@ -44,6 +45,7 @@ readonly class PostsController
         private UserProxy $userProxy,
         private CommentResponseHelper $commentResponseHelper,
         private PostFeedResponseBuilder $postFeedResponseBuilder,
+        private CommentCacheService $commentCacheService,
     ) {
     }
 
@@ -90,36 +92,45 @@ readonly class PostsController
         $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
 
-        $comments = $this->postRepository->getRootComments($id, $limit, $offset);
-        $total = $this->postRepository->countComments($id);
+        $payload = $this->commentCacheService->getPostComments(
+            $id,
+            $page,
+            $limit,
+            function () use ($id, $limit, $offset, $page) {
+                $comments = $this->postRepository->getRootComments($id, $limit, $offset);
+                $total = $this->postRepository->countComments($id);
 
-        $userIds = [];
-        foreach ($comments as $comment) {
-            $userIds[] = $comment->getAuthor()->toString();
-            foreach ($comment->getLikes() as $like) {
-                $userIds[] = $like->getUser()->toString();
+                $userIds = [];
+                foreach ($comments as $comment) {
+                    $userIds[] = $comment->getAuthor()->toString();
+                    foreach ($comment->getLikes() as $like) {
+                        $userIds[] = $like->getUser()->toString();
+                    }
+                    foreach ($comment->getReactions() as $reaction) {
+                        $userIds[] = $reaction->getUser()->toString();
+                    }
+                }
+
+                $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
+
+                $data = array_map(
+                    fn (Comment $comment) => $this->commentResponseHelper->buildCommentThread(
+                        $comment,
+                        $users,
+                        includeLikesCount: true,
+                    ),
+                    $comments,
+                );
+
+                return [
+                    'comments' => $data,
+                    'total' => $total,
+                    'page' => $page,
+                ];
             }
-            foreach ($comment->getReactions() as $reaction) {
-                $userIds[] = $reaction->getUser()->toString();
-            }
-        }
-
-        $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
-
-        $data = array_map(
-            fn (Comment $comment) => $this->commentResponseHelper->buildCommentThread(
-                $comment,
-                $users,
-                includeLikesCount: true,
-            ),
-            $comments,
         );
 
-        return new JsonResponse([
-            'comments' => $data,
-            'total' => $total,
-            'page' => $page,
-        ]);
+        return new JsonResponse($payload);
     }
 
     /**
@@ -138,27 +149,34 @@ readonly class PostsController
     #[Route('/public/post/{id}/likes', name: 'public_post_likes', methods: ['GET'])]
     public function likes(string $id): JsonResponse
     {
-        $post = $this->postRepository->find($id);
+        $payload = $this->commentCacheService->getPostLikes(
+            $id,
+            function () use ($id) {
+                $post = $this->postRepository->find($id);
 
-        $likes = $post?->getLikes()?->toArray() ?? [];
-        $reactions = $post?->getReactions()?->toArray() ?? [];
+                $likes = $post?->getLikes()?->toArray() ?? [];
+                $reactions = $post?->getReactions()?->toArray() ?? [];
 
-        $userIds = array_merge(
-            array_map(static fn ($like) => $like->getUser()->toString(), $likes),
-            array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
+                $userIds = array_merge(
+                    array_map(static fn ($like) => $like->getUser()->toString(), $likes),
+                    array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
+                );
+
+                $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
+
+                $likesPayload = $this->commentResponseHelper->buildLikeList($likes, $users);
+                $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
+
+                return [
+                    'likes' => $likesPayload,
+                    'reactions' => $reactionsPayload,
+                    'total_likes' => count($likesPayload),
+                    'total_reactions' => count($reactionsPayload),
+                ];
+            }
         );
 
-        $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
-
-        $likesPayload = $this->commentResponseHelper->buildLikeList($likes, $users);
-        $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
-
-        return new JsonResponse([
-            'likes' => $likesPayload,
-            'reactions' => $reactionsPayload,
-            'total_likes' => count($likesPayload),
-            'total_reactions' => count($reactionsPayload),
-        ]);
+        return new JsonResponse($payload);
     }
 
     /**
@@ -177,27 +195,34 @@ readonly class PostsController
     #[Route('/public/comment/{id}/likes', name: 'public_comment_likes', methods: ['GET'])]
     public function commentLikes(string $id): JsonResponse
     {
-        $comment = $this->commentRepository->find($id);
+        $payload = $this->commentCacheService->getCommentLikes(
+            $id,
+            function () use ($id) {
+                $comment = $this->commentRepository->find($id);
 
-        $likes = $comment?->getLikes()?->toArray() ?? [];
-        $reactions = $comment?->getReactions()?->toArray() ?? [];
+                $likes = $comment?->getLikes()?->toArray() ?? [];
+                $reactions = $comment?->getReactions()?->toArray() ?? [];
 
-        $userIds = array_merge(
-            array_map(static fn ($like) => $like->getUser()->toString(), $likes),
-            array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
+                $userIds = array_merge(
+                    array_map(static fn ($like) => $like->getUser()->toString(), $likes),
+                    array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions),
+                );
+
+                $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
+
+                $likesPayload = $this->commentResponseHelper->buildLikeList($likes, $users);
+                $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
+
+                return [
+                    'likes' => $likesPayload,
+                    'reactions' => $reactionsPayload,
+                    'total_likes' => count($likesPayload),
+                    'total_reactions' => count($reactionsPayload),
+                ];
+            }
         );
 
-        $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
-
-        $likesPayload = $this->commentResponseHelper->buildLikeList($likes, $users);
-        $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
-
-        return new JsonResponse([
-            'likes' => $likesPayload,
-            'reactions' => $reactionsPayload,
-            'total_likes' => count($likesPayload),
-            'total_reactions' => count($reactionsPayload),
-        ]);
+        return new JsonResponse($payload);
     }
 
     /**
@@ -216,18 +241,25 @@ readonly class PostsController
     #[Route('/public/post/{id}/reactions', name: 'public_post_reactions', methods: ['GET'])]
     public function reactions(string $id): JsonResponse
     {
-        $post = $this->postRepository->find($id);
+        $payload = $this->commentCacheService->getPostReactions(
+            $id,
+            function () use ($id) {
+                $post = $this->postRepository->find($id);
 
-        $reactions = $post?->getReactions()?->toArray() ?? [];
-        $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
-        $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
+                $reactions = $post?->getReactions()?->toArray() ?? [];
+                $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
+                $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
-        $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
+                $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
 
-        return new JsonResponse([
-            'reactions' => $reactionsPayload,
-            'total' => count($reactionsPayload),
-        ]);
+                return [
+                    'reactions' => $reactionsPayload,
+                    'total' => count($reactionsPayload),
+                ];
+            }
+        );
+
+        return new JsonResponse($payload);
     }
 
     /**
@@ -252,15 +284,22 @@ readonly class PostsController
             ], 404);
         }
 
-        $reactions = $comment->getReactions()->toArray();
-        $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
-        $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
+        $payload = $this->commentCacheService->getCommentReactions(
+            $id,
+            function () use ($comment) {
+                $reactions = $comment->getReactions()->toArray();
+                $userIds = array_map(static fn ($reaction) => $reaction->getUser()->toString(), $reactions);
+                $users = $this->userProxy->batchSearchUsers(array_unique($userIds));
 
-        $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
+                $reactionsPayload = $this->commentResponseHelper->buildReactionList($reactions, $users);
 
-        return new JsonResponse([
-            'reactions' => $reactionsPayload,
-            'total' => count($reactionsPayload),
-        ]);
+                return [
+                    'reactions' => $reactionsPayload,
+                    'total' => count($reactionsPayload),
+                ];
+            }
+        );
+
+        return new JsonResponse($payload);
     }
 }
