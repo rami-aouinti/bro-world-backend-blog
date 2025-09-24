@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Application\Service\Blog\BlogService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
@@ -67,7 +68,7 @@ readonly class PostService
      * @throws TransactionRequiredException
      * @throws NotSupported
      */
-    public function createPost(SymfonyUser $user, Request $request): array
+    public function executeCreatePostCommand(SymfonyUser $user, Request $request): array
     {
         $post = $this->generatePostAttributes(
             $this->blogService->getBlog($request, $user),
@@ -95,7 +96,7 @@ readonly class PostService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function savePost(Post $post, ?array $mediaIds): Post
+    public function executeSavePostCommand(Post $post, ?array $mediaIds): Post
     {
         if (!empty($mediaIds)) {
             //$post->setMedias($mediaIds);

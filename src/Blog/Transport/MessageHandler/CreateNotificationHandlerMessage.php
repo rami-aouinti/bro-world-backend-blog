@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\MessageHandler;
 
-use App\Blog\Application\Service\NotificationService;
+use App\Blog\Application\Service\Notification\NotificationService;
 use App\Blog\Domain\Message\CreateNotificationMessenger;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -61,7 +61,7 @@ readonly class CreateNotificationHandlerMessage
      */
     private function handleMessage(CreateNotificationMessenger $message): void
     {
-        $this->notificationService->createNotification(
+        $this->notificationService->executeCreateNotificationCommand(
             $message->getToken(),
             $message->getChannel(),
             $message->getSenderId(),

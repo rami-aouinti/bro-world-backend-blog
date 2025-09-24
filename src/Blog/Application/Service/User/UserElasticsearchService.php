@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\User;
 
 use App\Blog\Application\Service\Interfaces\UserElasticsearchServiceInterface;
 use App\General\Domain\Service\Interfaces\ElasticsearchServiceInterface;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use App\General\Infrastructure\Service\ApiProxyService;
 use Symfony\Component\HttpFoundation\Request;

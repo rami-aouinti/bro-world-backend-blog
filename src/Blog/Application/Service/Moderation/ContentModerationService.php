@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Moderation;
 
 use function array_unique;
 use function mb_strtolower;

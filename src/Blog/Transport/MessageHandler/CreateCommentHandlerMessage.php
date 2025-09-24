@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\MessageHandler;
 
-use App\Blog\Application\Service\CommentService;
+use App\Blog\Application\Service\Comment\CommentService;
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Message\CreateCommentMessenger;
@@ -63,7 +63,7 @@ readonly class CreateCommentHandlerMessage
      */
     private function handleMessage(CreateCommentMessenger $message): Comment
     {
-        return $this->commentService->saveComment(
+        return $this->commentService->executeSaveCommentCommand(
             $message->getComment(),
             $message->getPostId(),
             $message->getSenderId(),

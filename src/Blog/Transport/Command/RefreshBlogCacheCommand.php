@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Command;
 
-use App\Blog\Application\Service\CommentCacheService;
-use App\Blog\Application\Service\PostCachePayloadBuilder;
-use App\Blog\Application\Service\PostFeedCacheService;
+use App\Blog\Application\Service\Comment\CommentCacheService;
+use App\Blog\Application\Service\Post\PostCachePayloadBuilder;
+use App\Blog\Application\Service\Post\PostFeedCacheService;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use Override;

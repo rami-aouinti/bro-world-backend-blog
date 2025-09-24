@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\MessageHandler;
 
-use App\Blog\Application\Service\PostFeedCacheService;
-use App\Blog\Application\Service\PostFeedResponseBuilder;
-use App\Blog\Application\Service\PostService;
+use App\Blog\Application\Service\Post\PostFeedCacheService;
+use App\Blog\Application\Service\Post\PostFeedResponseBuilder;
+use App\Blog\Application\Service\Post\PostService;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
@@ -71,6 +71,6 @@ readonly class CreatePostHandlerMessage
      */
     private function handleMessage(CreatePostMessenger $message): Post
     {
-        return $this->postService->savePost($message->getPost(), $message->getMediasIds());
+        return $this->postService->executeSavePostCommand($message->getPost(), $message->getMediasIds());
     }
 }

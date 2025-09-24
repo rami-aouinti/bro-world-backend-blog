@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Comment;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;

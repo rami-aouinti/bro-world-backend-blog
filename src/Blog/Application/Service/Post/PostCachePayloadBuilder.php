@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Application\Service\Comment\CommentResponseHelper;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
