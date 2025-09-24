@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend\React;
 
+use App\Blog\Application\Service\Interfaces\ReactionNotificationMailerInterface;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Message\CreateNotificationMessenger;
@@ -33,7 +34,8 @@ readonly class ToggleCommentController
     public function __construct(
         private SerializerInterface $serializer,
         private LikeRepositoryInterface $likeRepository,
-        private MessageBusInterface $bus
+        private MessageBusInterface $bus,
+        private ReactionNotificationMailerInterface $reactionNotificationMailer
     ) {
     }
 
@@ -61,6 +63,12 @@ readonly class ToggleCommentController
                 $comment->getPost()?->getId(),
                 'liked your comment.'
             )
+        );
+
+        $this->reactionNotificationMailer->sendCommentReactionNotificationEmail(
+            $comment->getAuthor()->toString(),
+            $symfonyUser->getUserIdentifier(),
+            $comment->getPost()?->getSlug()
         );
         $this->likeRepository->save($like);
         $result = [];
