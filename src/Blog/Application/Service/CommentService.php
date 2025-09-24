@@ -29,13 +29,15 @@ readonly class CommentService
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    public function saveComment(Comment $comment, ?string $postId, ?string $userId, ?array $data): void
+    public function saveComment(Comment $comment, ?string $postId, ?string $userId, ?array $data): Comment
     {
         $post = $this->postRepository->find($postId);
         $comment->setPost($post);
         $comment->setAuthor(Uuid::fromString($userId));
         $comment->setContent($data['content']);
         $this->commentRepository->save($comment);
+
+        return $comment;
     }
 
     public function commentToArray($comment, $usersById): array

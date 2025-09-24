@@ -6,12 +6,15 @@ namespace App\Blog\Transport\MessageHandler;
 
 use App\Blog\Application\Service\CommentService;
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
+use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Message\CreateCommentMessenger;
 use App\Blog\Domain\Message\CreateNotificationMessenger;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
+use App\Blog\Transport\Event\CommentCreatedEvent;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -27,7 +30,8 @@ readonly class CreateCommentHandlerMessage
         private PostRepositoryInterface $postRepository,
         private CommentService $commentService,
         private CommentNotificationMailerInterface $commentNotificationMailer,
-        private MessageBusInterface $bus
+        private MessageBusInterface $bus,
+        private EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -39,7 +43,15 @@ readonly class CreateCommentHandlerMessage
      */
     public function __invoke(CreateCommentMessenger $message): void
     {
-        $this->handleMessage($message);
+        $comment = $this->handleMessage($message);
+
+        $event = new CommentCreatedEvent($comment);
+        $this->eventDispatcher->dispatch($event);
+
+        if ($event->isBlocked()) {
+            return;
+        }
+
         $this->handleMail($message);
         $this->handleNotification($message);
     }
@@ -49,9 +61,9 @@ readonly class CreateCommentHandlerMessage
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    private function handleMessage(CreateCommentMessenger $message): void
+    private function handleMessage(CreateCommentMessenger $message): Comment
     {
-        $this->commentService->saveComment(
+        return $this->commentService->saveComment(
             $message->getComment(),
             $message->getPostId(),
             $message->getSenderId(),

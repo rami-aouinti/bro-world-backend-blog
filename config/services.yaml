@@ -10,6 +10,12 @@ parameters:
     api_notification_base_url: '%env(API_NOTIFICATION_BASE_URL)%'
     logo_directory: '%kernel.project_dir%/public/uploads/logo'
     post_directory: '%kernel.project_dir%/public/uploads/post'
+    app.moderation.banned_words:
+        - spam
+        - violence
+        - terror
+        - abuse
+        - scam
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -140,6 +146,10 @@ services:
     App\Blog\Application\Service\PostService:
         arguments:
             $postDirectory: '%post_directory%'
+
+    App\Blog\Application\Service\ContentModerationService:
+        arguments:
+            $bannedWords: '%app.moderation.banned_words%'
 
     Symfony\Contracts\Cache\TagAwareCacheInterface: '@cache.app.taggable'
 
