@@ -86,7 +86,8 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         return $qb->getQuery()->getResult();
     }
 
-    /** Compte les posts (optionnellement par auteur)
+    /**
+     * Counts posts, optionally filtered by author.
      *
      * @param string|null $authorId
      *
@@ -117,7 +118,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
             ->join('c.post', 'p')
             ->where('p.id = :postId')
             ->andWhere('c.parent IS NULL')
-            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // ✅ conversion
+            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // Converts the ID to the UUID binary format.
             ->orderBy('c.publishedAt', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -140,7 +141,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
             ->join('c.post', 'p')
             ->where('p.id = :postId')
             ->andWhere('c.parent IS NULL')
-            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // ✅ conversion UUID
+            ->setParameter('postId', Uuid::fromString($postId), 'uuid_binary_ordered_time') // Converts the ID to the UUID binary format.
             ->getQuery()
             ->getSingleScalarResult();
     }

@@ -65,7 +65,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
     }
 
     /**
-     * Sauvegarde un utilisateur manuellement dans le cache, avec un tag "users".
+     * Manually stores a user in cache and tags it with "users".
      *
      * @param string $id
      * @param array $user
@@ -80,7 +80,7 @@ readonly class UserCacheService implements UserCacheServiceInterface
         $this->userCache->get($cacheKey, function (ItemInterface $item) use ($user, $ttl) {
             $item->expiresAfter($ttl);
 
-            // ✅ Ajoute le tag 'users' si le cache le permet
+            // Adds the "users" tag when supported by the cache item.
             if (method_exists($item, 'tag')) {
                 $item->tag(['users']);
             }

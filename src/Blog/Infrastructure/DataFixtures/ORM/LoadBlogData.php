@@ -108,7 +108,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
             $post->addTag(...$tags);
             $post->setBlog($blogGeneral);
 
-            // ✅ Ajout des commentaires
+            // Adds comments.
             foreach (range(1, random_int(1, 8)) as $i) {
                 $comment = new Comment();
                 $comment->setAuthor(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
@@ -117,7 +117,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
                 $post->addComment($comment);
                 $manager->persist($comment);
 
-                // ✅ Ajout de likes sur les commentaires
+                // Adds likes to comments.
                 foreach (range(1, random_int(1, 4)) as $_) {
                     $like = new Like();
                     $like->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
@@ -125,11 +125,11 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
                     $manager->persist($like);
                 }
 
-                // ✅ Ajout de réactions sur les commentaires
+                // Adds reactions to comments.
                 $this->addRandomReactions($manager, null, $comment);
             }
 
-            // ✅ Ajout de likes sur les posts
+            // Adds likes to posts.
             foreach (range(1, random_int(1, 6)) as $_) {
                 $like = new Like();
                 $like->setUser(Uuid::fromString('20000000-0000-1000-8000-00000000000' . random_int(1, 6)));
@@ -137,7 +137,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
                 $manager->persist($like);
             }
 
-            // ✅ Ajout de réactions sur les posts
+            // Adds reactions to posts.
             $this->addRandomReactions($manager, $post, null);
 
             $manager->persist($post);
@@ -164,7 +164,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
     {
         $posts = [];
 
-        // ✅ Ajout de titres faker en plus
+        // Adds additional Faker-generated titles.
         $titles = array_merge($this->getPhrases(), $this->generateFakerTitles(290));
 
         foreach ($titles as $i => $title) {
@@ -228,7 +228,7 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
     }
 
     /**
-     * ✅ Ajoute des réactions aléatoires pour un post ou un commentaire
+     * Adds random reactions for a post or a comment.
      *
      * @param ObjectManager $manager
      * @param Post|null     $post
@@ -238,11 +238,11 @@ final class LoadBlogData extends Fixture implements OrderedFixtureInterface
      */
     private function addRandomReactions(ObjectManager $manager, ?Post $post = null, ?Comment $comment = null): void
     {
-        $usedUsers = []; // ✅ pour éviter les doublons user+post/comment
+        $usedUsers = []; // Prevent duplicate user-to-post or user-to-comment combinations.
         $maxReactions = random_int(1, 6);
 
         foreach (range(1, $maxReactions) as $_) {
-            // Générer un user unique pour ce post/comment
+            // Generate a unique user for this post or comment.
             do {
                 $userUuid = '20000000-0000-1000-8000-00000000000' . random_int(1, 6);
             } while (in_array($userUuid, $usedUsers, true));

@@ -29,7 +29,7 @@ readonly class UserProxy
     ) {}
 
     /**
-     * Récupère tous les utilisateurs depuis l'API externe.
+     * Retrieves all users from the external API.
      *
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
@@ -49,7 +49,7 @@ readonly class UserProxy
     }
 
     /**
-     * Recherche des utilisateurs depuis le cache avec un mot-clé.
+     * Searches cached users with a keyword.
      *
      * @throws InvalidArgumentException
      */
@@ -59,7 +59,7 @@ readonly class UserProxy
     }
 
     /**
-     * Recherche un utilisateur spécifique par son ID.
+     * Looks up a specific user by ID.
      *
      * @throws InvalidArgumentException
      * @throws ClientExceptionInterface
@@ -82,7 +82,7 @@ readonly class UserProxy
             }
 
             $userId = (string) $user['id'];
-            $this->userCacheService->save($userId, $user); // Ajoute tous les users au cache
+            $this->userCacheService->save($userId, $user); // Adds every user to the cache.
 
             if ($userId === $id) {
                 return $user;
@@ -93,7 +93,7 @@ readonly class UserProxy
     }
 
     /**
-     * Recherche des médias (fallback méthode, potentiellement inutile ici).
+     * Searches media as a fallback method (likely unnecessary here).
      *
      * @throws InvalidArgumentException
      */
@@ -103,8 +103,7 @@ readonly class UserProxy
     }
 
     /**
-     * Récupère plusieurs utilisateurs à partir d'une liste d'IDs.
-     * Mise en cache avec tag 'users' pour chaque nouvel utilisateur.
+     * Retrieves several users by ID list and caches them with the "users" tag.
      *
      * @param string[] $ids
      * @return array<string, array> [userId => userData]
@@ -127,7 +126,7 @@ readonly class UserProxy
             foreach ($allUsers as $user) {
                 if (in_array($user['id'], $missing, true)) {
                     $usersData[$user['id']] = $user;
-                    // ✅ stockage avec tag 'users'
+                    // Stores the user with the "users" tag.
                     $this->userCacheService->save($user['id'], $user);
                 }
             }
@@ -137,7 +136,7 @@ readonly class UserProxy
     }
 
     /**
-     * Récupère les informations d’un média via son ID.
+     * Retrieves media details by its ID.
      *
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
