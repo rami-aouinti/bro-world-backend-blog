@@ -34,6 +34,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 use Traversable;
 
+use function array_key_exists;
 use function iterator_to_array;
 use function sprintf;
 use function strlen;
@@ -127,10 +128,17 @@ readonly class PostService
     {
         $data = $request->request->all();
 
+        $title = $data['title'] ?? '';
+        $slug = $data['slug'] ?? null;
+
+        if ($slug === null && !array_key_exists('title', $data)) {
+            $slug = $this->generateRandomString(20);
+        }
+
         $post = (new Post())
             ->setAuthor(Uuid::fromString($user->getUserIdentifier()))
-            ->setTitle($data['title'] ?? '')
-            ->setSlug($data['title'] ?? $this->generateRandomString(20));
+            ->setTitle($title)
+            ->setSlug($slug);
 
         $post->setUrl($data['url'] ?? '');
         $post->setContent($data['content'] ?? '');
