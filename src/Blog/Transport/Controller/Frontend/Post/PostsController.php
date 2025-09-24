@@ -76,7 +76,8 @@ readonly class PostsController
         return new JsonResponse($result);
     }
 
-    /** ✅ Endpoint lazy load commentaires (avec `isLiked` et `reactions_count`)
+    /**
+     * Lazy-load endpoint for comments (includes `isLiked` and `reactions_count`).
      *
      * @param string      $id
      * @param Request     $request
@@ -126,7 +127,8 @@ readonly class PostsController
         return new JsonResponse(['comments' => $data, 'total' => $total, 'page' => $page]);
     }
 
-    /** ✅ Endpoint lazy load likes d’un post
+    /**
+     * Lazy-load endpoint for a post's likes.
      *
      * @param string $id
      *
@@ -167,7 +169,8 @@ readonly class PostsController
         ]);
     }
 
-    /** ✅ Endpoint lazy load likes d’un post
+    /**
+     * Lazy-load endpoint for a comment's likes.
      *
      * @param string $id
      *
@@ -208,7 +211,8 @@ readonly class PostsController
         ]);
     }
 
-    /** ✅ Endpoint lazy load reactions d’un post
+    /**
+     * Lazy-load endpoint for a post's reactions.
      *
      * @param string $id
      *
@@ -240,7 +244,8 @@ readonly class PostsController
         ]);
     }
 
-    /** ✅ Nouveau : Endpoint reactions d’un commentaire
+    /**
+     * Lazy-load endpoint for a comment's reactions.
      *
      * @param string $id
      *
