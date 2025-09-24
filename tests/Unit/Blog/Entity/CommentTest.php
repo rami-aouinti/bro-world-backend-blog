@@ -67,4 +67,18 @@ class CommentTest extends TestCase
         self::assertInstanceOf(Collection::class, $comment->getLikes());
         self::assertInstanceOf(Collection::class, $comment->getReactions());
     }
+
+    #[TestDox('It safely handles comments without content')]
+    public function testCommentWithoutContentIsSafe(): void
+    {
+        $comment = new Comment();
+
+        self::assertSame('', (string)$comment);
+        self::assertTrue($comment->isLegitComment());
+
+        $comment->setContent('');
+
+        self::assertSame('', (string)$comment);
+        self::assertTrue($comment->isLegitComment());
+    }
 }

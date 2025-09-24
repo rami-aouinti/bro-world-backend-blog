@@ -35,7 +35,9 @@ use Throwable;
 use Traversable;
 
 use function iterator_to_array;
+use function sprintf;
 use function strlen;
+use function trim;
 
 /**
  * @package App\Blog\Application\Service
@@ -135,16 +137,32 @@ readonly class PostService
         $post->setSummary($data['summary'] ?? '');
 
         foreach ($data['tags'] ?? [] as $tagName) {
+            $tagName = trim((string)$tagName);
+            if ($tagName === '') {
+                continue;
+            }
+
             $tag = $this->tagRepository->findOneBy([
                 'name' => $tagName,
-            ]) ?? new Tag($tagName);
-            if (!$tag->getId()) {
+            ]);
+
+            if ($tag === null) {
+                $tag = new Tag($tagName);
+                $tag->setDescription($this->buildTagDescription($tagName));
                 $this->entityManager->persist($tag);
+            } elseif (trim($tag->getDescription()) === '') {
+                $tag->setDescription($this->buildTagDescription($tagName));
             }
+
             $post->addTag($tag);
         }
 
         return $post;
+    }
+
+    private function buildTagDescription(string $tagName): string
+    {
+        return sprintf('Posts tagged with %s', $tagName);
     }
 
     /**
