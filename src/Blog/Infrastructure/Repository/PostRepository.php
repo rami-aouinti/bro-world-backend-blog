@@ -16,7 +16,6 @@ use Exception;
 use Ramsey\Uuid\Uuid;
 
 use function sprintf;
-use function Symfony\Component\String\u;
 
 /**
  * @package App\Blog
@@ -169,21 +168,6 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         }
 
         return $complete;
-    }
-
-    /**
-     * Transforms the search string into an array of search terms.
-     *
-     * @return string[]
-     */
-    private function extractSearchTerms(string $searchQuery): array
-    {
-        $terms = array_unique(u($searchQuery)->replaceMatches('/[[:space:]]+/', ' ')->trim()->split(' '));
-
-        // ignore the search terms that are too short
-        return array_filter($terms, static function ($term) {
-            return $term->length() >= 2;
-        });
     }
 
     /**
