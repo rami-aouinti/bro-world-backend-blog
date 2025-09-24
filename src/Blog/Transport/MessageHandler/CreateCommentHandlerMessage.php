@@ -69,7 +69,7 @@ readonly class CreateCommentHandlerMessage
         $post = $this->postRepository->find($message->getPostId());
         $this->commentNotificationMailer->sendCommentNotificationEmail(
             $post?->getAuthor()->toString(),
-            $message->getUserId(),
+            $message->getSenderId(),
             $post?->getSlug()
         );
     }
