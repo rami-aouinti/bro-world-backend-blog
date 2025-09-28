@@ -150,7 +150,6 @@ Ces routes sont utilisées pour l'affichage public (sans authentification) et re
   ]
 }
 ```
-
 ## Like (`/v1/like`)
 
 | Méthode | Chemin | Description | Rôle minimum |
