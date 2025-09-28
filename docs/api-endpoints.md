@@ -62,6 +62,94 @@ Ce document résume les routes HTTP exposées par les contrôleurs API du module
 
 > `blog` fait référence à l'identifiant du blog parent et `mediaIds` liste des UUID de médias déjà existants. Les champs `summary`, `content` et `title` peuvent être laissés à `null` pour un brouillon, mais doivent respecter les contraintes de longueur lorsqu'ils sont fournis.
 
+## Commentaire (plateforme `/v1/platform`)
+
+Ces routes sont utilisées par l'interface "plateforme" et requièrent que l'utilisateur soit pleinement authentifié (`IS_AUTHENTICATED_FULLY`).
+
+| Méthode | Chemin | Description | Rôle minimum |
+| --- | --- | --- | --- |
+| GET | `/v1/platform/post/{post}/comments` | Récupérer l'arborescence complète des commentaires d'un post. | Utilisateur authentifié |
+| POST | `/v1/platform/post/{post}/comment` | Créer un nouveau commentaire sur un post. | Utilisateur authentifié |
+| POST | `/v1/platform/comment/{comment}/comment` | Répondre à un commentaire existant (création d'un enfant). | Utilisateur authentifié |
+| PUT | `/v1/platform/comment/{comment}` | Modifier le contenu d'un commentaire. | Utilisateur authentifié (auteur requis) |
+| DELETE | `/v1/platform/comment/{comment}` | Supprimer un commentaire. | Utilisateur authentifié (auteur requis) |
+| POST | `/v1/platform/comment/{comment}/like` | Aimer un commentaire (crée un like). | Utilisateur authentifié |
+| POST | `/v1/platform/comment/{like}/dislike` | Retirer son like d'un commentaire. | Utilisateur authentifié |
+
+### Exemple de payload JSON pour créer / répondre à un commentaire
+
+```json
+{
+  "content": "Merci pour cet article, très instructif !"
+}
+```
+
+> Lors d'une réponse (`/v1/platform/comment/{comment}/comment`), le commentaire parent est fourni dans l'URL et le backend rattache automatiquement le nouveau commentaire.
+
+### Exemple de réponse JSON pour `/v1/platform/post/{post}/comments`
+
+```json
+[
+  {
+    "id": "f8b1b254-a012-11ee-b962-0242ac120002",
+    "content": "Super billet.",
+    "publishedAt": "2024-02-05T12:45:00+00:00",
+    "user": {
+      "id": "42",
+      "displayName": "Alice"
+    },
+    "likes": [
+      {
+        "id": "aa31d3b8-a012-11ee-b962-0242ac120002",
+        "user": {
+          "id": "99",
+          "displayName": "Bob"
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "0d4a71c6-a013-11ee-b962-0242ac120002",
+        "content": "Merci !",
+        "publishedAt": "2024-02-05T13:10:00+00:00",
+        "user": {
+          "id": "42",
+          "displayName": "Alice"
+        },
+        "likes": [],
+        "children": []
+      }
+    ]
+  }
+]
+```
+
+## Commentaire (lecture publique `/public`)
+
+Ces routes sont utilisées pour l'affichage public (sans authentification) et renvoient des données paginées prêtes à être consommées par le frontend.
+
+| Méthode | Chemin | Description | Rôle minimum |
+| --- | --- | --- | --- |
+| GET | `/public/post/{id}/comments` | Charger paresseusement les commentaires racines d'un post avec pagination et méta-données (`isLiked`, `reactions_count`). | Accès public |
+| GET | `/public/comment/{id}/likes` | Lister les likes associés à un commentaire. | Accès public |
+| GET | `/public/comment/{id}/reactions` | Lister les réactions associées à un commentaire. | Accès public |
+
+### Exemple de réponse JSON pour `/public/comment/{id}/likes`
+
+```json
+{
+  "commentId": "f8b1b254-a012-11ee-b962-0242ac120002",
+  "likes": [
+    {
+      "id": "aa31d3b8-a012-11ee-b962-0242ac120002",
+      "user": {
+        "id": "99",
+        "displayName": "Bob"
+      }
+    }
+  ]
+}
+```
 ## Like (`/v1/like`)
 
 | Méthode | Chemin | Description | Rôle minimum |
