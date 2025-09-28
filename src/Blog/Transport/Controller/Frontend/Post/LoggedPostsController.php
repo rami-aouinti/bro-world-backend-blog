@@ -54,7 +54,7 @@ readonly class LoggedPostsController
     /**
      * @throws InvalidArgumentException
      */
-    #[Route('/v1/private/post', name: 'private_post_index', methods: [Request::METHOD_GET])]
+    #[Route('/v1/platform/post', name: 'private_post_index', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
         $page = max(1, (int)$request->query->get('page', 1));
