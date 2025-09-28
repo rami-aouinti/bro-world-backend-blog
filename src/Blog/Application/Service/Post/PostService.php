@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
+use App\Blog\Application\Service\Blog\BlogService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
@@ -34,13 +35,14 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 use Traversable;
 
+use function array_key_exists;
 use function iterator_to_array;
 use function sprintf;
 use function strlen;
 use function trim;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Post
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class PostService
@@ -66,7 +68,7 @@ readonly class PostService
      * @throws TransactionRequiredException
      * @throws NotSupported
      */
-    public function createPost(SymfonyUser $user, Request $request): array
+    public function executeCreatePostCommand(SymfonyUser $user, Request $request): array
     {
         $post = $this->generatePostAttributes(
             $this->blogService->getBlog($request, $user),
@@ -94,12 +96,14 @@ readonly class PostService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function savePost(Post $post, ?array $mediaIds): void
+    public function executeSavePostCommand(Post $post, ?array $mediaIds): Post
     {
         if (!empty($mediaIds)) {
             //$post->setMedias($mediaIds);
         }
         $this->postRepository->save($post);
+
+        return $post;
     }
 
     /**
@@ -127,10 +131,17 @@ readonly class PostService
     {
         $data = $request->request->all();
 
+        $title = $data['title'] ?? '';
+        $slug = $data['slug'] ?? null;
+
+        if ($slug === null && !array_key_exists('title', $data)) {
+            $slug = $this->generateRandomString(20);
+        }
+
         $post = (new Post())
             ->setAuthor(Uuid::fromString($user->getUserIdentifier()))
-            ->setTitle($data['title'] ?? '')
-            ->setSlug($data['title'] ?? $this->generateRandomString(20));
+            ->setTitle($title)
+            ->setSlug($slug);
 
         $post->setUrl($data['url'] ?? '');
         $post->setContent($data['content'] ?? '');

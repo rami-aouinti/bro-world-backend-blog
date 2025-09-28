@@ -12,7 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Application\ApiKey\Transport\Controller\Api\v2
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class ApiKeyViewControllerTest extends WebTestCase
 {

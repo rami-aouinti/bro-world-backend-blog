@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Application\Service\PostService;
+use App\Blog\Application\Service\Post\PostService;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Infrastructure\Repository\PostRepository;
@@ -25,10 +25,13 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
+use function array_key_exists;
 use function strlen;
+use function trim;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\Controller\Frontend\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
@@ -59,9 +62,15 @@ readonly class EditPostController
     {
         $data = $request->request->all();
 
-        if (isset($data['title'])) {
-            $post->setTitle($data['title']);
-            $post->setSlug($data['title'] ?? $this->generateRandomString(20));
+        if (array_key_exists('title', $data)) {
+            $title = $data['title'];
+            $post->setTitle($title);
+
+            if (array_key_exists('slug', $data)) {
+                $post->setSlug($data['slug']);
+            } elseif (trim((string)$title) !== '') {
+                $post->setSlug(null);
+            }
         }
         if (isset($data['content'])) {
             $post->setContent($data['content']);

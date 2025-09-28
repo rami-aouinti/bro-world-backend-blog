@@ -16,7 +16,8 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @package App\Like
+ * @package App\Blog\Application\DTO\Like
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @method self|RestDtoInterface get(string $id)
  * @method self|RestDtoInterface patch(RestDtoInterface $dto)

@@ -24,7 +24,8 @@ use Throwable;
 use function sprintf;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Integration\General\Application\Validator\Constraints
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class EntityReferenceExistsValidatorTest extends KernelTestCase
 {

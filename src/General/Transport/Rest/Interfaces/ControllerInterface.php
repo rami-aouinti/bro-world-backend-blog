@@ -15,7 +15,8 @@ use Throwable;
 use UnexpectedValueException;
 
 /**
- * @package App\General
+ * @package App\General\Transport\Rest\Interfaces
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AutoconfigureTag('app.rest.controller')]
 interface ControllerInterface

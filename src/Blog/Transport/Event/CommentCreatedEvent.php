@@ -22,13 +22,49 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 final class CommentCreatedEvent extends Event
 {
+    private bool $blocked = false;
+
+    /**
+     * @var array<int, string>
+     */
+    private array $violations = [];
+    private ?string $reason = null;
+
     public function __construct(
-        protected Comment $comment
+        private readonly Comment $comment
     ) {
     }
 
     public function getComment(): Comment
     {
         return $this->comment;
+    }
+
+    /**
+     * @param array<int, string> $violations
+     */
+    public function block(array $violations, ?string $reason = null): void
+    {
+        $this->blocked = true;
+        $this->violations = $violations;
+        $this->reason = $reason;
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->blocked;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getViolations(): array
+    {
+        return $this->violations;
+    }
+
+    public function getReason(): ?string
+    {
+        return $this->reason;
     }
 }

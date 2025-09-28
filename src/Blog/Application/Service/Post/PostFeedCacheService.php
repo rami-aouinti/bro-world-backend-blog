@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use function sprintf;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Post
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final readonly class PostFeedCacheService

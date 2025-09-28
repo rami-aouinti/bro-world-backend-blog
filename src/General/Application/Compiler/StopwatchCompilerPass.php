@@ -14,7 +14,8 @@ use Symfony\Component\DependencyInjection\Reference;
 use function str_starts_with;
 
 /**
- * @package App\General
+ * @package App\General\Application\Compiler
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class StopwatchCompilerPass implements CompilerPassInterface
 {

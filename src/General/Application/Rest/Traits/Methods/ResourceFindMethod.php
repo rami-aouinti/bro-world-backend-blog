@@ -8,7 +8,8 @@ use App\General\Application\Rest\Traits\RestResourceFind as FindLifeCycle;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 
 /**
- * @package App\General
+ * @package App\General\Application\Rest\Traits\Methods
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait ResourceFindMethod
 {

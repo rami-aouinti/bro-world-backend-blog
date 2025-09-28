@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Comment;
@@ -10,7 +10,10 @@ use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\PersistentCollection;
 use Psr\Cache\InvalidArgumentException;
+use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -20,10 +23,9 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use function array_map;
 use function array_slice;
 use function array_unique;
-use function count;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Post
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class PostFeedResponseBuilder
@@ -67,11 +69,7 @@ readonly class PostFeedResponseBuilder
         foreach ($posts as $post) {
             $userIds[] = $post->getAuthor()->toString();
 
-            foreach ($this->collectionToArray($post->getLikes()) as $like) {
-                $userIds[] = $like->getUser()->toString();
-            }
-
-            foreach ($this->collectionToArray($post->getReactions()) as $reaction) {
+            foreach ($this->collectionToArray($post->getReactions(), 2) as $reaction) {
                 $userIds[] = $reaction->getUser()->toString();
             }
 
@@ -79,27 +77,23 @@ readonly class PostFeedResponseBuilder
             if ($sharedFrom) {
                 $userIds[] = $sharedFrom->getAuthor()->toString();
 
-                foreach ($this->collectionToArray($sharedFrom->getReactions()) as $reaction) {
+                foreach ($this->collectionToArray($sharedFrom->getReactions(), 2) as $reaction) {
                     $userIds[] = $reaction->getUser()->toString();
                 }
 
-                foreach ($this->collectionToArray($sharedFrom->getComments()) as $comment) {
+                foreach ($this->collectionToArray($sharedFrom->getComments(), 2) as $comment) {
                     $userIds[] = $comment->getAuthor()->toString();
 
-                    foreach ($this->collectionToArray($comment->getReactions()) as $reaction) {
+                    foreach ($this->collectionToArray($comment->getReactions(), 2) as $reaction) {
                         $userIds[] = $reaction->getUser()->toString();
                     }
                 }
             }
 
-            foreach ($this->collectionToArray($post->getComments()) as $comment) {
+            foreach ($this->collectionToArray($post->getComments(), 2) as $comment) {
                 $userIds[] = $comment->getAuthor()->toString();
 
-                foreach ($this->collectionToArray($comment->getLikes()) as $like) {
-                    $userIds[] = $like->getUser()->toString();
-                }
-
-                foreach ($this->collectionToArray($comment->getReactions()) as $reaction) {
+                foreach ($this->collectionToArray($comment->getReactions(), 2) as $reaction) {
                     $userIds[] = $reaction->getUser()->toString();
                 }
             }
@@ -118,14 +112,14 @@ readonly class PostFeedResponseBuilder
             'url' => $post->getUrl(),
             'slug' => $post->getSlug(),
             'medias' => $post->getMediaEntities()->map(fn (Media $media) => $media->toArray())->toArray(),
-            'isReacted' => $this->userHasReacted($this->collectionToArray($post->getReactions()), $currentUserId),
+            'isReacted' => $this->userHasReacted($post->getReactions(), $currentUserId),
             'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
             'sharedFrom' => $this->formatSharedPost($post, $users, $currentUserId),
-            'reactions_count' => count($post->getReactions()),
-            'totalComments' => count($post->getComments()),
+            'reactions_count' => $post->getReactions()->count(),
+            'totalComments' => $post->getComments()->count(),
             'user' => $users[$post->getAuthor()->toString()] ?? null,
-            'reactions_preview' => $this->formatReactionsPreview($this->collectionToArray($post->getReactions()), $users),
-            'comments_preview' => $this->formatCommentsPreview($this->collectionToArray($post->getComments()), $users, $currentUserId, true),
+            'reactions_preview' => $this->formatReactionsPreview($post->getReactions(), $users),
+            'comments_preview' => $this->formatCommentsPreview($post->getComments(), $users, $currentUserId, true),
         ];
     }
 
@@ -145,69 +139,87 @@ readonly class PostFeedResponseBuilder
             'url' => $sharedFrom->getUrl(),
             'slug' => $sharedFrom->getSlug(),
             'medias' => $sharedFrom->getMediaEntities()->map(fn (Media $media) => $media->toArray())->toArray(),
-            'isReacted' => $this->userHasReacted($this->collectionToArray($sharedFrom->getReactions()), $currentUserId),
-            'reactions_count' => count($sharedFrom->getReactions()),
-            'totalComments' => count($sharedFrom->getComments()),
+            'isReacted' => $this->userHasReacted($sharedFrom->getReactions(), $currentUserId),
+            'reactions_count' => $sharedFrom->getReactions()->count(),
+            'totalComments' => $sharedFrom->getComments()->count(),
             'user' => $users[$sharedFrom->getAuthor()->toString()] ?? null,
             'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
-            'reactions_preview' => $this->formatReactionsPreview($this->collectionToArray($sharedFrom->getReactions()), $users),
-            'comments_preview' => $this->formatCommentsPreview($this->collectionToArray($sharedFrom->getComments()), $users, $currentUserId, false),
+            'reactions_preview' => $this->formatReactionsPreview($sharedFrom->getReactions(), $users),
+            'comments_preview' => $this->formatCommentsPreview($sharedFrom->getComments(), $users, $currentUserId, false),
         ];
     }
 
     /**
-     * @param array<int, Comment> $comments
+     * @param Collection<int, Comment>|array<int, Comment> $comments
      */
-    private function formatCommentsPreview(array $comments, array $users, ?string $currentUserId, bool $includeLikesCount): array
+    private function formatCommentsPreview(Collection|array $comments, array $users, ?string $currentUserId, bool $includeLikesCount): array
     {
+        $previewComments = $this->collectionToArray($comments, 2);
+
         $formatted = array_map(function (Comment $comment) use ($users, $currentUserId, $includeLikesCount) {
             $data = [
                 'id' => $comment->getId(),
                 'content' => $comment->getContent(),
                 'user' => $users[$comment->getAuthor()->toString()] ?? null,
-                'isReacted' => $this->userHasReacted($this->collectionToArray($comment->getReactions()), $currentUserId),
-                'totalComments' => count($comment->getChildren()),
-                'reactions_count' => count($comment->getReactions()),
+                'isReacted' => $this->userHasReacted($comment->getReactions(), $currentUserId),
+                'totalComments' => $comment->getChildren()->count(),
+                'reactions_count' => $comment->getReactions()->count(),
                 'publishedAt' => $comment->getPublishedAt()?->format(DATE_ATOM),
-                'reactions_preview' => $this->formatReactionsPreview($this->collectionToArray($comment->getReactions()), $users),
+                'reactions_preview' => $this->formatReactionsPreview($comment->getReactions(), $users),
             ];
 
             if ($includeLikesCount) {
-                $data['likes_count'] = count($comment->getLikes());
+                $data['likes_count'] = $comment->getLikes()->count();
             }
 
             return $data;
-        }, $comments);
+        }, $previewComments);
 
-        return array_slice($formatted, 0, 2);
+        return $formatted;
     }
 
     /**
-     * @param array<int, Reaction> $reactions
+     * @param Collection<int, Reaction>|array<int, Reaction> $reactions
      */
-    private function formatReactionsPreview(array $reactions, array $users): array
+    private function formatReactionsPreview(Collection|array $reactions, array $users): array
     {
+        $previewReactions = $this->collectionToArray($reactions, 2);
+
         $preview = array_map(static function (Reaction $reaction) use ($users) {
             return [
                 'id' => $reaction->getId(),
                 'type' => $reaction->getType(),
                 'user' => $users[$reaction->getUser()->toString()] ?? null,
             ];
-        }, $reactions);
+        }, $previewReactions);
 
-        return array_slice($preview, 0, 2);
+        return $preview;
     }
 
     /**
-     * @param array<int, Reaction> $reactions
+     * @param Collection<int, Reaction>|array<int, Reaction> $reactions
      */
-    private function userHasReacted(array $reactions, ?string $currentUserId): ?string
+    private function userHasReacted(Collection|array $reactions, ?string $currentUserId): ?string
     {
         if ($currentUserId === null || $currentUserId === '') {
             return null;
         }
 
-        foreach ($reactions as $reaction) {
+        if ($reactions instanceof PersistentCollection && !$reactions->isInitialized()) {
+            $criteria = Criteria::create()
+                ->where(Criteria::expr()->eq('user', Uuid::fromString($currentUserId)))
+                ->setMaxResults(1);
+
+            $matched = $reactions->matching($criteria);
+
+            if (!$matched->isEmpty()) {
+                $reaction = $matched->first();
+
+                return $reaction instanceof Reaction ? $reaction->getType() : null;
+            }
+        }
+
+        foreach ($this->collectionToArray($reactions) as $reaction) {
             if ($reaction->getUser()->toString() === $currentUserId) {
                 return $reaction->getType();
             }
@@ -223,10 +235,18 @@ readonly class PostFeedResponseBuilder
      *
      * @return array<int, T>
      */
-    private function collectionToArray(Collection|array $collection): array
+    private function collectionToArray(Collection|array $collection, ?int $limit = null): array
     {
         if ($collection instanceof Collection) {
+            if ($limit !== null && $limit >= 0) {
+                return $collection->slice(0, $limit);
+            }
+
             return $collection->toArray();
+        }
+
+        if ($limit !== null && $limit >= 0) {
+            return array_slice($collection, 0, $limit);
         }
 
         return $collection;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend\Blog;
 
-use App\Blog\Application\Service\BlogService;
+use App\Blog\Application\Service\Blog\BlogService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -27,7 +27,8 @@ use function json_decode;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\Controller\Frontend\Blog
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
@@ -73,7 +74,7 @@ readonly class EditBlogController
 
         $files = $request->files->get('files');
         if ($files) {
-            $logo = $this->blogService->uploadLogo($request);
+            $logo = $this->blogService->executeUploadLogoCommand($request);
             if ($logo instanceof JsonResponse) {
                 return $logo;
             }

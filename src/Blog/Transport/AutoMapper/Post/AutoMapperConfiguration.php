@@ -10,7 +10,8 @@ use App\Blog\Application\DTO\Post\PostUpdate;
 use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
- * @package App\Post
+ * @package App\Blog\Transport\AutoMapper\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class AutoMapperConfiguration extends RestAutoMapperConfiguration
 {

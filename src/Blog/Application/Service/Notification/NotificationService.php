@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Notification;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Domain\Entity\Post;
@@ -23,7 +23,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Notification
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class NotificationService
@@ -51,7 +51,7 @@ readonly class NotificationService
      * @throws TransportExceptionInterface
      * @throws InvalidArgumentException
      */
-    public function createNotification(
+    public function executeCreateNotificationCommand(
         ?string $token,
         ?string $channel,
         ?string $symfonyUserId,
@@ -90,7 +90,7 @@ readonly class NotificationService
                 'scopeTarget' => '["' . $userId . '"]',
             ];
 
-            $this->createPush($token, $notification);
+            $this->executeCreatePushCommand($token, $notification);
         }
     }
 
@@ -98,7 +98,7 @@ readonly class NotificationService
      * @throws TransportExceptionInterface
      * @throws JsonException
      */
-    public function createPush(
+    public function executeCreatePushCommand(
         ?string $token,
         array $data
     ): void {
@@ -115,7 +115,7 @@ readonly class NotificationService
      * @throws JsonException
      * @throws TransportExceptionInterface
      */
-    public function createEmail(
+    public function executeCreateEmailCommand(
         ?string $token,
         array $data,
         SymfonyUser $user

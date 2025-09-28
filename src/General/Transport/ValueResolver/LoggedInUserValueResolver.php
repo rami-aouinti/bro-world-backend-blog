@@ -26,7 +26,8 @@ use Throwable;
  * This will automatically convert your security user to actual User entity that
  * you can use within your controller as you like.
  *
- * @package App\User\General
+ * @package App\General\Transport\ValueResolver
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class LoggedInUserValueResolver implements ValueResolverInterface
 {

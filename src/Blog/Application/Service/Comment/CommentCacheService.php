@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Comment;
 
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Comment
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class CommentCacheService
 {

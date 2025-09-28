@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\MessageHandler;
 
-use App\Blog\Application\Service\PostFeedCacheService;
-use App\Blog\Application\Service\PostFeedResponseBuilder;
-use App\Blog\Application\Service\PostService;
+use App\Blog\Application\Service\Post\PostFeedCacheService;
+use App\Blog\Application\Service\Post\PostFeedResponseBuilder;
+use App\Blog\Application\Service\Post\PostService;
+use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
+use App\Blog\Transport\Event\PostCreatedEvent;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package App\Post\Transport\MessageHandler
+ * @package App\Blog\Transport\MessageHandler
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsMessageHandler]
@@ -26,6 +29,7 @@ readonly class CreatePostHandlerMessage
         private PostFeedCacheService $postFeedCacheService,
         private PostRepositoryInterface $postRepository,
         private PostFeedResponseBuilder $postFeedResponseBuilder,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -36,17 +40,14 @@ readonly class CreatePostHandlerMessage
      */
     public function __invoke(CreatePostMessenger $message): void
     {
-        $this->handleMessage($message);
-    }
+        $post = $this->handleMessage($message);
 
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     * @throws InvalidArgumentException
-     */
-    private function handleMessage(CreatePostMessenger $message): void
-    {
-        $this->postService->savePost($message->getPost(), $message->getMediasIds());
+        $event = new PostCreatedEvent($post);
+        $this->eventDispatcher->dispatch($event);
+
+        if ($event->isBlocked()) {
+            return;
+        }
 
         $page = 1;
         $limit = 10;
@@ -62,5 +63,14 @@ readonly class CreatePostHandlerMessage
 
             return $this->postFeedResponseBuilder->build($posts, $page, $limit, $total);
         });
+    }
+
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
+    private function handleMessage(CreatePostMessenger $message): Post
+    {
+        return $this->postService->executeSavePostCommand($message->getPost(), $message->getMediasIds());
     }
 }

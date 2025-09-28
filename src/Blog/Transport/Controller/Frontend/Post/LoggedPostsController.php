@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\ApiProxy\UserProxy;
-use App\Blog\Application\Service\CommentCacheService;
-use App\Blog\Application\Service\CommentResponseHelper;
-use App\Blog\Application\Service\PostFeedResponseBuilder;
+use App\Blog\Application\Service\Comment\CommentCacheService;
+use App\Blog\Application\Service\Comment\CommentResponseHelper;
+use App\Blog\Application\Service\Post\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
@@ -33,7 +33,8 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * @package App\Blog\Transport\Controller\Frontend
+ * @package App\Blog\Transport\Controller\Frontend\Post
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

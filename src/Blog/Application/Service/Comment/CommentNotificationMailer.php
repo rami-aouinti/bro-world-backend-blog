@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Comment;
 
 use App\Blog\Application\ApiProxy\UserProxy;
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
@@ -20,7 +20,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 /**
- * @package App\User\User\Application\Service
+ * @package App\Blog\Application\Service\Comment
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 

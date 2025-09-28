@@ -23,7 +23,8 @@ use function str_replace;
 use function trim;
 
 /**
- * @package App\General
+ * @package App\General\Infrastructure\Rest
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class SearchTerm implements SearchTermInterface
 {

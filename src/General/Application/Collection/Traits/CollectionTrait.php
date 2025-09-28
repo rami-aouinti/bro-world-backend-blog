@@ -14,7 +14,8 @@ use Throwable;
 use function iterator_count;
 
 /**
- * @package App\General
+ * @package App\General\Application\Collection\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait CollectionTrait
 {

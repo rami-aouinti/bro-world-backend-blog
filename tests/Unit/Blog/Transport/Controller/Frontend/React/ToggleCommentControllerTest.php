@@ -22,13 +22,15 @@ use function json_encode;
 
 final class ToggleCommentControllerTest extends TestCase
 {
-    /** @var SerializerInterface */
+    /**
+     * @var SerializerInterface
+     */
     private $serializer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->serializer = new class() implements SerializerInterface {
+        $this->serializer = new class () implements SerializerInterface {
             public function serialize($data, string $format, array $context = []): string
             {
                 return (string)json_encode($data);
@@ -54,7 +56,7 @@ final class ToggleCommentControllerTest extends TestCase
         $comment->setAuthor(Uuid::fromString($commentAuthorId));
         $comment->setPost($post);
 
-        $likeRepository = new class() implements LikeRepositoryInterface {
+        $likeRepository = new class () implements LikeRepositoryInterface {
             public ?Like $saved = null;
 
             public function countLikesByMonth(): array
@@ -86,7 +88,9 @@ final class ToggleCommentControllerTest extends TestCase
         );
 
         $symfonyUser = new SymfonyUser($reactorId, 'Reactor', null, []);
-        $request = new Request([], [], [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer token']);
+        $request = new Request([], [], [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer token',
+        ]);
 
         $controller($symfonyUser, $request, $comment);
 

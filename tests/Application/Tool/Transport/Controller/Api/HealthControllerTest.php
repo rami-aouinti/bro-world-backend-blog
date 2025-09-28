@@ -11,7 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Application\Tool\Transport\Controller\Api
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class HealthControllerTest extends WebTestCase
 {

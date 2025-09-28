@@ -22,7 +22,8 @@ use function sprintf;
 use function ucfirst;
 
 /**
- * @package App\General
+ * @package App\General\Transport\AutoMapper
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class RestRequestMapper implements MapperInterface
 {

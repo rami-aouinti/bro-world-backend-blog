@@ -29,7 +29,8 @@ use function sprintf;
 use function str_starts_with;
 
 /**
- * @package App\General
+ * @package App\General\Transport\Rest
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class ResponseHandler implements ResponseHandlerInterface
 {

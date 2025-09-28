@@ -7,7 +7,8 @@ namespace App\Blog\Transport\AutoMapper\Like;
 use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
- * @package App\Like
+ * @package App\Blog\Transport\AutoMapper\Like
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class AutoMapperConfiguration extends RestAutoMapperConfiguration
 {

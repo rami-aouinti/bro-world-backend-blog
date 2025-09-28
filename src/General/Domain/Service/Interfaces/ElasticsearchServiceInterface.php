@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\General\Domain\Service\Interfaces;
 
 /**
- * @package App\General
+ * @package App\General\Domain\Service\Interfaces
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 interface ElasticsearchServiceInterface
 {

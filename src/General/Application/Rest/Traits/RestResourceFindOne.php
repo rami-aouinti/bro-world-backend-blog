@@ -9,7 +9,8 @@ use App\General\Domain\Entity\Interfaces\EntityInterface;
 /**
  * @SuppressWarnings("unused")
  *
- * @package App\General
+ * @package App\General\Application\Rest\Traits
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait RestResourceFindOne
 {

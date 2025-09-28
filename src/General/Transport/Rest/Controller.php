@@ -16,7 +16,8 @@ use Symfony\Contracts\Service\Attribute\Required;
 use UnexpectedValueException;
 
 /**
- * @package App\General
+ * @package App\General\Transport\Rest
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  *
  * @property RestResourceInterface|RestSmallResourceInterface|null $resource
  */

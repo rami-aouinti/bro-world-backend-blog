@@ -7,7 +7,8 @@ namespace App\Blog\Transport\AutoMapper\Blog;
 use App\General\Transport\AutoMapper\RestRequestMapper;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\AutoMapper\Blog
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class RequestMapper extends RestRequestMapper
 {

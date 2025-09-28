@@ -11,7 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Throwable;
 
 /**
- * @package App\Tests
+ * @package App\Tests\Unit\Tool\Domain\Service\Crypt
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class OpenSslCryptServiceTest extends KernelTestCase
 {

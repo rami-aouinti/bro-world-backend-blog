@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Frontend\Blog;
 
-use App\Blog\Application\Service\BlogService;
+use App\Blog\Application\Service\Blog\BlogService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
@@ -20,7 +20,8 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @package App\Blog
+ * @package App\Blog\Transport\Controller\Frontend\Blog
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
@@ -46,7 +47,7 @@ readonly class CreateBlogController
         $this->cache->deleteItem("profile_blog_{$symfonyUser->getUserIdentifier()}");
         $blog = new Blog();
         if ($request->files->get('files')) {
-            $logo = $this->blogService->uploadLogo($request);
+            $logo = $this->blogService->executeUploadLogoCommand($request);
             $blog->setLogo($logo);
         }
         $data = $request->request->all();

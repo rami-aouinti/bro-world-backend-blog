@@ -17,7 +17,8 @@ use Throwable;
  *
  * @see \App\General\Transport\Rest\Traits\Methods\FindMethod for detailed documents.
  *
- * @package App\General
+ * @package App\General\Transport\Rest\Traits\Actions\Anon
+ * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 trait FindAction
 {

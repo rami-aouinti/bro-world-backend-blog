@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\User;
 
 use App\Blog\Application\Service\Interfaces\UserCacheServiceInterface;
 use App\Blog\Application\Service\Interfaces\UserElasticsearchServiceInterface;
@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * @package App\User\User\Application\Service
+ * @package App\Blog\Application\Service\User
  * @author Rami Aouinti
  */
 readonly class UserCacheService implements UserCacheServiceInterface

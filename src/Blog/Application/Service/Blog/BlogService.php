@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Blog\Application\Service;
+namespace App\Blog\Application\Service\Blog;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
- * @package App\Blog\Application\Service
+ * @package App\Blog\Application\Service\Blog
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 readonly class BlogService
@@ -64,7 +64,7 @@ readonly class BlogService
         return $blogObject;
     }
 
-    public function uploadLogo(Request $request): string|JsonResponse
+    public function executeUploadLogoCommand(Request $request): string|JsonResponse
     {
         $files = $request->files->get('files');
         $file = $files[0];
