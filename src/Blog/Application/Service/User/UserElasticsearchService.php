@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Application\Service\User;
 
 use App\Blog\Application\Service\Interfaces\UserElasticsearchServiceInterface;
-use App\General\Domain\Service\Interfaces\ElasticsearchServiceInterface;
+use Bro\WorldCoreBundle\Domain\Service\Interfaces\ElasticsearchServiceInterface;
 
 /**
  * @package App\Blog\Application\Service\User

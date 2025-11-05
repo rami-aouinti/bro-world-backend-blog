@@ -6,7 +6,7 @@ namespace App\Blog\Infrastructure\Repository;
 
 use App\Blog\Domain\Entity\Tag as Entity;
 use App\Blog\Domain\Repository\Interfaces\TagRepositoryInterface;
-use App\General\Infrastructure\Repository\BaseRepository;
+use Bro\WorldCoreBundle\Infrastructure\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**

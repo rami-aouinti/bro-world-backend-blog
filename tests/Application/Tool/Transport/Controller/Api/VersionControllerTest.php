@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Tool\Transport\Controller\Api;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Log\Application\Resource\LogRequestResource;
 use App\Tests\TestCase\WebTestCase;
 use PHPUnit\Framework\Attributes\TestDox;

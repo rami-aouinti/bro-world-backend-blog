@@ -13,7 +13,7 @@ use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\TagRepositoryInterface;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;

@@ -9,7 +9,7 @@ use App\Blog\Application\Service\NotificationService;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Infrastructure\Service\ApiProxyService;
+use Bro\WorldCoreBundle\Infrastructure\Service\ApiProxyService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 

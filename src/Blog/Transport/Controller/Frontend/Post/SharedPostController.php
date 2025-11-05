@@ -6,7 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Infrastructure\Repository\PostRepository;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use OpenApi\Attributes as OA;

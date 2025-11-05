@@ -7,9 +7,9 @@ namespace App\Blog\Application\Resource;
 use App\Blog\Domain\Entity\Post as Entity;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface as Repository;
 use App\Blog\Infrastructure\Repository\PostRepository;
-use App\General\Application\DTO\Interfaces\RestDtoInterface;
-use App\General\Application\Rest\RestResource;
-use App\General\Domain\Entity\Interfaces\EntityInterface;
+use Bro\WorldCoreBundle\Application\DTO\Interfaces\RestDtoInterface;
+use Bro\WorldCoreBundle\Application\Rest\RestResource;
+use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
 
 /**
  * @package App\Blog\Application\Resource

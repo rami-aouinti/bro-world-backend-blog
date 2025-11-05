@@ -6,7 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use OpenApi\Attributes as OA;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;

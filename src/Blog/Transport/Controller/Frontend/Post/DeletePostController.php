@@ -6,7 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;

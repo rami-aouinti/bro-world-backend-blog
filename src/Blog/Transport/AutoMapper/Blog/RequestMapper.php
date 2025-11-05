@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\AutoMapper\Blog;
 
-use App\General\Transport\AutoMapper\RestRequestMapper;
+use Bro\WorldCoreBundle\Transport\AutoMapper\RestRequestMapper;
 
 /**
  * @package App\Blog\Transport\AutoMapper\Blog

@@ -7,9 +7,9 @@ namespace App\Blog\Application\Resource;
 use App\Blog\Domain\Entity\Like as Entity;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface as Repository;
 use App\Blog\Infrastructure\Repository\LikeRepository;
-use App\General\Application\DTO\Interfaces\RestDtoInterface;
-use App\General\Application\Rest\RestResource;
-use App\General\Domain\Entity\Interfaces\EntityInterface;
+use Bro\WorldCoreBundle\Application\DTO\Interfaces\RestDtoInterface;
+use Bro\WorldCoreBundle\Application\Rest\RestResource;
+use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
 
 /**
  * @package App\Blog\Application\Resource

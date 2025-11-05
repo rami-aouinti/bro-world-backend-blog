@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Utils;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use ArrayObject;
 use JsonException;
 use Override;

@@ -7,7 +7,7 @@ namespace App\Blog\Infrastructure\Repository;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post as Entity;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
-use App\General\Infrastructure\Repository\BaseRepository;
+use Bro\WorldCoreBundle\Infrastructure\Repository\BaseRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;

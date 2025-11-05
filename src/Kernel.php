@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\General\Application\Compiler\StopwatchCompilerPass;
+use Bro\WorldCoreBundle\Application\Compiler\StopwatchCompilerPass;
 use Override;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

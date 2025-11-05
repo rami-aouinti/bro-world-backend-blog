@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Tool\Transport\Controller\Api\v1\Localization;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
 use App\Tool\Domain\Service\Interfaces\LocalizationServiceInterface;
 use PHPUnit\Framework\Attributes\TestDox;

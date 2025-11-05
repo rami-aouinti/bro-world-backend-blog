@@ -6,7 +6,7 @@ namespace App\Blog\Infrastructure\Repository;
 
 use App\Blog\Domain\Entity\Like as Entity;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
-use App\General\Infrastructure\Repository\BaseRepository;
+use Bro\WorldCoreBundle\Infrastructure\Repository\BaseRepository;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;

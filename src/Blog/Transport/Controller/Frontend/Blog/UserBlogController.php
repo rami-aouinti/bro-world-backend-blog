@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Blog;
 
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Closure;
 use Doctrine\ORM\Exception\NotSupported;
 use Exception;

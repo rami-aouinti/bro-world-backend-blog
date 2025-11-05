@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Blog\Transport\AutoMapper\Like;
 
 use App\Blog\Domain\Entity\Comment;
-use App\General\Application\DTO\Interfaces\RestDtoInterface;
-use App\General\Transport\AutoMapper\RestRequestMapper;
+use Bro\WorldCoreBundle\Application\DTO\Interfaces\RestDtoInterface;
+use Bro\WorldCoreBundle\Transport\AutoMapper\RestRequestMapper;
 use Doctrine\Persistence\ManagerRegistry;
 use Override;
 use Ramsey\Uuid\Uuid;

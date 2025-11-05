@@ -10,7 +10,7 @@ use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\LikeRepositoryInterface;
 use App\Blog\Transport\Controller\Frontend\React\ToggleCommentController;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;

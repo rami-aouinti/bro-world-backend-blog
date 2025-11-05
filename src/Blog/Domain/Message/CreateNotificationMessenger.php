@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Domain\Message;
 
-use App\General\Domain\Message\Interfaces\MessageHighInterface;
+use Bro\WorldCoreBundle\Domain\Message\Interfaces\MessageHighInterface;
 
 /**
  * @package App\Blog\Domain\Message

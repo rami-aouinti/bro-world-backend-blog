@@ -7,7 +7,7 @@ namespace App\Blog\Transport\AutoMapper\Blog;
 use App\Blog\Application\DTO\Blog\BlogCreate;
 use App\Blog\Application\DTO\Blog\BlogPatch;
 use App\Blog\Application\DTO\Blog\BlogUpdate;
-use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
+use Bro\WorldCoreBundle\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
  * @package App\Blog\Transport\AutoMapper\Blog

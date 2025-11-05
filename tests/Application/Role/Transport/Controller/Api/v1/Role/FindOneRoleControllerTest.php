@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Role\Transport\Controller\Api\v1\Role;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Role\Application\Resource\RoleResource;
 use App\Role\Domain\Entity\Role as RoleEntity;
 use App\Role\Domain\Enum\Role;

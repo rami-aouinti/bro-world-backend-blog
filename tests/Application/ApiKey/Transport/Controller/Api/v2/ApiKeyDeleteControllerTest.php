@@ -6,7 +6,7 @@ namespace App\Tests\Application\ApiKey\Transport\Controller\Api\v2;
 
 use App\ApiKey\Application\Resource\ApiKeyFindOneResource;
 use App\ApiKey\Domain\Entity\ApiKey;
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\Application\ApiKey\Transport\Controller\Api\v2\Traits\ApiKeyHelper;
 use App\Tests\TestCase\WebTestCase;
 use PHPUnit\Framework\Attributes\TestDox;

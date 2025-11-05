@@ -9,7 +9,7 @@ use App\Blog\Application\Service\Post\PostService;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Infrastructure\Repository\PostRepository;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use OpenApi\Attributes as OA;
 use Psr\Cache\InvalidArgumentException;
 use Random\RandomException;

@@ -6,7 +6,7 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Infrastructure\Repository\CommentRepository;
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use JsonException;

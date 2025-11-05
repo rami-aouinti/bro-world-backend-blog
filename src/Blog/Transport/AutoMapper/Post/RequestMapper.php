@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\AutoMapper\Post;
 
-use App\General\Application\DTO\Interfaces\RestDtoInterface;
-use App\General\Transport\AutoMapper\RestRequestMapper;
+use Bro\WorldCoreBundle\Application\DTO\Interfaces\RestDtoInterface;
+use Bro\WorldCoreBundle\Transport\AutoMapper\RestRequestMapper;
 use Override;
 use Symfony\Component\HttpFoundation\Request;
 

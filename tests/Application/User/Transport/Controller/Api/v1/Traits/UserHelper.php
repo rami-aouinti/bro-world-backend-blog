@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\User\Transport\Controller\Api\v1\Traits;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 

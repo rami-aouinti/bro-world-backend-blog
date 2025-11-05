@@ -6,7 +6,7 @@ namespace App\Blog\Application\Service\Blog;
 
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;

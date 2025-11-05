@@ -6,7 +6,7 @@ namespace App\Blog\Domain\Repository\Interfaces;
 
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
-use App\General\Domain\Repository\Interfaces\BaseRepositoryInterface;
+use Bro\WorldCoreBundle\Domain\Repository\Interfaces\BaseRepositoryInterface;
 
 /**
  * @package App\Blog\Domain\Repository\Interfaces

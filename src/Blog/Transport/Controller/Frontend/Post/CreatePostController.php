@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\Post;
 
 use App\Blog\Application\Service\Post\PostService;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;

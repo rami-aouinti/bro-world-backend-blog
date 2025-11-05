@@ -61,11 +61,11 @@ framework:
             failed:
                 dsn: 'doctrine://default?queue_name=failed'
                 retry_strategy:
-                    service: App\General\Infrastructure\Messenger\Strategy\FailedRetry
+                    service: Bro\WorldCoreBundle\Infrastructure\Messenger\Strategy\FailedRetry
 
         routing:
-            App\General\Domain\Message\Interfaces\MessageHighInterface: async_priority_high
-            App\General\Domain\Message\Interfaces\MessageLowInterface: async_priority_low
+            Bro\WorldCoreBundle\Domain\Message\Interfaces\MessageHighInterface: async_priority_high
+            Bro\WorldCoreBundle\Domain\Message\Interfaces\MessageLowInterface: async_priority_low
 
 when@test:
     framework:

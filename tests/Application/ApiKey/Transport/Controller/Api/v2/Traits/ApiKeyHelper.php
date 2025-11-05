@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\ApiKey\Transport\Controller\Api\v2\Traits;
 
 use App\ApiKey\Domain\Entity\ApiKey;
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\User\Infrastructure\DataFixtures\ORM\LoadUserGroupData;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;

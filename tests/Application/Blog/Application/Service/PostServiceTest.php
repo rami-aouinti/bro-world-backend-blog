@@ -7,7 +7,7 @@ namespace App\Tests\Application\Blog\Application\Service;
 use App\Blog\Application\Service\PostService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Post;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\TestDox;
 use Ramsey\Uuid\Uuid;

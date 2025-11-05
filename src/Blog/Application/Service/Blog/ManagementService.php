@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Application\Service\Blog;
 
 use App\Blog\Application\Service\Comment\CommentService;
-use App\General\Domain\Service\Interfaces\ElasticsearchServiceInterface;
+use Bro\WorldCoreBundle\Domain\Service\Interfaces\ElasticsearchServiceInterface;
 
 /**
  * @package App\Blog\Application\Service\Blog

@@ -6,12 +6,12 @@ declare(strict_types=1);
 
 namespace App\Blog\Domain\Entity;
 
-use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\General\Domain\Entity\Traits\ColorTrait;
-use App\General\Domain\Entity\Traits\SlugTrait;
-use App\General\Domain\Entity\Traits\Timestampable;
-use App\General\Domain\Entity\Traits\Uuid;
-use App\General\Domain\Entity\Traits\VisibleTrait;
+use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\ColorTrait;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\SlugTrait;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\Timestampable;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\Uuid;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\VisibleTrait;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;

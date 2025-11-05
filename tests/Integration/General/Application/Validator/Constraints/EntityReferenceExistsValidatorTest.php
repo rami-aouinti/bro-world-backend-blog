@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\General\Application\Validator\Constraints;
 
-use App\General\Application\Validator\Constraints\EntityReferenceExists;
-use App\General\Application\Validator\Constraints\EntityReferenceExistsValidator;
-use App\General\Domain\Entity\Interfaces\EntityInterface;
+use Bro\WorldCoreBundle\Application\Validator\Constraints\EntityReferenceExists;
+use Bro\WorldCoreBundle\Application\Validator\Constraints\EntityReferenceExistsValidator;
+use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
 use App\Tests\Integration\General\Application\Validator\Constraints\src\TestEntityReference;
 use App\Tool\Application\Validator\Constraints\Language;
 use Generator;

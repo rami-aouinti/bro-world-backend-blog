@@ -58,11 +58,11 @@ This application for these needs has RabbitMQ queue `external` (see `messenger.y
 For processing above external message we have custom serializer `App\Tool\Transport\Serializer\ExternalMessageSerializer.php` and handler `App\Tool\Transport\MessageHandler\ExternalHandler.php`. Please extend it for your needs and don't forget about DDD layer flow `Transport -> Application -> Infrastructure -> Domain` (see [development.md](development.md)).
 
 ### Internal messages
-Sometimes you need to have possibility to send async message for process something. For these needs, as example, you can use `App\Tool\Domain\Message\TestMessage.php` and Infrastructure service `App\General\Infrastructure\Service\MessageService.php` (just create an instance of message and use method `sendMessage`).
+Sometimes you need to have possibility to send async message for process something. For these needs, as example, you can use `App\Tool\Domain\Message\TestMessage.php` and Infrastructure service `Bro\WorldCoreBundle\Infrastructure\Service\MessageService.php` (just create an instance of message and use method `sendMessage`).
 
 `App\Tool\Domain\Message\TestMessage.php` responsible for sending message to the `messages_high` queue (see routing interface configuration mapping inside `messenger.yaml`).
 
-If you need to use another queue for the message (f.e. `messages_low`), just use another interface `App\General\Domain\Message\Interfaces\MessageLowInterface` for the `App\Tool\Domain\Message\TestMessage.php` class.
+If you need to use another queue for the message (f.e. `messages_low`), just use another interface `Bro\WorldCoreBundle\Domain\Message\Interfaces\MessageLowInterface` for the `App\Tool\Domain\Message\TestMessage.php` class.
 
 Note: Please pay your attention to the transports order processing(first async_priority_high, then async_priority_low) inside supervisord configuration file `docker\general\supervisord.conf` and program `program:messenger-consume`.
 
@@ -72,7 +72,7 @@ For processing above external message we have handler `App\Tool\Transport\Messag
 ### Retries & Failures
 If an exception is thrown while consuming a message from a transport it will automatically be re-sent to the transport to be tried again. By default, a message will be retried 3 times before being discarded or sent to the failure transport. Each retry will also be delayed, in case the failure was due to a temporary issue. All of this is configurable for each transport (see `messenger.yaml`).
 
-This environment doesn't have default failure retry strategy and failed message will not be deleted after 3-rd retry by default. You can find existing retry strategy inside `App\General\Infrastructure\Messenger\Strategy\FailedRetry.php`.
+This environment doesn't have default failure retry strategy and failed message will not be deleted after 3-rd retry by default. You can find existing retry strategy inside `Bro\WorldCoreBundle\Infrastructure\Messenger\Strategy\FailedRetry.php`.
 
 You are able to configure some options for failure transport inside .env file:
 

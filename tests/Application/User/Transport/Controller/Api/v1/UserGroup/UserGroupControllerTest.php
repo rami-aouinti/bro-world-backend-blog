@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\User\Transport\Controller\Api\v1\UserGroup;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Role\Domain\Enum\Role;
 use App\Tests\Application\User\Transport\Controller\Api\v1\Traits\UserHelper;
 use App\Tests\TestCase\WebTestCase;

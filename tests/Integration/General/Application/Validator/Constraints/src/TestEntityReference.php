@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\General\Application\Validator\Constraints\src;
 
-use App\General\Domain\Entity\Interfaces\EntityInterface;
+use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityNotFoundException;
 use Override;

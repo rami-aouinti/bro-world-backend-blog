@@ -7,7 +7,7 @@ namespace App\Blog\Transport\Controller\Frontend\Blog;
 use App\Blog\Application\Service\Blog\BlogService;
 use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Repository\Interfaces\BlogRepositoryInterface;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use OpenApi\Attributes as OA;

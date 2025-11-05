@@ -5,11 +5,11 @@
     "beberlei/doctrineextensions": {
         "version": "v1.3.0"
     },
-    "behat/transliterator": {
-        "version": "v1.3.0"
-    },
     "brick/math": {
         "version": "0.9.2"
+    },
+    "bro-world/core-bundle": {
+        "version": "v0.1.4"
     },
     "doctrine/cache": {
         "version": "2.0.3"

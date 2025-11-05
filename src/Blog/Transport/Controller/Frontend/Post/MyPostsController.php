@@ -11,7 +11,7 @@ use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Infrastructure\Repository\CommentRepository;
 use App\Blog\Infrastructure\Repository\PostRepository;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;

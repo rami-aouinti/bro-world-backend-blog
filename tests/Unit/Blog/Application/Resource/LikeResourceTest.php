@@ -10,7 +10,7 @@ use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Like as LikeEntity;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Infrastructure\Repository\LikeRepository;
-use App\General\Domain\Entity\Interfaces\EntityInterface;
+use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Validation;

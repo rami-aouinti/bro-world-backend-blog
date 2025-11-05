@@ -9,7 +9,7 @@ use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
 use App\Blog\Domain\Repository\Interfaces\ReactionRepositoryInterface;
 use App\Blog\Transport\Controller\Frontend\React\ReactPostController;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;

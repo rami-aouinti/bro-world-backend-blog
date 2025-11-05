@@ -7,7 +7,7 @@ namespace App\Blog\Transport\Controller\Frontend\Comment;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreateCommentMessenger;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;

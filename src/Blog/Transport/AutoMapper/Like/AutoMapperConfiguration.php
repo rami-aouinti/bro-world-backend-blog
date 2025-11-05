@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\AutoMapper\Like;
 
-use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
+use Bro\WorldCoreBundle\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
  * @package App\Blog\Transport\AutoMapper\Like
