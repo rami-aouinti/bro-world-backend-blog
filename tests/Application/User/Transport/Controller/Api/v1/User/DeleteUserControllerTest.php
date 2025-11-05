@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\User\Transport\Controller\Api\v1\User;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
 use App\User\Application\Resource\UserResource;
 use App\User\Domain\Entity\User;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;

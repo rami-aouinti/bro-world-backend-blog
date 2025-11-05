@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Tool\Transport\Controller\Api\v1\Localization;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
 use App\Tool\Domain\Service\Interfaces\LocalizationServiceInterface;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;

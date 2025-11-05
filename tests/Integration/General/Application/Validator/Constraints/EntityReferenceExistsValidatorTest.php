@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\General\Application\Validator\Constraints;
 
+use App\Tests\Integration\General\Application\Validator\Constraints\src\TestEntityReference;
+use App\Tool\Application\Validator\Constraints\Language;
 use Bro\WorldCoreBundle\Application\Validator\Constraints\EntityReferenceExists;
 use Bro\WorldCoreBundle\Application\Validator\Constraints\EntityReferenceExistsValidator;
 use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
-use App\Tests\Integration\General\Application\Validator\Constraints\src\TestEntityReference;
-use App\Tool\Application\Validator\Constraints\Language;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;

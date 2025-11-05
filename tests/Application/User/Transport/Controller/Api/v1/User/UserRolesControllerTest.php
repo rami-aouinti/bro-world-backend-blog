@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\User\Transport\Controller\Api\v1\User;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Role\Domain\Enum\Role;
 use App\Tests\TestCase\WebTestCase;
 use App\User\Application\Resource\UserResource;
 use App\User\Domain\Entity\User;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;

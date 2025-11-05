@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\ApiKey\Transport\Controller\Api\v2;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
 use App\User\Infrastructure\DataFixtures\ORM\LoadUserGroupData;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;

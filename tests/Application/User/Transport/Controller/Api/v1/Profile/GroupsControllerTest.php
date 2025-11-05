@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\User\Transport\Controller\Api\v1\Profile;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Role\Domain\Enum\Role;
 use App\Tests\TestCase\WebTestCase;
 use App\User\Infrastructure\DataFixtures\ORM\LoadUserGroupData;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;

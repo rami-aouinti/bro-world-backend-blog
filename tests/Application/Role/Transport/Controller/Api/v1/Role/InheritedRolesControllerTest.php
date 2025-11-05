@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Role\Transport\Controller\Api\v1\Role;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Role\Application\Security\Interfaces\RolesServiceInterface;
 use App\Role\Domain\Enum\Role;
 use App\Tests\TestCase\WebTestCase;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Exception;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;

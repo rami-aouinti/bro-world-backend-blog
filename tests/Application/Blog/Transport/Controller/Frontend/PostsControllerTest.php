@@ -26,7 +26,7 @@ final class PostsControllerTest extends WebTestCase
 
         static::getContainer()->set(
             UserElasticsearchServiceInterface::class,
-            new class () implements UserElasticsearchServiceInterface {
+            new class() implements UserElasticsearchServiceInterface {
                 public function searchUsers(string $query): array
                 {
                     return [];

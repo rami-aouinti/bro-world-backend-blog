@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Role\Transport\Controller\Api\v1\Role;
 
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;

@@ -30,7 +30,7 @@ final class ToggleCommentControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->serializer = new class () implements SerializerInterface {
+        $this->serializer = new class() implements SerializerInterface {
             public function serialize($data, string $format, array $context = []): string
             {
                 return (string)json_encode($data);
@@ -56,7 +56,7 @@ final class ToggleCommentControllerTest extends TestCase
         $comment->setAuthor(Uuid::fromString($commentAuthorId));
         $comment->setPost($post);
 
-        $likeRepository = new class () implements LikeRepositoryInterface {
+        $likeRepository = new class() implements LikeRepositoryInterface {
             public ?Like $saved = null;
 
             public function countLikesByMonth(): array

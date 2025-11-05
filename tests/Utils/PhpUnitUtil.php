@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Utils;
 
+use App\Log\Domain\Enum\LogLogin;
+use App\Role\Domain\Entity\Role;
 use Bro\WorldCoreBundle\Domain\Doctrine\DBAL\Types\Types as AppTypes;
 use Bro\WorldCoreBundle\Domain\Enum\Language;
 use Bro\WorldCoreBundle\Domain\Enum\Locale;
-use App\Log\Domain\Enum\LogLogin;
-use App\Role\Domain\Entity\Role;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Type;

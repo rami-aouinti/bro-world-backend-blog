@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Application\Blog\Transport\Controller\Api;
 
 use App\Blog\Application\Resource\PostResource;
-use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
