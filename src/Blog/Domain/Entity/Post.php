@@ -9,6 +9,7 @@ use Bro\WorldCoreBundle\Domain\Entity\Traits\SlugTrait;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\Timestampable;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\Uuid;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\VisibleTrait;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\WorkplaceTrait;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -33,6 +34,7 @@ class Post implements EntityInterface, Stringable
     use SlugTrait;
     use Timestampable;
     use Uuid;
+    use WorkplaceTrait;
 
     final public const string SET_BLOG_INDEX = 'set.BlogIndex';
 

@@ -12,6 +12,7 @@ use Bro\WorldCoreBundle\Domain\Entity\Traits\SlugTrait;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\Timestampable;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\Uuid;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\VisibleTrait;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\WorkplaceTrait;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -34,6 +35,7 @@ class Blog implements EntityInterface, Stringable
     use VisibleTrait;
     use Timestampable;
     use Uuid;
+    use WorkplaceTrait;
 
     #[Assert\NotBlank]
     #[ORM\Column(name: 'title', type: 'text', nullable: false)]
