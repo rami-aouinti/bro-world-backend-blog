@@ -15,7 +15,7 @@ doctrine:
                 url: '%env(resolve:DATABASE_URL)%'
                 mapping_types:
                     enum: string
-                profiling_collect_backtrace: '%kernel.debug%'
+                profiling_collect_backtrace: false
                 use_savepoints: true
         types:
             datetime: Bro\WorldCoreBundle\Domain\Doctrine\DBAL\Types\UTCDateTimeType
