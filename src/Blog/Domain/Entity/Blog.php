@@ -13,6 +13,7 @@ use Bro\WorldCoreBundle\Domain\Entity\Traits\Timestampable;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\Uuid;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\VisibleTrait;
 use Bro\WorldCoreBundle\Domain\Entity\Traits\WorkplaceTrait;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -122,6 +123,10 @@ class Blog implements EntityInterface, Stringable
     {
         $this->title = $title;
 
+        if ($title !== '') {
+            $this->setSlug($this->slugifyTitle($title));
+        }
+
         return $this;
     }
 
@@ -167,5 +172,16 @@ class Blog implements EntityInterface, Stringable
     public function setTeams(?array $teams): void
     {
         $this->teams = $teams;
+    }
+
+    private function slugifyTitle(string $title): string
+    {
+        static $slugify = null;
+
+        if ($slugify === null) {
+            $slugify = new Slugify();
+        }
+
+        return $slugify->slugify($title);
     }
 }
