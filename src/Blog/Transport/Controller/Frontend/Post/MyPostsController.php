@@ -61,14 +61,14 @@ readonly class MyPostsController
         $page = max(1, (int)$request->query->get('page', 1));
         $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
-        $cacheKey = "posts_page_{$page}_limit_{$limit}_profile_{$symfonyUser->getUserIdentifier()}";
+        $cacheKey = "posts_page_{$page}_limit_{$limit}_profile_{$symfonyUser->getId()}";
 
         $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page, $symfonyUser) {
             $item->tag(['posts']);
             $item->expiresAfter(20);
 
-            $posts = $this->postRepository->findWithRelations($limit, $offset, $symfonyUser->getUserIdentifier());
-            $total = $this->postRepository->countPosts($symfonyUser->getUserIdentifier());
+            $posts = $this->postRepository->findWithRelations($limit, $offset, $symfonyUser->getId());
+            $total = $this->postRepository->countPosts($symfonyUser->getId());
 
             $userIds = [];
             foreach ($posts as $post) {
@@ -97,7 +97,7 @@ readonly class MyPostsController
                     'medias' => $post->getMediaEntities()->map(fn (Media $m) => $m->toArray())->toArray(),
                     'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
                         $post->getReactions(),
-                        $symfonyUser->getUserIdentifier(),
+                        $symfonyUser->getId(),
                     ),
                     'reactions_count' => count($post->getReactions()),
                     'totalComments' => count($post->getComments()),
@@ -110,7 +110,7 @@ readonly class MyPostsController
                         'medias' => $post->getSharedFrom()->getMediaEntities()->map(fn (Media $m) => $m->toArray())->toArray(),
                         'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
                             $post->getSharedFrom()->getReactions(),
-                            $symfonyUser->getUserIdentifier(),
+                            $symfonyUser->getId(),
                         ),
                         'reactions_count' => count($post->getSharedFrom()->getReactions()),
                         'totalComments' => count($post->getSharedFrom()->getComments()),
@@ -130,7 +130,7 @@ readonly class MyPostsController
                                 'user' => $users[$c->getAuthor()->toString()] ?? null,
                                 'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
                                     $c->getReactions(),
-                                    $symfonyUser->getUserIdentifier(),
+                                    $symfonyUser->getId(),
                                 ),
                                 'totalComments' => count($c->getChildren()),
                                 'reactions_count' => count($c->getReactions()),
@@ -161,7 +161,7 @@ readonly class MyPostsController
                             'user' => $users[$c->getAuthor()->toString()] ?? null,
                             'isReacted' => $this->commentResponseHelper->getReactionTypeForUser(
                                 $c->getReactions(),
-                                $symfonyUser->getUserIdentifier(),
+                                $symfonyUser->getId(),
                             ),
                             'totalComments' => count($c->getChildren()),
                             'reactions_count' => count($c->getReactions()),
@@ -235,7 +235,7 @@ readonly class MyPostsController
                     fn (Comment $comment) => $this->commentResponseHelper->buildCommentThread(
                         $comment,
                         $users,
-                        $symfonyUser->getUserIdentifier(),
+                        $symfonyUser->getId(),
                     ),
                     $comments,
                 );
@@ -246,7 +246,7 @@ readonly class MyPostsController
                     'page' => $page,
                 ];
             },
-            $symfonyUser->getUserIdentifier()
+            $symfonyUser->getId()
         );
 
         return new JsonResponse($payload);

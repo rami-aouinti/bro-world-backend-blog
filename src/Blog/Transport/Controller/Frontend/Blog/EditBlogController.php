@@ -54,7 +54,7 @@ readonly class EditBlogController
     )]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Blog $blog): JsonResponse
     {
-        if ($blog->getAuthor()->toString() !== $symfonyUser->getUserIdentifier()) {
+        if ($blog->getAuthor()->toString() !== $symfonyUser->getId()) {
             return new JsonResponse([
                 'error' => 'Access denied.',
             ], Response::HTTP_FORBIDDEN);
@@ -86,7 +86,7 @@ readonly class EditBlogController
 
         $this->blogRepository->save($blog);
 
-        $this->cacheItemPool->deleteItem('profile_blog_' . $symfonyUser->getUserIdentifier());
+        $this->cacheItemPool->deleteItem('profile_blog_' . $symfonyUser->getId());
         $this->cacheInterface->delete('public_blog');
 
         if ($previousSlug !== null) {

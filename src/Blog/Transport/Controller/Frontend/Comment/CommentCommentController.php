@@ -63,14 +63,14 @@ readonly class CommentCommentController
     {
         $data = $request->request->all();
         $newComment = new Comment();
-        $newComment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $newComment->setAuthor(Uuid::fromString($symfonyUser->getId()));
         $newComment->setContent($data['content']);
         $newComment->setParent($comment);
 
         $this->notificationService->executeCreateNotificationCommand(
             $request->headers->get('Authorization'),
             'PUSH',
-            $symfonyUser->getUserIdentifier(),
+            $symfonyUser->getId(),
             $comment->getAuthor()->toString(),
             $comment->getPost()?->getId(),
             'commented on your comment.'
@@ -80,7 +80,7 @@ readonly class CommentCommentController
 
         $this->commentNotificationMailer->sendCommentReplyNotificationEmail(
             $comment->getAuthor()->toString(),
-            $symfonyUser->getUserIdentifier(),
+            $symfonyUser->getId(),
             $newComment
         );
 

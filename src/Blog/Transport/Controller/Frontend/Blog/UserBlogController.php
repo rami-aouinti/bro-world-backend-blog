@@ -49,8 +49,8 @@ readonly class UserBlogController
     #[Cache(smaxage: 10)]
     public function __invoke(SymfonyUser $symfonyUser): JsonResponse
     {
-        $cacheKey = 'profile_blog_' . $symfonyUser->getUserIdentifier();
-        $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($symfonyUser->getUserIdentifier())($item));
+        $cacheKey = 'profile_blog_' . $symfonyUser->getId();
+        $blogs = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($symfonyUser->getId())($item));
         $json = $this->serializer->serialize(
             $blogs,
             'json',

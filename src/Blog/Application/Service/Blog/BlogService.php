@@ -54,7 +54,7 @@ readonly class BlogService
                 $blogObject->setTitle('public');
                 $blogObject->setBlogSubtitle('General posts');
                 $blogObject->setSlug('public');
-                $blogObject->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
+                $blogObject->setAuthor(Uuid::fromString($symfonyUser->getId()));
                 $blogObject->setColor('primary');
                 $this->entityManager->persist($blogObject);
                 $this->entityManager->flush();

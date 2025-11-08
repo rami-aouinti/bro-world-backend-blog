@@ -88,7 +88,7 @@ readonly class EditPostController
                 'medias' => $post->getMediaEntities()->map(
                     fn (Media $media) => $media->toArray()
                 )->toArray(),
-                'user' => $this->userProxy->searchUser($symfonyUser->getUserIdentifier()),
+                'user' => $this->userProxy->searchUser($symfonyUser->getId()),
             ]
         );
 

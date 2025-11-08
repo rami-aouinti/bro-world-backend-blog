@@ -46,14 +46,14 @@ readonly class CreateCommentController
         $data = $request->request->all();
         $comment = new Comment();
         $comment->setPost($post);
-        $comment->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $comment->setAuthor(Uuid::fromString($symfonyUser->getId()));
         $comment->setContent($data['content']);
         $this->bus->dispatch(
             new CreateCommentMessenger(
                 $request->headers->get('Authorization'),
                 $comment,
                 $post->getId(),
-                $symfonyUser->getUserIdentifier(),
+                $symfonyUser->getId(),
                 $post->getAuthor()->toString(),
                 $data
             )

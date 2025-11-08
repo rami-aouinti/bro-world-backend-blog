@@ -54,12 +54,12 @@ readonly class ToggleCommentController
     {
         $like = new Like();
         $like->setComment($comment);
-        $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $like->setUser(Uuid::fromString($symfonyUser->getId()));
         $this->bus->dispatch(
             new CreateNotificationMessenger(
                 $request->headers->get('Authorization'),
                 'PUSH',
-                $symfonyUser->getUserIdentifier(),
+                $symfonyUser->getId(),
                 $comment->getAuthor()->toString(),
                 $comment->getPost()?->getId(),
                 'liked your comment.'
@@ -68,7 +68,7 @@ readonly class ToggleCommentController
 
         $this->reactionNotificationMailer->sendCommentReactionNotificationEmail(
             $comment->getAuthor()->toString(),
-            $symfonyUser->getUserIdentifier(),
+            $symfonyUser->getId(),
             $comment->getPost()?->getSlug()
         );
         $this->likeRepository->save($like);

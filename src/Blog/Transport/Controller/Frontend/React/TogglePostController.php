@@ -52,12 +52,12 @@ readonly class TogglePostController
     {
         $like = new Like();
         $like->setPost($post);
-        $like->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $like->setUser(Uuid::fromString($symfonyUser->getId()));
         $this->bus->dispatch(
             new CreateNotificationMessenger(
                 $request->headers->get('Authorization'),
                 'PUSH',
-                $symfonyUser->getUserIdentifier(),
+                $symfonyUser->getId(),
                 $post->getAuthor()->toString(),
                 $post->getId(),
                 'liked your post.'

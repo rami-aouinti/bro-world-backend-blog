@@ -44,7 +44,7 @@ readonly class CreateBlogController
     #[Route(path: '/v1/platform/blog', name: 'blog_create', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request): JsonResponse
     {
-        $this->cache->deleteItem("profile_blog_{$symfonyUser->getUserIdentifier()}");
+        $this->cache->deleteItem("profile_blog_{$symfonyUser->getId()}");
         $blog = new Blog();
         if ($request->files->get('files')) {
             $logo = $this->blogService->executeUploadLogoCommand($request);
@@ -54,7 +54,7 @@ readonly class CreateBlogController
 
         $blog->setTitle($data['title']);
         $blog->setBlogSubtitle($data['description'] ?? '');
-        $blog->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $blog->setAuthor(Uuid::fromString($symfonyUser->getId()));
 
         $this->blogRepository->save($blog);
 

@@ -40,13 +40,13 @@ readonly class DeleteBlogController
     #[Route(path: '/v1/platform/blog/{blog}', name: 'blog_delete', methods: [Request::METHOD_DELETE])]
     public function __invoke(SymfonyUser $symfonyUser, Blog $blog): JsonResponse
     {
-        if ($blog->getAuthor()->toString() !== $symfonyUser->getUserIdentifier()) {
+        if ($blog->getAuthor()->toString() !== $symfonyUser->getId()) {
             return new JsonResponse([
                 'error' => 'Access denied.',
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $authorId = $symfonyUser->getUserIdentifier();
+        $authorId = $symfonyUser->getId();
         $slug = $blog->getSlug();
 
         $this->blogRepository->remove($blog);

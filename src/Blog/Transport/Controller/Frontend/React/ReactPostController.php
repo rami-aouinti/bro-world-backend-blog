@@ -55,7 +55,7 @@ readonly class ReactPostController
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post, string $type): JsonResponse
     {
         $reaction = $this->reactionRepository->findOneBy([
-            'user' => Uuid::fromString($symfonyUser->getUserIdentifier()),
+            'user' => Uuid::fromString($symfonyUser->getId()),
             'post' => $post->getId(),
         ]);
 
@@ -96,14 +96,14 @@ readonly class ReactPostController
 
         $reaction = new Reaction();
         $reaction->setPost($post);
-        $reaction->setUser(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $reaction->setUser(Uuid::fromString($symfonyUser->getId()));
         $reaction->setType($request->attributes->get('type'));
 
         $this->bus->dispatch(
             new CreateNotificationMessenger(
                 $request->headers->get('Authorization'),
                 'PUSH',
-                $symfonyUser->getUserIdentifier(),
+                $symfonyUser->getId(),
                 $post->getAuthor()->toString(),
                 $post->getId(),
                 'reacted to your post.'
@@ -112,7 +112,7 @@ readonly class ReactPostController
 
         $this->reactionNotificationMailer->sendPostReactionNotificationEmail(
             $post->getAuthor()->toString(),
-            $symfonyUser->getUserIdentifier(),
+            $symfonyUser->getId(),
             $post->getSlug()
         );
 

@@ -60,7 +60,7 @@ readonly class LoggedPostsController
         $page = max(1, (int)$request->query->get('page', 1));
         $limit = (int)$request->query->get('limit', 10);
         $offset = ($page - 1) * $limit;
-        $cacheKey = "posts_page_{$page}_limit_{$limit}_user_{$symfonyUser->getUserIdentifier()}";
+        $cacheKey = "posts_page_{$page}_limit_{$limit}_user_{$symfonyUser->getId()}";
 
         $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page, $symfonyUser) {
             $item->tag(['posts']);
@@ -74,7 +74,7 @@ readonly class LoggedPostsController
                 $page,
                 $limit,
                 $total,
-                $symfonyUser->getUserIdentifier()
+                $symfonyUser->getId()
             );
         });
 
@@ -125,7 +125,7 @@ readonly class LoggedPostsController
                     fn (Comment $comment) => $this->commentResponseHelper->buildCommentThread(
                         $comment,
                         $users,
-                        $symfonyUser->getUserIdentifier(),
+                        $symfonyUser->getId(),
                     ),
                     $comments,
                 );
@@ -136,7 +136,7 @@ readonly class LoggedPostsController
                     'page' => $page,
                 ];
             },
-            $symfonyUser->getUserIdentifier()
+            $symfonyUser->getId()
         );
 
         return new JsonResponse($payload);

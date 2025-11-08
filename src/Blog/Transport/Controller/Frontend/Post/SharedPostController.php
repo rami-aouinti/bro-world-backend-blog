@@ -40,7 +40,7 @@ readonly class SharedPostController
     {
         $data = $request->request->all();
         $newPost = new Post();
-        $newPost->setAuthor(Uuid::fromString($symfonyUser->getUserIdentifier()));
+        $newPost->setAuthor(Uuid::fromString($symfonyUser->getId()));
         $newPost->setSharedFrom($post);
         if ($data['content'] ?? null) {
             $newPost->setTitle($data['content']);
