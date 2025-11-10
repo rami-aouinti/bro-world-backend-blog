@@ -139,7 +139,7 @@ readonly class PostService
         }
 
         $post = (new Post())
-            ->setAuthor(Uuid::fromString($user->getUserIdentifier()))
+            ->setAuthor(Uuid::fromString($user->getId()))
             ->setTitle($title)
             ->setSlug($slug);
 
