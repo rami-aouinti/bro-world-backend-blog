@@ -35,7 +35,6 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 use Traversable;
 
-use function array_key_exists;
 use function iterator_to_array;
 use function sprintf;
 use function strlen;
@@ -134,7 +133,18 @@ readonly class PostService
         $title = $data['title'] ?? '';
         $slug = $data['slug'] ?? null;
 
-        if ($slug === null && !array_key_exists('title', $data)) {
+        if (is_string($slug)) {
+            $slug = trim($slug);
+            if ($slug === '') {
+                $slug = null;
+            }
+        }
+
+        if (($slug === null || $slug === '') && trim((string)$title) !== '') {
+            $slug = (string)$this->slugger->slug($title)->lower();
+        }
+
+        if ($slug === null || $slug === '') {
             $slug = $this->generateRandomString(20);
         }
 
