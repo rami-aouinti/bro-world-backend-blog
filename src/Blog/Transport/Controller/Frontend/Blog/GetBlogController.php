@@ -48,7 +48,7 @@ readonly class GetBlogController
 
     private function getClosure(string $slug): Closure
     {
-        return function (ItemInterface $item) use ($slug): array {
+        return function (ItemInterface $item) use ($slug): Blog {
             $item->expiresAfter(31536000);
 
             return $this->getFormattedBlog($slug);
@@ -58,17 +58,9 @@ readonly class GetBlogController
     /**
      * @throws Exception
      */
-    private function getFormattedBlog(string $slug): array
+    private function getFormattedBlog(string $slug): Blog
     {
-        $blogClass = $this->getBlog($slug);
-        $blog['id'] = $blogClass->getId();
-        $blog['title'] = $blogClass->getTitle();
-        $blog['slug'] = $blogClass->getSlug();
-        $blog['blogSubTitle'] = $blogClass->getBlogSubtitle();
-        $blog['logo'] = $blogClass->getLogo();
-        $blog['teams'] = $blogClass->getTeams();
-
-        return $blog;
+        return $this->getBlog($slug);
     }
 
     /**
