@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @package App\Blog\Transport\AutoMapper\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class RequestMapper extends RestRequestMapper
 {

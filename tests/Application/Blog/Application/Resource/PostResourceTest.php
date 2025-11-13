@@ -20,7 +20,7 @@ use function str_repeat;
 
 /**
  * @package App\Tests\Application\Blog\Application\Resource
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class PostResourceTest extends KernelTestCase
 {

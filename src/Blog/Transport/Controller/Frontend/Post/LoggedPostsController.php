@@ -34,7 +34,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * @package App\Blog\Transport\Controller\Frontend\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

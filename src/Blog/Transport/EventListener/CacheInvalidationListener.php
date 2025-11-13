@@ -15,7 +15,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @package App\Blog\Transport\EventListener
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 final readonly class CacheInvalidationListener
 {

@@ -18,7 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package App\Blog\Transport\Event
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 final class CommentCreatedEvent extends Event
 {

@@ -6,7 +6,7 @@ namespace App\Blog\Application\DTO\Blog;
 
 /**
  * @package App\Blog\Application\DTO\Blog
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class BlogUpdate extends Blog
 {

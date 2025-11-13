@@ -8,7 +8,7 @@ use Bro\WorldCoreBundle\Domain\Repository\Interfaces\BaseRepositoryInterface;
 
 /**
  * @package App\Blog\Domain\Repository\Interfaces
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 interface CommentRepositoryInterface extends BaseRepositoryInterface
 {

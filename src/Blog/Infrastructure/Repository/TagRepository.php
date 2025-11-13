@@ -11,7 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @package App\Blog\Infrastructure\Repository
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  *
  * @psalm-suppress LessSpecificImplementedReturnType
  * @codingStandardsIgnoreStart

@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @package App\Blog\Transport\Controller\Frontend\Blog
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

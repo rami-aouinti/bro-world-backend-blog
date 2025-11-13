@@ -42,7 +42,7 @@ use function trim;
 
 /**
  * @package App\Blog\Application\Service\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 readonly class PostService
 {

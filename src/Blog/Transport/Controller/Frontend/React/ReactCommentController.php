@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Blog\Transport\Controller\Frontend\React;
 
 use App\Blog\Application\Service\Interfaces\ReactionNotificationMailerInterface;
+use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
 use App\Blog\Domain\Message\CreateNotificationMessenger;
@@ -31,7 +32,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class ReactPostController
+readonly class ReactCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -51,17 +52,17 @@ readonly class ReactPostController
      * @throws OptimisticLockException
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
      */
-    #[Route(path: '/v1/private/post/{post}/react/{type}', name: 'react_post', methods: [Request::METHOD_POST])]
-    public function __invoke(SymfonyUser $symfonyUser, Request $request, Post $post, string $type): JsonResponse
+    #[Route(path: '/v1/private/comment/{comment}/react/{type}', name: 'react_comment', methods: [Request::METHOD_POST])]
+    public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment, string $type): JsonResponse
     {
         $reaction = $this->reactionRepository->findOneBy([
             'user' => Uuid::fromString($symfonyUser->getId()),
-            'post' => $post->getId(),
+            'comment' => $comment->getId(),
         ]);
 
         return $type === 'delete'
             ? $this->handleDeleteReaction($reaction)
-            : $this->handleAddOrUpdateReaction($reaction, $post, $symfonyUser, $request);
+            : $this->handleAddOrUpdateReactionComment($reaction, $comment, $symfonyUser, $request);
     }
 
     /**
@@ -123,6 +124,52 @@ readonly class ReactPostController
             'user' => $symfonyUser,
         ]);
     }
+
+
+    /**
+     * @throws ExceptionInterface
+     * @throws JsonException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
+     */
+    private function handleAddOrUpdateReactionComment(?Reaction $existingReaction, Comment $comment, SymfonyUser $symfonyUser, Request $request): JsonResponse
+    {
+        if ($existingReaction) {
+            $this->reactionRepository->remove($existingReaction);
+        }
+
+        $reaction = new Reaction();
+        $reaction->setComment($comment);
+        $reaction->setUser(Uuid::fromString($symfonyUser->getId()));
+        $reaction->setType($request->attributes->get('type'));
+
+        $this->bus->dispatch(
+            new CreateNotificationMessenger(
+                $request->headers->get('Authorization'),
+                'PUSH',
+                $symfonyUser->getId(),
+                $comment->getAuthor()->toString(),
+                $comment->getId(),
+                'reacted to your comment.'
+            )
+        );
+
+        $this->reactionNotificationMailer->sendPostReactionNotificationEmail(
+            $comment->getAuthor()->toString(),
+            $symfonyUser->getId(),
+            $comment->getPost()?->getSlug()
+        );
+
+        $this->reactionRepository->save($reaction);
+
+        return $this->jsonResponse([
+            'id' => $reaction->getId(),
+            'user' => $symfonyUser,
+        ]);
+    }
+
+
 
     /**
      * @throws ExceptionInterface|JsonException

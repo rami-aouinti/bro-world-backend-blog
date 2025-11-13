@@ -21,7 +21,7 @@ use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * @package App\Blog\Application\DTO\Blog
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  *
  * @method self|RestDtoInterface get(string $id)
  * @method self|RestDtoInterface patch(RestDtoInterface $dto)

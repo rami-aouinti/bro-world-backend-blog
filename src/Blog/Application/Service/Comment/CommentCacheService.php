@@ -10,7 +10,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @package App\Blog\Application\Service\Comment
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 readonly class CommentCacheService
 {

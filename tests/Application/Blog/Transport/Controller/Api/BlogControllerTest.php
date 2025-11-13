@@ -15,7 +15,7 @@ use const JSON_THROW_ON_ERROR;
 
 /**
  * @package App\Tests\Application\Blog\Transport\Controller\Api
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 final class BlogControllerTest extends WebTestCase
 {

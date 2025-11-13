@@ -11,7 +11,7 @@ use Bro\WorldCoreBundle\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
  * @package App\Blog\Transport\AutoMapper\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class AutoMapperConfiguration extends RestAutoMapperConfiguration
 {

@@ -20,7 +20,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * @package App\Blog\Application\Service\Blog
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 readonly class BlogService
 {

@@ -13,7 +13,7 @@ use Bro\WorldCoreBundle\Domain\Entity\Interfaces\EntityInterface;
 
 /**
  * @package App\Blog\Application\Resource
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  *
  * @psalm-suppress LessSpecificImplementedReturnType
  * @codingStandardsIgnoreStart

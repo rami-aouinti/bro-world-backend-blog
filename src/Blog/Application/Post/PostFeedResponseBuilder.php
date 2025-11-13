@@ -23,7 +23,7 @@ use function iterator_to_array;
 
 /**
  * @package App\Blog\Application\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 final readonly class PostFeedResponseBuilder
 {

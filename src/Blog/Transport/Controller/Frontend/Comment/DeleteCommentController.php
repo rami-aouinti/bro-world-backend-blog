@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @package App\Blog\Transport\Controller\Frontend\Comment
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]

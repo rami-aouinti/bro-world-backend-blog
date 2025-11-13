@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @package App\Blog\Application\DTO\Like
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  *
  * @method self|RestDtoInterface get(string $id)
  * @method self|RestDtoInterface patch(RestDtoInterface $dto)

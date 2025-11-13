@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @package App\Tests\Application\Blog\Application\Service
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class PostServiceTest extends KernelTestCase
 {

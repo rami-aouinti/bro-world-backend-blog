@@ -21,7 +21,7 @@ use Twig\Error\SyntaxError;
 
 /**
  * @package App\Blog\Application\Service\Comment
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 
 class CommentNotificationMailer implements CommentNotificationMailerInterface

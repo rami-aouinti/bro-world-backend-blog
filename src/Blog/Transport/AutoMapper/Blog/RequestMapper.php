@@ -8,7 +8,7 @@ use Bro\WorldCoreBundle\Transport\AutoMapper\RestRequestMapper;
 
 /**
  * @package App\Blog\Transport\AutoMapper\Blog
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class RequestMapper extends RestRequestMapper
 {

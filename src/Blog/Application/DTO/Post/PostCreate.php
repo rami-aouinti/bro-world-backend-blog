@@ -6,7 +6,7 @@ namespace App\Blog\Application\DTO\Post;
 
 /**
  * @package App\Blog\Application\DTO\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class PostCreate extends Post
 {

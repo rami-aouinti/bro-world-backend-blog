@@ -15,7 +15,7 @@ use function gc_enable;
 
 /**
  * @package App\Tests\TestCase
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 abstract class WebTestCase extends BaseWebTestCase
 {

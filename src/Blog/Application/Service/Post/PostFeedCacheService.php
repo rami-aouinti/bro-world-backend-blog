@@ -12,7 +12,7 @@ use function sprintf;
 
 /**
  * @package App\Blog\Application\Service\Post
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 final readonly class PostFeedCacheService
 {

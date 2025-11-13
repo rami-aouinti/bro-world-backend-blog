@@ -9,7 +9,7 @@ use Bro\WorldCoreBundle\Domain\Service\Interfaces\ElasticsearchServiceInterface;
 
 /**
  * @package App\Blog\Application\Service\User
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 readonly class UserElasticsearchService implements UserElasticsearchServiceInterface
 {

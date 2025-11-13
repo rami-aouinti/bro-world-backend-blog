@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * @package App\Blog\Transport\Controller\Api
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  *
  * @method LikeResource getResource()
  * @method ResponseHandler getResponseHandler()

@@ -37,7 +37,7 @@ use function substr_count;
 
 /**
  * @package App\Tests\Utils
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class PhpUnitUtil
 {

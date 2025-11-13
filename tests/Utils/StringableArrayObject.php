@@ -12,7 +12,7 @@ use Stringable;
 
 /**
  * @package App\Tests\Utils
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class StringableArrayObject extends ArrayObject implements Stringable
 {

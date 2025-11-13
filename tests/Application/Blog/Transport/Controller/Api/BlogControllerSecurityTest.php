@@ -15,7 +15,7 @@ use Throwable;
 
 /**
  * @package App\Tests\Application\Blog\Transport\Controller\Api
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class BlogControllerSecurityTest extends WebTestCase
 {

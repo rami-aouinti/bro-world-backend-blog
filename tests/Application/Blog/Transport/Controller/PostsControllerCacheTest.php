@@ -31,7 +31,7 @@ use const JSON_THROW_ON_ERROR;
 
 /**
  * @package App\Tests\Application\Blog\Transport\Controller
- * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
+ * @author  Rami Aouinti <rami.aouinti@gmail.com>
  */
 class PostsControllerCacheTest extends WebTestCase
 {
