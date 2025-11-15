@@ -71,10 +71,11 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         $ids = array_column($ids, 'id');
 
         $qb = $this->createQueryBuilder('p')
-            ->select('DISTINCT p', 'c', 'l', 'm', 'r', 'cl', 'cr')
+            ->select('DISTINCT p', 'c', 'l', 'm', 't', 'r', 'cl', 'cr')
             ->leftJoin('p.comments', 'c')->addSelect('c')
             ->leftJoin('p.likes', 'l')->addSelect('l')
             ->leftJoin('p.medias', 'm')->addSelect('m')
+            ->leftJoin('p.tags', 'm')->addSelect('t')
             ->leftJoin('p.reactions', 'r')->addSelect('r')
             ->leftJoin('c.likes', 'cl')->addSelect('cl')
             ->leftJoin('c.reactions', 'cr')->addSelect('cr')
