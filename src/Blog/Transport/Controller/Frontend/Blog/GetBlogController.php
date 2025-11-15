@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -28,7 +29,8 @@ readonly class GetBlogController
 {
     public function __construct(
         private CacheInterface $cache,
-        private BlogRepositoryInterface $blogRepository
+        private BlogRepositoryInterface $blogRepository,
+        private SerializerInterface $serializer,
     ) {
     }
 
