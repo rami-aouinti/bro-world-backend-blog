@@ -102,6 +102,7 @@ class Blog implements EntityInterface, Stringable
     public function __construct()
     {
         $this->id = $this->createUuid();
+        $this->slug = '';
     }
 
     public function __toString(): string

@@ -174,6 +174,7 @@ class Post implements EntityInterface, Stringable
     {
         $this->id = $this->createUuid();
         $this->publishedAt = new DateTimeImmutable();
+        $this->slug = '';
         $this->comments = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
