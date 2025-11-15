@@ -131,6 +131,11 @@ class Post implements EntityInterface, Stringable
         'name' => 'ASC',
     ])]
     #[Assert\Count(max: 4, maxMessage: 'post.too_many_tags')]
+    #[Groups([
+        'Post',
+        'Post_Show',
+        self::SET_BLOG_INDEX,
+    ])]
     private Collection $tags;
 
     /**
