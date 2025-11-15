@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Blog\Transport\Controller\Frontend\Comment;
 
 use App\Blog\Application\Service\Interfaces\CommentNotificationMailerInterface;
-use App\Blog\Application\Service\NotificationService;
+use App\Blog\Application\Service\Notification\NotificationService;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Repository\Interfaces\CommentRepositoryInterface;
-use App\Blog\Transport\Controller\Frontend\Comment\CommentCommentController;
+use App\Blog\Transport\Controller\Frontend\Comment\ReplyToCommentController;
 use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +17,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class CommentCommentControllerTest extends TestCase
+class ReplyToCommentControllerTest extends TestCase
 {
     private SerializerInterface&MockObject $serializer;
     private CommentRepositoryInterface&MockObject $commentRepository;
@@ -34,7 +34,7 @@ class CommentCommentControllerTest extends TestCase
 
     public function testReplyingToCommentTriggersMailer(): void
     {
-        $controller = new CommentCommentController(
+        $controller = new ReplyToCommentController(
             $this->serializer,
             $this->commentRepository,
             $this->notificationService,
@@ -79,7 +79,7 @@ class CommentCommentControllerTest extends TestCase
 
         $this->notificationService
             ->expects(self::once())
-            ->method('createNotification')
+            ->method('executeCreateNotificationCommand')
             ->with(
                 'Bearer token',
                 'PUSH',
@@ -111,5 +111,27 @@ class CommentCommentControllerTest extends TestCase
         $response = $controller->__invoke($symfonyUser, $request, $parentComment);
 
         self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testEmptyContentReturnsBadRequest(): void
+    {
+        $controller = new ReplyToCommentController(
+            $this->serializer,
+            $this->commentRepository,
+            $this->notificationService,
+            $this->commentNotificationMailer
+        );
+
+        $parentComment = new Comment();
+        $symfonyUser = new SymfonyUser('00000000-0000-0000-0000-000000000003', null, null, []);
+        $request = new Request([], ['content' => '   ']);
+
+        $this->commentRepository->expects(self::never())->method('save');
+        $this->notificationService->expects(self::never())->method('executeCreateNotificationCommand');
+        $this->commentNotificationMailer->expects(self::never())->method('sendCommentReplyNotificationEmail');
+
+        $response = $controller->__invoke($symfonyUser, $request, $parentComment);
+
+        self::assertSame(400, $response->getStatusCode());
     }
 }
