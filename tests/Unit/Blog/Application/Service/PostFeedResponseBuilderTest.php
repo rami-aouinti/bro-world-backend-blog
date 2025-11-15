@@ -9,6 +9,7 @@ use App\Blog\Application\Service\PostFeedResponseBuilder;
 use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
+use App\Blog\Domain\Entity\Tag;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
@@ -47,6 +48,13 @@ class PostFeedResponseBuilderTest extends TestCase
         $comment->method('getLikes')->willReturn(new ArrayCollection());
         $comment->method('getPublishedAt')->willReturn(new DateTimeImmutable('2024-01-01T00:00:00+00:00'));
 
+        $tag = $this->createMock(Tag::class);
+        $tag->method('getId')->willReturn('tag-1');
+        $tag->method('getName')->willReturn('Tag name');
+        $tag->method('getDescription')->willReturn('Tag description');
+        $tag->method('getColorSafe')->willReturn('#000000');
+        $tag->method('isVisible')->willReturn(true);
+
         $post = $this->createMock(Post::class);
         $post->method('getId')->willReturn('post-1');
         $post->method('getTitle')->willReturn('Title');
@@ -54,6 +62,7 @@ class PostFeedResponseBuilderTest extends TestCase
         $post->method('getContent')->willReturn('Content');
         $post->method('getUrl')->willReturn('https://example.com');
         $post->method('getSlug')->willReturn('title');
+        $post->method('getTags')->willReturn(new ArrayCollection([$tag]));
         $post->method('getMediaEntities')->willReturn(new ArrayCollection());
         $post->method('getReactions')->willReturn(new ArrayCollection([$postReaction, $otherReaction]));
         $post->method('getComments')->willReturn(new ArrayCollection([$comment]));
@@ -94,6 +103,15 @@ class PostFeedResponseBuilderTest extends TestCase
 
         $this->assertSame('like', $result['data'][0]['isReacted']);
         $this->assertSame('wow', $result['data'][0]['comments_preview'][0]['isReacted']);
+        $this->assertSame([
+            [
+                'id' => 'tag-1',
+                'name' => 'Tag name',
+                'description' => 'Tag description',
+                'color' => '#000000',
+                'visible' => true,
+            ],
+        ], $result['data'][0]['tags']);
     }
 
     public function testBuildKeepsIsReactedNullWithoutCurrentUser(): void
@@ -106,6 +124,13 @@ class PostFeedResponseBuilderTest extends TestCase
         $reaction->method('getType')->willReturn('like');
         $reaction->method('getUser')->willReturn($this->createUuidMock('other-user'));
 
+        $tag = $this->createMock(Tag::class);
+        $tag->method('getId')->willReturn('tag-1');
+        $tag->method('getName')->willReturn('Tag name');
+        $tag->method('getDescription')->willReturn('Tag description');
+        $tag->method('getColorSafe')->willReturn('#000000');
+        $tag->method('isVisible')->willReturn(true);
+
         $post = $this->createMock(Post::class);
         $post->method('getId')->willReturn('post-1');
         $post->method('getTitle')->willReturn('Title');
@@ -113,6 +138,7 @@ class PostFeedResponseBuilderTest extends TestCase
         $post->method('getContent')->willReturn('Content');
         $post->method('getUrl')->willReturn('https://example.com');
         $post->method('getSlug')->willReturn('title');
+        $post->method('getTags')->willReturn(new ArrayCollection([$tag]));
         $post->method('getMediaEntities')->willReturn(new ArrayCollection());
         $post->method('getReactions')->willReturn(new ArrayCollection([$reaction]));
         $post->method('getComments')->willReturn(new ArrayCollection());
@@ -136,6 +162,15 @@ class PostFeedResponseBuilderTest extends TestCase
         $result = $builder->build([$post], 1, 10, 1, null);
 
         $this->assertNull($result['data'][0]['isReacted']);
+        $this->assertSame([
+            [
+                'id' => 'tag-1',
+                'name' => 'Tag name',
+                'description' => 'Tag description',
+                'color' => '#000000',
+                'visible' => true,
+            ],
+        ], $result['data'][0]['tags']);
     }
 
     private function createUuidMock(string $id): UuidInterface
