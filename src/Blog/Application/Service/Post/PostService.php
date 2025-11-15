@@ -35,10 +35,15 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 use Traversable;
 
+use function filter_var;
 use function iterator_to_array;
+use function is_bool;
 use function sprintf;
 use function strlen;
 use function trim;
+
+use const FILTER_NULL_ON_FAILURE;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * @package App\Blog\Application\Service\Post
@@ -153,6 +158,8 @@ readonly class PostService
             ->setTitle($title)
             ->setSlug($slug);
 
+        $post->setVisible($this->resolveVisibility($data['visible'] ?? null));
+
         $post->setUrl($data['url'] ?? '');
         $post->setContent($data['content'] ?? '');
         $post->setSummary($data['summary'] ?? '');
@@ -257,6 +264,25 @@ readonly class PostService
         }
 
         return $post;
+    }
+
+    private function resolveVisibility(mixed $value): bool
+    {
+        if ($value === null) {
+            return true;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        $filtered = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        if ($filtered !== null) {
+            return $filtered;
+        }
+
+        return (bool)$value;
     }
 
     private function buildTagDescription(string $tagName): string
