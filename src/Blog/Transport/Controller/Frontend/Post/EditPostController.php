@@ -67,9 +67,9 @@ readonly class EditPostController
             $post->setTitle($title);
 
             if (array_key_exists('slug', $data)) {
-                $post->setSlug($data['slug']);
-            } elseif (trim((string)$title) !== '') {
-                $post->setSlug(null);
+                $post->setSlug((string) $data['slug']);
+            } elseif (trim((string) $title) !== '') {
+                $post->setSlug('');
             }
         }
         if (isset($data['content'])) {

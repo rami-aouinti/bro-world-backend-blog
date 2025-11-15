@@ -32,7 +32,9 @@ use Throwable;
 class Blog implements EntityInterface, Stringable
 {
     use ColorTrait;
-    use SlugTrait;
+    use SlugTrait {
+        getSlug as protected traitGetSlug;
+    }
     use VisibleTrait;
     use Timestampable;
     use Uuid;
@@ -173,6 +175,16 @@ class Blog implements EntityInterface, Stringable
     public function setTeams(?array $teams): void
     {
         $this->teams = $teams;
+    }
+
+    #[Groups([
+        'Blog',
+        'Post',
+        'BlogProfile',
+    ])]
+    public function getSlug(): ?string
+    {
+        return $this->traitGetSlug();
     }
 
     private function slugifyTitle(string $title): string
