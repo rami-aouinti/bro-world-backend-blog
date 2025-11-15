@@ -43,7 +43,15 @@ readonly class GetBlogController
         $cacheKey = 'private_blog_' . $slug;
         $blog = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->getClosure($slug)($item));
 
-        return new JsonResponse($blog);
+        $json = $this->serializer->serialize(
+            $blog,
+            'json',
+            [
+                'groups' => 'Blog',
+            ]
+        );
+
+        return JsonResponse::fromJsonString($json);
     }
 
     private function getClosure(string $slug): Closure
