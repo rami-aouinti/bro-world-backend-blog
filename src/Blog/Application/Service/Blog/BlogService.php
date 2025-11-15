@@ -14,6 +14,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -67,8 +68,14 @@ readonly class BlogService
     public function executeUploadLogoCommand(Request $request): string|JsonResponse
     {
         $files = $request->files->get('files');
-        $file = $files[0];
-        if (!$file) {
+
+        if (is_array($files)) {
+            $file = $files[0] ?? null;
+        } else {
+            $file = $files;
+        }
+
+        if (!$file instanceof UploadedFile) {
             return new JsonResponse([
                 'error' => 'No file uploaded.',
             ], 400);
