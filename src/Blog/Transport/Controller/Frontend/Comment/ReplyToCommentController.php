@@ -17,6 +17,7 @@ use JsonException;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
@@ -29,12 +30,11 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
- * @package App\Blog\Transport\Controller\Frontend\Comment
- * @author  Rami Aouinti <rami.aouinti@gmail.com>
+ * Handles the creation of replies to existing comments.
  */
 #[AsController]
 #[OA\Tag(name: 'Blog')]
-readonly class CommentCommentController
+readonly class ReplyToCommentController
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -58,13 +58,22 @@ readonly class CommentCommentController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      */
-    #[Route(path: '/v1/platform/comment/{comment}/comment', name: 'comment_comment', methods: [Request::METHOD_POST])]
+    #[Route(path: '/v1/platform/comment/{comment}/reply', name: 'blog_comment_reply', methods: [Request::METHOD_POST])]
     public function __invoke(SymfonyUser $symfonyUser, Request $request, Comment $comment): JsonResponse
     {
         $data = $request->request->all();
+        $content = trim((string) ($data['content'] ?? ''));
+
+        if ($content === '') {
+            return new JsonResponse(
+                ['message' => 'Comment content cannot be empty.'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         $newComment = new Comment();
         $newComment->setAuthor(Uuid::fromString($symfonyUser->getId()));
-        $newComment->setContent($data['content']);
+        $newComment->setContent($content);
         $newComment->setParent($comment);
 
         $this->notificationService->executeCreateNotificationCommand(
