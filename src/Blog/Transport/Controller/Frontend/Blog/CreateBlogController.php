@@ -19,6 +19,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+use function filter_var;
+use function is_bool;
+
+use const FILTER_NULL_ON_FAILURE;
+use const FILTER_VALIDATE_BOOLEAN;
+
 /**
  * @package App\Blog\Transport\Controller\Frontend\Blog
  * @author  Rami Aouinti <rami.aouinti@gmail.com>
@@ -55,6 +61,7 @@ readonly class CreateBlogController
         $blog->setTitle($data['title']);
         $blog->setBlogSubtitle($data['description'] ?? '');
         $blog->setAuthor(Uuid::fromString($symfonyUser->getId()));
+        $blog->setVisible($this->resolveVisibility($data['visible'] ?? null));
 
         $this->blogRepository->save($blog);
 
@@ -66,5 +73,24 @@ readonly class CreateBlogController
         return new JsonResponse(
             $output
         );
+    }
+
+    private function resolveVisibility(mixed $value): bool
+    {
+        if ($value === null) {
+            return true;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        $filtered = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        if ($filtered !== null) {
+            return $filtered;
+        }
+
+        return (bool)$value;
     }
 }
