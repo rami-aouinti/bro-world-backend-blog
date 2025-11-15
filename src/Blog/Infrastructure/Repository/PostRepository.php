@@ -75,7 +75,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
             ->leftJoin('p.comments', 'c')->addSelect('c')
             ->leftJoin('p.likes', 'l')->addSelect('l')
             ->leftJoin('p.medias', 'm')->addSelect('m')
-            ->leftJoin('p.tags', 'm')->addSelect('t')
+            ->leftJoin('p.tags', 't')->addSelect('t')
             ->leftJoin('p.reactions', 'r')->addSelect('r')
             ->leftJoin('c.likes', 'cl')->addSelect('cl')
             ->leftJoin('c.reactions', 'cr')->addSelect('cr')
