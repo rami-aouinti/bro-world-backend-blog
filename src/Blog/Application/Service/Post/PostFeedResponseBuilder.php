@@ -9,6 +9,7 @@ use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Media;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Reaction;
+use App\Blog\Domain\Entity\Tag;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\PersistentCollection;
@@ -111,6 +112,7 @@ readonly class PostFeedResponseBuilder
             'content' => $post->getContent(),
             'url' => $post->getUrl(),
             'slug' => $post->getSlug(),
+            'tags' => $this->formatTags($post->getTags()),
             'medias' => $post->getMediaEntities()->map(fn (Media $media) => $media->toArray())->toArray(),
             'isReacted' => $this->userHasReacted($post->getReactions(), $currentUserId),
             'publishedAt' => $post->getPublishedAt()?->format(DATE_ATOM),
@@ -138,6 +140,7 @@ readonly class PostFeedResponseBuilder
             'content' => $sharedFrom->getContent(),
             'url' => $sharedFrom->getUrl(),
             'slug' => $sharedFrom->getSlug(),
+            'tags' => $this->formatTags($sharedFrom->getTags()),
             'medias' => $sharedFrom->getMediaEntities()->map(fn (Media $media) => $media->toArray())->toArray(),
             'isReacted' => $this->userHasReacted($sharedFrom->getReactions(), $currentUserId),
             'reactions_count' => $sharedFrom->getReactions()->count(),
@@ -147,6 +150,23 @@ readonly class PostFeedResponseBuilder
             'reactions_preview' => $this->formatReactionsPreview($sharedFrom->getReactions(), $users),
             'comments_preview' => $this->formatCommentsPreview($sharedFrom->getComments(), $users, $currentUserId, false),
         ];
+    }
+
+    /**
+     * @param Collection<int, Tag>|array<int, Tag> $tags
+     */
+    private function formatTags(Collection|array $tags): array
+    {
+        return array_map(
+            static fn (Tag $tag) => [
+                'id' => $tag->getId(),
+                'name' => $tag->getName(),
+                'description' => $tag->getDescription(),
+                'color' => $tag->getColorSafe(),
+                'visible' => $tag->isVisible(),
+            ],
+            $this->collectionToArray($tags)
+        );
     }
 
     /**
