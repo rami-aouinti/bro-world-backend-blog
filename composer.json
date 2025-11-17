@@ -64,6 +64,7 @@
 		"symfony/flex": "^2.9.0",
 		"symfony/form": "7.2.*",
 		"symfony/framework-bundle": "7.2.*",
+		"symfony/http-foundation": "7.3.7",
 		"symfony/http-client": "7.2.*",
 		"symfony/intl": "7.2.*",
 		"symfony/mailer": "7.2.*",
