@@ -6,6 +6,8 @@ namespace App\Blog\Application\ApiProxy;
 
 use App\Blog\Application\Service\User\UserCacheService;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -14,6 +16,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function in_array;
+use function sprintf;
 
 /**
  * @package App\Blog\Application\ApiProxy
@@ -21,9 +24,14 @@ use function in_array;
  */
 readonly class UserProxy
 {
+    private const string USERS_CACHE_KEY = 'external_api_users';
+    private const int USERS_CACHE_TTL = 300;
+    private const int MEDIA_CACHE_TTL = 600;
+
     public function __construct(
         private HttpClientInterface $httpClient,
-        private UserCacheService $userCacheService
+        private UserCacheService $userCacheService,
+        private CacheInterface $remoteCache
     ) {
     }
 
@@ -38,13 +46,17 @@ readonly class UserProxy
      */
     public function getUsers(): array
     {
-        $response = $this->httpClient->request('GET', 'https://bro-world.org/api/v1/user', [
-            'headers' => [
-                'Authorization' => 'ApiKey u6gzbhNYEr5WkvVUxuZUeh7iEJsbUxDEpqpy1uCV',
-            ],
-        ]);
+        return $this->remoteCache->get(self::USERS_CACHE_KEY, function (ItemInterface $item) {
+            $item->expiresAfter(self::USERS_CACHE_TTL);
 
-        return $response->toArray();
+            $response = $this->httpClient->request('GET', 'https://bro-world.org/api/v1/user', [
+                'headers' => [
+                    'Authorization' => 'ApiKey MfnfDWHw3k3t7J2qFK8CZUg4jQiD4PuWWJpFAm49',
+                ],
+            ]);
+
+            return $response->toArray();
+        });
     }
 
     /**
@@ -135,11 +147,17 @@ readonly class UserProxy
      */
     public function getMedia(string $mediaId): array
     {
-        $response = $this->httpClient->request(
-            'GET',
-            "https://media.bro-world.org/v1/platform/media/{$mediaId}"
-        );
+        $cacheKey = sprintf('external_media_%s', md5($mediaId));
 
-        return $response->toArray();
+        return $this->remoteCache->get($cacheKey, function (ItemInterface $item) use ($mediaId) {
+            $item->expiresAfter(self::MEDIA_CACHE_TTL);
+
+            $response = $this->httpClient->request(
+                'GET',
+                "https://media.bro-world.org/v1/platform/media/{$mediaId}"
+            );
+
+            return $response->toArray();
+        });
     }
 }

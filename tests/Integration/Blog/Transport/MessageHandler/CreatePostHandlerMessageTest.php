@@ -11,6 +11,7 @@ use App\Blog\Domain\Entity\Blog;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Message\CreatePostMessenger;
 use App\Blog\Transport\MessageHandler\CreatePostHandlerMessage;
+use App\Tests\Utils\Cache\InMemoryCache;
 use App\Tests\TestCase\WebTestCase;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -52,7 +53,10 @@ final class CreatePostHandlerMessageTest extends WebTestCase
         $userCache = new UserCacheService(new ArrayAdapter(), $userSearchStub);
         $container->set(UserElasticsearchServiceInterface::class, $userSearchStub);
         $container->set(UserCacheService::class, $userCache);
-        $container->set(UserProxy::class, new UserProxy(new MockHttpClient(new MockResponse(json_encode([]))), $userCache));
+        $container->set(
+            UserProxy::class,
+            new UserProxy(new MockHttpClient(new MockResponse(json_encode([]))), $userCache, new InMemoryCache())
+        );
 
         /** @var TagAwareCacheInterface&CacheItemPoolInterface $cache */
         $cache = $container->get('cache.app.taggable');
